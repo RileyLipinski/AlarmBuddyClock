@@ -1,0 +1,17 @@
+1) Each development group has their own branch. This is the branch that every member's changes will ultimately be merged into. This will be the most up-to-date branch for their respective group.
+
+2) Each member must create their own branch. The following commands in the terminal will create your own branch, and pull your group's branches files.
+      git branch INSERT_NAME
+      git checkout INSERT_NAME
+      git pull origin GROUP_NAME
+      
+     
+2) Each group member must communicate with their manager BEFORE any merging to their group branch is done.
+3) Merges to main must be coordinated with all of the managers of each group, to ensure that everybody's code is up-to-date, and no issues will arise from uncoordinated mergings.
+4) Ensure all code in each branch is documented.
+5) Any time you push changes to a branch (your own, group branches, or to the main branch), you must comment the changes, or additions to the branch.
+The following commands in the terminal will allow you to comment your changes, and push.
+
+      git add INSERT_FILE/DIRECTORY
+      git commit -m "I have changed X, and have added Y"
+      git push origin MEMBER_NAME
