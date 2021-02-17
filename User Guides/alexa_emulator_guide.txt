@@ -1,7 +1,7 @@
 Echosim.io/ASK built-in testing guide (browser based emulator for ASK testing)
 
 1) Ensure you have access to Amazon developer account (account is currently shared within AWS team)
-2) Create ASK in Amazon Alexa Counsole
+2) Create ASK (Alexa Skills Kit) in Amazon Alexa Counsole
     Reference ASK information
 3) Once skill is created and ready for testing ensure testing is enabled on Amazon Alexa Console site
     Locate the Test is disabled for this skill option with the drop-down selection set to Off
