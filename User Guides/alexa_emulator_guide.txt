@@ -1,1 +1,22 @@
-ds
+Echosim.io/ASK built-in testing guide (browser based emulator for ASK testing)
+
+1) Ensure you have access to Amazon developer account (account is currently shared within AWS team)
+2) Create ASK in Amazon Alexa Counsole
+    Reference ASK information
+3) Once skill is created and ready for testing ensure testing is enabled on Amazon Alexa Console site
+    Locate the Test is disabled for this skill option with the drop-down selection set to Off
+    Ensure skill is set to either 'development' or 'live' in order to test
+4) Search Echosim.io in any browser
+5) Log in to echosim.io using Amazon developer account info
+    Enable counsel to see information regardging skill testing 
+    If alexa fails to register any input try clearing your browser cache and restarting your browser
+6) Alternative testing can take place in developer counsel on Amazon Alexa Console site
+    Locate testing simulator under 'test this skill' 
+    Again, ensure the settings from 3 are properly set 
+    Test page can test most functionality in a skill, including multi-turn interactions, progressive responses
+    
+    Available testing options under Amazon Alexa Console testing:
+        - Alexa Simulator 
+        - Manual JSON (Custom ASK only, no Alexa templates used for deployment)
+        - Voice & Tone (Allows for testing of Alexa SSML for Alexa speech patterns)
+    
