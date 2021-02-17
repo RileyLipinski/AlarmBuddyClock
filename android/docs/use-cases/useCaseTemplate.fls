@@ -1,0 +1,30 @@
+PWD c:\Users\rappc\Desktop\AlarmBuddyClock\android\docs\use-cases
+INPUT C:\Users\rappc\AppData\Local\MiKTeX\2.9\miktex\data\le\pdftex\pdflatex.fmt
+INPUT c:\Users\rappc\Desktop\AlarmBuddyClock\android\docs\use-cases\useCaseTemplate.tex
+OUTPUT c:\Users\rappc\Desktop\AlarmBuddyClock\android\docs\use-cases\useCaseTemplate.log
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\base\article.cls
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\base\article.cls
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\base\size10.clo
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\base\size10.clo
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\l3backend\l3backend-pdfmode.def
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\l3backend\l3backend-pdfmode.def
+INPUT c:\Users\rappc\Desktop\AlarmBuddyClock\android\docs\use-cases\useCaseTemplate.aux
+INPUT c:\Users\rappc\Desktop\AlarmBuddyClock\android\docs\use-cases\useCaseTemplate.aux
+OUTPUT c:\Users\rappc\Desktop\AlarmBuddyClock\android\docs\use-cases\useCaseTemplate.aux
+INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\cm\cmr12.tfm
+INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\cm\cmbx12.tfm
+INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\cm\cmr12.tfm
+INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\cm\cmbx12.tfm
+INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\jknappen\ec\tcrm1000.tfm
+INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\cm\cmbx10.tfm
+OUTPUT c:\Users\rappc\Desktop\AlarmBuddyClock\android\docs\use-cases\useCaseTemplate.pdf
+INPUT C:\Users\rappc\AppData\Local\MiKTeX\2.9\pdftex\config\pdftex.map
+INPUT c:\Users\rappc\Desktop\AlarmBuddyClock\android\docs\use-cases\useCaseTemplate.aux
+INPUT C:\Users\rappc\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec\dpi600\tcrm1000.pk
+INPUT C:\Users\rappc\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec\dpi600\tcrm1000.pk
+INPUT C:\Program Files\MiKTeX 2.9\fonts\type1\public\amsfonts\cm\cmbx10.pfb
+INPUT C:\Program Files\MiKTeX 2.9\fonts\type1\public\amsfonts\cm\cmbx10.pfb
+INPUT C:\Program Files\MiKTeX 2.9\fonts\type1\public\amsfonts\cm\cmbx12.pfb
+INPUT C:\Program Files\MiKTeX 2.9\fonts\type1\public\amsfonts\cm\cmbx12.pfb
+INPUT C:\Program Files\MiKTeX 2.9\fonts\type1\public\amsfonts\cm\cmr10.pfb
+INPUT C:\Program Files\MiKTeX 2.9\fonts\type1\public\amsfonts\cm\cmr10.pfb

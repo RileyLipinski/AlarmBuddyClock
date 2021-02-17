@@ -1,0 +1,107 @@
+\documentclass{article}
+
+\begin{document}
+\section{Login}
+	\subsection{Description}
+	A user attempts to log in to the app.
+
+	\subsection{User}
+	A user with an AlarmBuddy account
+
+	\subsection{Preconditions}
+		\begin{itemize}
+			\item App does not currently have a logged in user
+		\end{itemize}
+
+	\subsection{Main Scenario}
+		\begin{enumerate}
+			\item User opens the app
+			\item App displays username and password entry boxes
+			\item User enters their username and password correctly
+			\item App verifies that username and password match a valid user
+			\item App permits user access, displays correct account information
+		\end{enumerate}
+
+	\subsection{Alternate Success}
+		\subsubsection{User does not have an account}
+			\begin{enumerate}
+				\item App displays login screen, contains a "sign up" button
+				\item User clicks "sign up"
+				\item User is prompted to enter in sign-up details (i.e. email, username, password, etc.)
+				\item App creates a new user in the database
+				\item App prompts the user to log in
+			\end{enumerate}
+	\subsection{Exception Cases}
+		\subsubsection{User enters password incorrectly}
+			\begin{enumerate}
+				\item App displays login screen
+				\item User types in a valid username, password is incorrect
+				\item App prompts user to retype their password
+			\end{enumerate}
+		\subsubsection{Username does not exist}
+		\begin{enumerate}
+			\item App displays login screen
+			\item User types in an invalid username and any password
+			\item App prompts the user that their username is not valid, and to sign up for the app
+		\end{enumerate}
+	\subsection{Postconditions}
+	\begin{itemize}
+		\item User has access to their own account splash page
+		\item User does not have access to another user's account
+	\end{itemize}
+
+	\subsection{Frequency of Use}
+	Frequent. Users will need to do this somewhat regularly, unless we allow them to remain logged in on the same device.
+	\section{Login}
+	\subsection{Description}
+	A user attempts to log in to the app.
+
+	\subsection{User}
+	A user with an AlarmBuddy account
+
+	\subsection{Preconditions}
+		\begin{itemize}
+			\item App does not currently have a logged in user
+		\end{itemize}
+
+	\subsection{Main Scenario}
+		\begin{enumerate}
+			\item User opens the app
+			\item App displays username and password entry boxes
+			\item User enters their username and password correctly
+			\item App verifies that username and password match a valid user
+			\item App permits user access, displays correct account information
+		\end{enumerate}
+
+	\subsection{Alternate Success}
+		\subsubsection{User does not have an account}
+			\begin{enumerate}
+				\item App displays login screen, contains a "sign up" button
+				\item User clicks "sign up"
+				\item User is prompted to enter in sign-up details (i.e. email, username, password, etc.)
+				\item App creates a new user in the database
+				\item App prompts the user to log in
+			\end{enumerate}
+	\subsection{Exception Cases}
+		\subsubsection{User enters password incorrectly}
+			\begin{enumerate}
+				\item App displays login screen
+				\item User types in a valid username, password is incorrect
+				\item App prompts user to retype their password
+			\end{enumerate}
+		\subsubsection{Username does not exist}
+		\begin{enumerate}
+			\item App displays login screen
+			\item User types in an invalid username and any password
+			\item App prompts the user that their username is not valid, and to sign up for the app
+		\end{enumerate}
+	\subsection{Postconditions}
+	\begin{itemize}
+		\item User has access to their own account splash page
+		\item User does not have access to another user's account
+	\end{itemize}
+
+	\subsection{Frequency of Use}
+	Frequent. Users will need to do this somewhat regularly, unless we allow them to remain logged in on the same device.
+
+\end{document}
