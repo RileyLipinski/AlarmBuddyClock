@@ -15,3 +15,5 @@ The following commands in the terminal will allow you to comment your changes, a
       git add INSERT_FILE/DIRECTORY
       git commit -m "I have changed X, and have added Y"
       git push origin MEMBER_NAME
+
+6) Managers of the licensing team and style guide team may commit to the main branch when making changes to the licensing and style guide documents.
