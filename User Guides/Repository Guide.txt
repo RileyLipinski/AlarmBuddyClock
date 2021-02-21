@@ -1,3 +1,7 @@
+If you require access to the repository, follow these steps:
+      1) create a github account here: https://github.com/join?ref_cta=Sign+up
+      2) Email lipi8497@stthomas.edu your Github username, as well as your team group.
+
 1) Each development group has their own branch. This is the branch that every member's changes will ultimately be merged into. This will be the most up-to-date branch for their respective group.
 
 2) Each member must create their own branch. The following commands in the terminal will create your own branch, and pull your group's branches files.
@@ -12,8 +16,11 @@
 5) Any time you push changes to a branch (your own, group branches, or to the main branch), you must comment the changes, or additions to the branch.
 The following commands in the terminal will allow you to comment your changes, and push.
 
-      git add INSERT_FILE/DIRECTORY
+      git add FILE/DIRECTORY
       git commit -m "I have changed X, and have added Y"
       git push origin MEMBER_NAME
 
 6) Managers of the licensing team and style guide team may commit to the main branch when making changes to the licensing and style guide documents.
+
+IMPORTANT NOTES:
+As stated previously, only team MANAGERS will ever MERGE branches. If you are not a team manager, you may ONLY push changes to your branch, as well as PULL from your group branch.
