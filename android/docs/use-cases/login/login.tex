@@ -1,0 +1,62 @@
+\documentclass{article}
+
+\begin{document}
+\title{User Login}
+\date{}
+\maketitle{}
+
+\section{Description}
+Lets a user log in to the app, and verifies their identity before giving them access to any personal data.
+
+\section{User}
+A user of the Android version of AlarmBuddy. This user should already have an account created.
+
+\section{Preconditions}
+	\begin{itemize}
+		\item No one is currently logged in to this instance of the app
+		\item User already has an AlarmBuddy account
+	\end{itemize}
+
+\section{Main Scenario}
+	\begin{enumerate}
+		\item App displays the login screen, which contains fields for the username and password
+		\item User enters their username and password correctly
+		\item App verifies that username and password match a valid AlarmBuddy account in our records
+		\item App permits user access and opens the home screen of the app
+	\end{enumerate}
+
+\section{Alternate Success}
+	\subsection{Logging in on a new device}
+		\begin{enumerate}
+			\item User attempts to log in to their account on a device they've never used before
+			\item User successfully logs in as described in Main Scenario
+			\item App sends a security notification to the user, letting them know about the new device sign-in
+		\end{enumerate}
+\section{Exception Cases}
+	\subsection{User enters password incorrectly}
+		\begin{enumerate}
+			\item App displays login screen
+			\item User types in a valid username with an incorrect password
+			\item App informs user of the incorrect password, and prompts them to try again
+			\item Repeat steps 2 and 3 three times
+			\item If the user incorrectly types their password a third time, the device should enforce a timeout period and prevent access
+			\item The app should logs a security incident and notify the account holder of a potential breach
+		\end{enumerate}
+	\subsection{User does not exist}
+	\begin{enumerate}
+		\item App displays login screen
+		\item User types in an invalid username and any password
+		\item App informs the user that the account they are trying to access does not exist
+		\item App allows user to try again with a different username
+	\end{enumerate}
+\section{Postconditions}
+\begin{itemize}
+	\item User is logged in to their account
+	\item Upon successful login, the user should be navigated to their personalized home screen
+	\item The user should not have access to anyone elses account
+\end{itemize}
+
+\section{Frequency of Use}
+This use case occurs whenever a user logs in on a new device, or whenever they log out of an existing device and log back in. We can expect this to occur somewhat frequently.
+
+\end{document}
