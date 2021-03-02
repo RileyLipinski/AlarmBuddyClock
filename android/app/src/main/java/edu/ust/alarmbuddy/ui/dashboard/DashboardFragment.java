@@ -1,5 +1,7 @@
 package edu.ust.alarmbuddy.ui.dashboard;
 
+import android.app.NotificationChannel;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +12,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -20,6 +24,7 @@ import java.time.LocalTime;
 public class DashboardFragment extends Fragment {
 
     private DashboardViewModel dashboardViewModel;
+    private static final String CHANNEL_ID = "alarms";
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -40,51 +45,38 @@ public class DashboardFragment extends Fragment {
         final Button button = root.findViewById(R.id.createAlarm);
         button.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
                 String entry = time.getText().toString();
                 textView.setText(String.format("User typed out %s",entry));
-
                 try {
-                    LocalTime alarmTime = parseAlarmTime(entry);
-                    System.out.println("hello world " + alarmTime.equals(LocalTime.parse(entry)));
-                } catch (Exception e) {
-                    System.out.println("Exception caught in alarm parser");
-                    System.out.println("Exception is: " + e.getClass());
-                    System.out.println("Message: " + e.getMessage());
-                    System.out.println(e.getStackTrace());
-                    textView.setText("Exception caught, check stack trace");
-                }
-            }
+                    createAlarmNotification();
+                } catch (Exception ignored) {
 
-            private LocalTime parseAlarmTime(String in) {
-                String[] x;
-
-                if (in.contains(":")) {
-                    if (in.length() != 5) {
-                        throw new IllegalArgumentException(String.format("Cannot parse a valid time from %s",in));
-                    }
-                    x = in.split(":");
-                } else {
-                    if (in.length() != 4) {
-                        throw new IllegalArgumentException(String.format("Cannot parse a valid time from %s",in));
-                    }
-                    x = new String[2];
-                    x[0] = in.substring(0,2);
-                    x[1] = in.substring(2);
-                }
-                if (x.length != 2) {
-                    throw new IllegalArgumentException(String.format("Cannot parse a valid time from %s",in));
-                }
-
-                try {
-                    int hours = Integer.parseInt(x[0]);
-                    int mins = Integer.parseInt(x[1]);
-                    return LocalTime.of(hours,mins);
-                } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException(String.format("Cannot parse a valid time from %s",in));
                 }
             }
         });
         return root;
     }
+
+    private void createAlarmNotification() {
+        //TODO not scheduled for the future, which needs to change
+        //TODO currently not actually popping up on screen, but it does show up in the notification center
+        System.out.println("setting alarm");
+
+        Context context = this.getContext();
+
+        assert context != null;
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context,NotificationChannel.DEFAULT_CHANNEL_ID);
+
+        builder
+            .setSmallIcon(R.drawable.ic_notifications_black_24dp)
+            .setContentTitle("Hello world")
+            .setContentText("This is a notification")
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setAutoCancel(true);
+
+        NotificationManagerCompat.from(context).notify(123,builder.build());
+    }
+
+
 }
