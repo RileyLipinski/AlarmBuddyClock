@@ -1,6 +1,5 @@
 package edu.ust.alarmbuddy.ui.dashboard;
 
-import android.app.NotificationChannel;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,9 +16,14 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import edu.ust.alarmbuddy.MainActivity;
 import edu.ust.alarmbuddy.R;
+import edu.ust.alarmbuddy.common.AlarmBuddyUtils;
+import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 
-import java.time.LocalTime;
+import java.io.IOException;
+import java.util.Date;
 
 public class DashboardFragment extends Fragment {
 
@@ -48,6 +52,33 @@ public class DashboardFragment extends Fragment {
             public void onClick(View view) {
                 String entry = time.getText().toString();
                 textView.setText(String.format("User typed out %s",entry));
+
+                String formattedDate = AlarmBuddyUtils.DATE_FORMAT.format(new Date());
+                textView.setText(formattedDate);
+                System.out.println(formattedDate);
+                OkHttpClient client = new OkHttpClient();
+                Request r = new Request.Builder()
+                        .url("http://10.0.2.2:8080")
+                        .build();
+                client.newCall(r).enqueue(new Callback() {
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                        System.out.println("Response received");
+
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                textView.setText("Response received");
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                        System.out.println("Oops");
+                        call.cancel();
+                    }
+                });
                 try {
                     createAlarmNotification();
                 } catch (Exception ignored) {
@@ -66,7 +97,7 @@ public class DashboardFragment extends Fragment {
         Context context = this.getContext();
 
         assert context != null;
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context,NotificationChannel.DEFAULT_CHANNEL_ID);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, MainActivity.CHANNEL_ID);
 
         builder
             .setSmallIcon(R.drawable.ic_notifications_black_24dp)
