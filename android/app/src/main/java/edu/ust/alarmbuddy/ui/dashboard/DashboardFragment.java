@@ -16,6 +16,8 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import edu.ust.alarmbuddy.MainActivity;
 import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.common.AlarmBuddyUtils;
@@ -58,17 +60,19 @@ public class DashboardFragment extends Fragment {
                 System.out.println(formattedDate);
                 OkHttpClient client = new OkHttpClient();
                 Request r = new Request.Builder()
-                        .url("http://10.0.2.2:8080")
+                        .url("http://10.0.2.2:8080/json-test")
                         .build();
                 client.newCall(r).enqueue(new Callback() {
                     @Override
                     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                         System.out.println("Response received");
+                        JsonObject object = JsonParser.parseString(response.body().string()).getAsJsonObject();
+                        String value = object.get("key").getAsString();
 
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                textView.setText("Response received");
+                                textView.setText(value);
                             }
                         });
                     }
