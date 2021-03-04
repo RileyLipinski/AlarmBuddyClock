@@ -5,10 +5,10 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.dashboard.DashboardFragment">
+        tools:context=".ui.alarm.AlarmFragment">
 
     <TextView
-            android:id="@+id/text_dashboard"
+            android:id="@+id/text_alarm"
             android:layout_width="358dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"

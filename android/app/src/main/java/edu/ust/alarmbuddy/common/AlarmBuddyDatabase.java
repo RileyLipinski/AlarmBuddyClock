@@ -1,10 +1,8 @@
 package edu.ust.alarmbuddy.common;
 
-import edu.ust.alarmbuddy.MainActivity;
-import okhttp3.*;
-import org.jetbrains.annotations.NotNull;
-
-import java.io.IOException;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
 /**
  * Tutorial: https://www.journaldev.com/13629/okhttp-android-example-tutorial
@@ -16,29 +14,17 @@ public class AlarmBuddyDatabase {
     private static final String USER = "android";
     private static final String PASS = ";pR$-fM]s4-F?2V%";
 
+    private static final OkHttpClient client = new OkHttpClient();
+
     /**
      * Test method that simply pings a web service as a proof of concept
-     * @throws IOException
      */
-    // TODO delete this at some point
-    public static void test() throws IOException {
-        OkHttpClient client = new OkHttpClient();
+
+    public static void sendTestRequest(Callback callback) {
         Request r = new Request.Builder()
-                .url("http://10.0.2.2:8080")
+                .url("http://10.0.2.2:8080/json-test")
+                .get()
                 .build();
-        client.newCall(r).enqueue(new Callback() {
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                System.out.println("Response received");
-
-
-            }
-
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                System.out.println("Oops");
-                call.cancel();
-            }
-        });
+        client.newCall(r).enqueue(callback);
     }
 }
