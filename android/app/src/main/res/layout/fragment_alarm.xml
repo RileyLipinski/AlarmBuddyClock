@@ -20,15 +20,6 @@
             app:layout_constraintBottom_toBottomOf="parent" android:gravity="center_horizontal"
             tools:text="@tools:sample/lorem" app:layout_constraintVertical_bias="0.357"
             app:layout_constraintTop_toBottomOf="@+id/createAlarm"/>
-    <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:inputType="time"
-            android:ems="10"
-            android:id="@+id/editTextTime"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="84dp" app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
     <Button
             android:text="Create Alarm"
             android:layout_width="wrap_content"
@@ -36,5 +27,19 @@
             android:id="@+id/createAlarm"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextTime" android:layout_marginTop="52dp"/>
+            app:layout_constraintTop_toBottomOf="@+id/alarm_minutes" android:layout_marginTop="52dp"/>
+    <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/alarm_minutes"
+            tools:layout_editor_absoluteX="0dp"
+            app:layout_constraintTop_toBottomOf="@+id/alarm_hours"
+            android:layout_marginTop="44dp"/>
+    <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/alarm_hours"
+            tools:layout_editor_absoluteX="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="112dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
