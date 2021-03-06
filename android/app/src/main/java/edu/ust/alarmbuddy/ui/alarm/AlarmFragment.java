@@ -5,7 +5,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.LayoutInflater;
@@ -75,10 +75,8 @@ public class AlarmFragment extends Fragment {
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
 			.setContentTitle("Alarm")
 			.setContentText("Wake up")
-			.setAutoCancel(true)
 			.setSmallIcon(R.drawable.ic_baseline_access_alarm_24)
-			.setSound(RingtoneManager.getDefaultUri(
-				RingtoneManager.TYPE_NOTIFICATION)); // TODO change this when the AlarmBuddy jingle has been written
+			.setSound(getAlarmSound());
 
 		System.out.println("Setting alarm");
 		Intent intent = new Intent(context, MainActivity.class);
@@ -109,18 +107,31 @@ public class AlarmFragment extends Fragment {
 	 */
 	private long wakeupTime(int hours, int minutes) {
 		// TODO can we improve performance here? do we need to?
-		//TODO Date is deprecated, maybe rework to use Instant?
+		// TODO Date is deprecated, maybe rework to use Instant?
+		// TODO Date class is probably not robust enough to handle time zone changes
 		Date today = new Date();
 		Date todayAtTime = new Date(today.getYear(), today.getMonth(), today.getDay(), hours,
 			minutes, 0);
 
 		if (todayAtTime.after(today)) {
-			return today.getTime();
+			return todayAtTime.getTime();
 		} else {
 			Date tomorrow = new Date(
 				System.currentTimeMillis() + 86400000); // i.e. add 24 hours to the current time
 			return new Date(tomorrow.getYear(), tomorrow.getMonth(), tomorrow.getDay(), hours,
 				minutes, 0).getTime();
 		}
+	}
+
+	/**
+	 * Sets the alarm sound for the current notification
+	 *
+	 * @return the alarm sound that will be applied to the next alarm notification
+	 */
+	private Uri getAlarmSound() {
+		// TODO need to implement a DB fetch for the next alarm noise eventually
+		// TODO might need to move this closer in time to the actual notification so that the
+		// newest alarm tone can be fetched from the DB
+		return Uri.parse("android.resource://edu.ust.alarmbuddy/" + R.raw.alarm_buddy);
 	}
 }
