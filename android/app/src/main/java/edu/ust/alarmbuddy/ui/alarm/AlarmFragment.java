@@ -21,7 +21,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import edu.ust.alarmbuddy.MainActivity;
 import edu.ust.alarmbuddy.R;
-import java.util.Date;
+import java.util.Calendar;
 
 public class AlarmFragment extends Fragment {
 
@@ -60,7 +60,7 @@ public class AlarmFragment extends Fragment {
 		return root;
 	}
 
-	private void scheduleAlarm(int notificationId, int hours, int minutes) {
+	public void scheduleAlarm(int notificationId, int hours, int minutes) {
 		//TODO might not be a permanent solution
 		// see https://stackoverflow.com/questions/36902667/how-to-schedule-notification-in-android
 		// basically, this system is not resilient to device restarts
@@ -71,14 +71,13 @@ public class AlarmFragment extends Fragment {
 
 		Context context = getContext();
 		long wakeupTime = wakeupTime(hours, minutes);
-		System.out.println("Setting alarm for " + new Date(wakeupTime).toString());
+
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
 			.setContentTitle("Alarm")
 			.setContentText("Wake up")
 			.setSmallIcon(R.drawable.ic_baseline_access_alarm_24)
 			.setSound(getAlarmSound());
 
-		System.out.println("Setting alarm");
 		Intent intent = new Intent(context, MainActivity.class);
 		PendingIntent activity = PendingIntent
 			.getActivity(context, notificationId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
@@ -105,24 +104,37 @@ public class AlarmFragment extends Fragment {
 	 *
 	 * @return The System time (in milliseconds) when the alarm should go off
 	 */
-	private long wakeupTime(int hours, int minutes) {
-		// TODO can we improve performance here? do we need to?
-		// TODO Date is deprecated, maybe rework to use Instant?
-		// TODO Date class is probably not robust enough to handle time zone changes
-		Date today = new Date();
-		Date todayAtTime = new Date(today.getYear(), today.getMonth(), today.getDay(), hours,
-			minutes, 0);
-
-		if (todayAtTime.after(today)) {
-			return todayAtTime.getTime();
-		} else {
-			Date tomorrow = new Date(
-				System.currentTimeMillis() + 86400000); // i.e. add 24 hours to the current time
-			return new Date(tomorrow.getYear(), tomorrow.getMonth(), tomorrow.getDay(), hours,
-				minutes, 0).getTime();
-		}
+	public static long wakeupTime(int hours, int minutes) {
+		return wakeupTime(hours,minutes,System.currentTimeMillis());
 	}
 
+	/**
+	 * @param hours The hours the alarm will be set for
+	 * @param minutes The minute the alarm will be set for
+	 * @param now The current time, in milliseconds
+	 *
+	 * @return
+	 */
+	public static long wakeupTime(int hours, int minutes, long now) {
+		// TODO not playing on the precise second consistently
+		Calendar rightNow = Calendar.getInstance();
+		rightNow.setTimeInMillis(now);
+
+		Calendar todayAtTime = (Calendar) rightNow.clone();
+		todayAtTime.set(Calendar.HOUR_OF_DAY,hours);
+		todayAtTime.set(Calendar.MINUTE,minutes);
+		todayAtTime.set(Calendar.SECOND,0);
+		todayAtTime.set(Calendar.MILLISECOND,0);
+
+		if(todayAtTime.after(rightNow)) {
+			return todayAtTime.getTimeInMillis();
+		} else {
+			// TODO not rolling over to next year correctly
+			Calendar tomorrowAtTime = (Calendar) todayAtTime.clone();
+			tomorrowAtTime.roll(Calendar.DAY_OF_YEAR,1);
+			return tomorrowAtTime.getTimeInMillis();
+		}
+	}
 	/**
 	 * Sets the alarm sound for the current notification
 	 *
