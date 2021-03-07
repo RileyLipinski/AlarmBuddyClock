@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +20,9 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import edu.ust.alarmbuddy.MainActivity;
 import edu.ust.alarmbuddy.R;
+
 import java.util.Calendar;
+import java.util.Date;
 
 public class AlarmFragment extends Fragment {
 
@@ -61,13 +62,15 @@ public class AlarmFragment extends Fragment {
 	}
 
 	public void scheduleAlarm(int notificationId, int hours, int minutes) {
-		//TODO might not be a permanent solution
-		// see https://stackoverflow.com/questions/36902667/how-to-schedule-notification-in-android
-		// basically, this system is not resilient to device restarts
+		//TODO scheduled alarms are deleted if the device is turned off
+		// see: https://stackoverflow.com/questions/36902667/how-to-schedule-notification-in-android
+		// see: https://singhajit.com/schedule-local-notification-in-android/
 
 		// TODO banner still isn't popping up
 
 		// TODO alarm isn't annoying enough (i.e. doesn't repeat sound, goes away on its own)
+
+		// TODO need to keep track of when alarms are set off
 
 		Context context = getContext();
 		long wakeupTime = wakeupTime(hours, minutes);
@@ -92,10 +95,10 @@ public class AlarmFragment extends Fragment {
 			.getBroadcast(context, notificationId, notificationIntent,
 				PendingIntent.FLAG_CANCEL_CURRENT);
 
-		long futureInMillis =
-			SystemClock.elapsedRealtime() + (wakeupTime - System.currentTimeMillis());
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-		alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pendingIntent);
+		alarmManager.setExact(AlarmManager.RTC_WAKEUP,wakeupTime,pendingIntent);
+
+		System.out.println("Set alarm for " + new Date(wakeupTime).toString());
 	}
 
 	/**
@@ -113,7 +116,7 @@ public class AlarmFragment extends Fragment {
 	 * @param minutes The minute the alarm will be set for
 	 * @param now The current time, in milliseconds
 	 *
-	 * @return
+	 * @return the time that the user alarm should play, relative to the system time
 	 */
 	public static long wakeupTime(int hours, int minutes, long now) {
 		// TODO not playing on the precise second consistently
@@ -136,7 +139,7 @@ public class AlarmFragment extends Fragment {
 		}
 	}
 	/**
-	 * Sets the alarm sound for the current notification
+	 * Fetches the next queued custom alarm sound for the current user, or returns the default sound
 	 *
 	 * @return the alarm sound that will be applied to the next alarm notification
 	 */
