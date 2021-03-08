@@ -20,21 +20,20 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import edu.ust.alarmbuddy.MainActivity;
 import edu.ust.alarmbuddy.R;
-
 import java.util.Calendar;
 import java.util.Date;
 
 public class AlarmFragment extends Fragment {
 
-	private AlarmViewModel dashboardViewModel;
+	private AlarmViewModel alarmViewModel;
 
 	public View onCreateView(@NonNull LayoutInflater inflater,
 		ViewGroup container, Bundle savedInstanceState) {
-		dashboardViewModel = new ViewModelProvider(this).get(AlarmViewModel.class);
+		alarmViewModel = new ViewModelProvider(this).get(AlarmViewModel.class);
 		View root = inflater.inflate(R.layout.fragment_alarm, container, false);
 
 		final TextView textView = root.findViewById(R.id.text_alarm);
-		dashboardViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+		alarmViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
 
 		// TODO change this to not require 24-hour time
 		final Spinner alarmHours = root.findViewById(R.id.alarm_hours);
@@ -96,7 +95,7 @@ public class AlarmFragment extends Fragment {
 				PendingIntent.FLAG_CANCEL_CURRENT);
 
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-		alarmManager.setExact(AlarmManager.RTC_WAKEUP,wakeupTime,pendingIntent);
+		alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeupTime, pendingIntent);
 
 		System.out.println("Set alarm for " + new Date(wakeupTime).toString());
 	}
@@ -108,13 +107,13 @@ public class AlarmFragment extends Fragment {
 	 * @return The System time (in milliseconds) when the alarm should go off
 	 */
 	public static long wakeupTime(int hours, int minutes) {
-		return wakeupTime(hours,minutes,System.currentTimeMillis());
+		return wakeupTime(hours, minutes, System.currentTimeMillis());
 	}
 
 	/**
-	 * @param hours The hours the alarm will be set for
+	 * @param hours   The hours the alarm will be set for
 	 * @param minutes The minute the alarm will be set for
-	 * @param now The current time, in milliseconds
+	 * @param now     The current time, in milliseconds
 	 *
 	 * @return the time that the user alarm should play, relative to the system time
 	 */
@@ -124,28 +123,34 @@ public class AlarmFragment extends Fragment {
 		rightNow.setTimeInMillis(now);
 
 		Calendar todayAtTime = (Calendar) rightNow.clone();
-		todayAtTime.set(Calendar.HOUR_OF_DAY,hours);
-		todayAtTime.set(Calendar.MINUTE,minutes);
-		todayAtTime.set(Calendar.SECOND,0);
-		todayAtTime.set(Calendar.MILLISECOND,0);
+		todayAtTime.set(Calendar.HOUR_OF_DAY, hours);
+		todayAtTime.set(Calendar.MINUTE, minutes);
+		todayAtTime.set(Calendar.SECOND, 0);
+		todayAtTime.set(Calendar.MILLISECOND, 0);
 
-		if(todayAtTime.after(rightNow)) {
+		if (todayAtTime.after(rightNow)) {
 			return todayAtTime.getTimeInMillis();
 		} else {
 			// TODO not rolling over to next year correctly
 			Calendar tomorrowAtTime = (Calendar) todayAtTime.clone();
-			tomorrowAtTime.roll(Calendar.DAY_OF_YEAR,1);
+			tomorrowAtTime.roll(Calendar.DAY_OF_YEAR, 1);
+			if (tomorrowAtTime.before(todayAtTime)) {
+				// will occur on Dec 31, cycles back to Jan 1 without incrementing year
+				tomorrowAtTime.roll(Calendar.YEAR, 1);
+			}
 			return tomorrowAtTime.getTimeInMillis();
 		}
 	}
+
 	/**
-	 * Fetches the next queued custom alarm sound for the current user, or returns the default sound
+	 * Fetches the next queued custom alarm sound for the current user, or returns the default
+	 * sound
 	 *
 	 * @return the alarm sound that will be applied to the next alarm notification
 	 */
 	private Uri getAlarmSound() {
 		// TODO need to implement a DB fetch for the next alarm noise eventually
-		// TODO might need to move this closer in time to the actual notification so that the
+		//TODO might need to move this closer in time to the actual notification so that the
 		// newest alarm tone can be fetched from the DB
 		return Uri.parse("android.resource://edu.ust.alarmbuddy/" + R.raw.alarm_buddy);
 	}

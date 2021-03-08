@@ -2,74 +2,78 @@ package edu.ust.alarmbuddy.ui.alarm;
 
 import static org.junit.Assert.assertEquals;
 
-import java.time.Instant;
 import java.util.Calendar;
-import java.util.Date;
 import org.junit.Test;
 
 public class AlarmFragmentTest {
+
 	@Test
 	public void setAlarmForToday() {
 		// Fri Jan 01 12:00:00 CST 2021
-		Calendar mockTimeOne = Calendar.getInstance();
-		mockTimeOne.set(2021,0,1,12,0,0);
-		mockTimeOne.set(Calendar.MILLISECOND,0);
+		Calendar mockTime = Calendar.getInstance();
+		mockTime.set(2021, 0, 1, 12, 0, 0);
+		mockTime.set(Calendar.MILLISECOND, 0);
 
-		Calendar expectedAlarmTimeOne = (Calendar) mockTimeOne.clone();
-		expectedAlarmTimeOne.set(Calendar.HOUR_OF_DAY,13);
+		// Fri Jan 01 13:00:00 CST 2021
+		Calendar expectedAlarmTime = (Calendar) mockTime.clone();
+		expectedAlarmTime.set(Calendar.HOUR_OF_DAY, 13);
 
-		long actualAlarmTimeOne = AlarmFragment.wakeupTime(13,0,mockTimeOne.getTimeInMillis());
+		long actualAlarmTime = AlarmFragment.wakeupTime(13, 0, mockTime.getTimeInMillis());
 
-		assertEquals(expectedAlarmTimeOne.getTimeInMillis(),actualAlarmTimeOne);
+		assertEquals(expectedAlarmTime.getTimeInMillis(), actualAlarmTime);
 	}
 
 	@Test
 	public void setAlarmForTomorrow() {
 		// Fri Jan 01 12:00:00 CST 2021
-		Calendar mockTimeOne = Calendar.getInstance();
-		mockTimeOne.set(2021,0,1,12,0,0);
-		mockTimeOne.set(Calendar.MILLISECOND,0);
+		Calendar mockTime = Calendar.getInstance();
+		mockTime.set(2021, 0, 1, 12, 0, 0);
+		mockTime.set(Calendar.MILLISECOND, 0);
 
-		Calendar expectedAlarmTimeOne = (Calendar) mockTimeOne.clone();
-		expectedAlarmTimeOne.set(Calendar.HOUR_OF_DAY,11);
-		expectedAlarmTimeOne.set(Calendar.DAY_OF_MONTH,expectedAlarmTimeOne.get(Calendar.DAY_OF_MONTH)+1);
+		// Sat Jan 02 11:00:00 CST 2021
+		Calendar expectedAlarmTime = (Calendar) mockTime.clone();
+		expectedAlarmTime.set(Calendar.HOUR_OF_DAY, 11);
+		expectedAlarmTime.roll(Calendar.DAY_OF_YEAR, 1);
 
-		long actualAlarmTimeOne = AlarmFragment.wakeupTime(11,0,mockTimeOne.getTimeInMillis());
+		long actualAlarmTime = AlarmFragment.wakeupTime(11, 0, mockTime.getTimeInMillis());
 
-		assertEquals(expectedAlarmTimeOne.getTimeInMillis(),actualAlarmTimeOne);
+		assertEquals(expectedAlarmTime.getTimeInMillis(), actualAlarmTime);
+	}
 
+	@Test
+	public void setAlarmForTomorrowMonthRollover() {
 		// Test month rollover
 		// Sun Feb 28 12:00:00 CST 2021
-		Calendar mockTimeTwo = Calendar.getInstance();
-		mockTimeTwo.set(2021,1,28,12,0,0);
-		mockTimeTwo.set(Calendar.MILLISECOND,0);
-		System.out.println(new Date(mockTimeTwo.getTimeInMillis()));
+		Calendar mockTime = Calendar.getInstance();
+		mockTime.set(2021, 1, 28, 12, 0, 0);
+		mockTime.set(Calendar.MILLISECOND, 0);
 
-		Calendar expectedAlarmTimeTwo = (Calendar) mockTimeTwo.clone();
-		expectedAlarmTimeTwo.set(Calendar.HOUR_OF_DAY,11);
-		expectedAlarmTimeTwo.set(Calendar.DAY_OF_MONTH,expectedAlarmTimeTwo.get(Calendar.DAY_OF_MONTH)+1);
-		System.out.println(new Date(expectedAlarmTimeTwo.getTimeInMillis()));
+		// Mon Mar 01 11:00:00 CST 2021
+		Calendar expectedAlarmTime = (Calendar) mockTime.clone();
+		expectedAlarmTime.set(Calendar.HOUR_OF_DAY, 11);
+		expectedAlarmTime.roll(Calendar.DAY_OF_YEAR, 1);
 
-		long actualAlarmTimeTwo = AlarmFragment.wakeupTime(11,0,mockTimeTwo.getTimeInMillis());
-		System.out.println(new Date(actualAlarmTimeTwo));
+		long actualAlarmTime = AlarmFragment.wakeupTime(11, 0, mockTime.getTimeInMillis());
 
-		assertEquals(expectedAlarmTimeTwo.getTimeInMillis(),actualAlarmTimeTwo);
+		assertEquals(expectedAlarmTime.getTimeInMillis(), actualAlarmTime);
+	}
 
+	@Test
+	public void setAlarmForTomorrowYearRollover() {
 		// Test year rollover
-		// Sun Feb 28 12:00:00 CST 2021
-		Calendar mockTimeThree = Calendar.getInstance();
-		mockTimeThree.set(2021,11,31,12,0,0);
-		mockTimeThree.set(Calendar.MILLISECOND,0);
-		System.out.println(new Date(mockTimeThree.getTimeInMillis()));
+		// Fri Dec 31 12:00:00 CST 2021
+		Calendar mockTime = Calendar.getInstance();
+		mockTime.set(2021, 11, 31, 12, 0, 0);
+		mockTime.set(Calendar.MILLISECOND, 0);
 
-		Calendar expectedAlarmTimeThree = (Calendar) mockTimeThree.clone();
-		expectedAlarmTimeThree.set(Calendar.HOUR_OF_DAY,11);
-		expectedAlarmTimeThree.set(Calendar.DAY_OF_MONTH,expectedAlarmTimeThree.get(Calendar.DAY_OF_MONTH)+1);
-		System.out.println(new Date(expectedAlarmTimeThree.getTimeInMillis()));
+		// Sat Jan 01 11:00:00 CST 2022
+		Calendar expectedAlarmTime = (Calendar) mockTime.clone();
+		expectedAlarmTime.set(Calendar.HOUR_OF_DAY, 11);
+		expectedAlarmTime.roll(Calendar.DAY_OF_YEAR, 1);
+		expectedAlarmTime.roll(Calendar.YEAR, 1);
 
-		long actualAlarmTimeThree = AlarmFragment.wakeupTime(11,0,mockTimeThree.getTimeInMillis());
-		System.out.println(new Date(actualAlarmTimeThree));
+		long actualAlarmTime = AlarmFragment.wakeupTime(11, 0, mockTime.getTimeInMillis());
 
-		assertEquals(expectedAlarmTimeThree.getTimeInMillis(),actualAlarmTimeThree);
+		assertEquals(expectedAlarmTime.getTimeInMillis(), actualAlarmTime);
 	}
 }
