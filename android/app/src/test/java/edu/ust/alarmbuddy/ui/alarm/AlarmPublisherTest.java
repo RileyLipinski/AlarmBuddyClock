@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.Calendar;
 import org.junit.Test;
 
-public class AlarmFragmentTest {
+public class AlarmPublisherTest {
 
 	@Test
 	public void setAlarmForToday() {
@@ -18,7 +18,7 @@ public class AlarmFragmentTest {
 		Calendar expectedAlarmTime = (Calendar) mockTime.clone();
 		expectedAlarmTime.set(Calendar.HOUR_OF_DAY, 13);
 
-		long actualAlarmTime = AlarmFragment.wakeupTime(13, 0, mockTime.getTimeInMillis());
+		long actualAlarmTime = AlarmPublisher.wakeupTime(13, 0, mockTime.getTimeInMillis());
 
 		assertEquals(expectedAlarmTime.getTimeInMillis(), actualAlarmTime);
 	}
@@ -35,7 +35,7 @@ public class AlarmFragmentTest {
 		expectedAlarmTime.set(Calendar.HOUR_OF_DAY, 11);
 		expectedAlarmTime.roll(Calendar.DAY_OF_YEAR, 1);
 
-		long actualAlarmTime = AlarmFragment.wakeupTime(11, 0, mockTime.getTimeInMillis());
+		long actualAlarmTime = AlarmPublisher.wakeupTime(11, 0, mockTime.getTimeInMillis());
 
 		assertEquals(expectedAlarmTime.getTimeInMillis(), actualAlarmTime);
 	}
@@ -53,7 +53,7 @@ public class AlarmFragmentTest {
 		expectedAlarmTime.set(Calendar.HOUR_OF_DAY, 11);
 		expectedAlarmTime.roll(Calendar.DAY_OF_YEAR, 1);
 
-		long actualAlarmTime = AlarmFragment.wakeupTime(11, 0, mockTime.getTimeInMillis());
+		long actualAlarmTime = AlarmPublisher.wakeupTime(11, 0, mockTime.getTimeInMillis());
 
 		assertEquals(expectedAlarmTime.getTimeInMillis(), actualAlarmTime);
 	}
@@ -72,7 +72,7 @@ public class AlarmFragmentTest {
 		expectedAlarmTime.roll(Calendar.DAY_OF_YEAR, 1);
 		expectedAlarmTime.roll(Calendar.YEAR, 1);
 
-		long actualAlarmTime = AlarmFragment.wakeupTime(11, 0, mockTime.getTimeInMillis());
+		long actualAlarmTime = AlarmPublisher.wakeupTime(11, 0, mockTime.getTimeInMillis());
 
 		assertEquals(expectedAlarmTime.getTimeInMillis(), actualAlarmTime);
 	}
