@@ -12,7 +12,7 @@
             tools:layout="@layout/fragment_home"/>
 
     <fragment
-            android:id="@+id/navigation_dashboard"
+            android:id="@+id/navigation_alarm"
             android:name="edu.ust.alarmbuddy.ui.alarm.AlarmFragment"
             android:label="@string/title_alarm"
             tools:layout="@layout/fragment_alarm"/>
@@ -22,4 +22,9 @@
             android:name="edu.ust.alarmbuddy.ui.notifications.NotificationsFragment"
             android:label="@string/title_notifications"
             tools:layout="@layout/fragment_notifications"/>
+    <fragment
+            android:id="@+id/navigation_record_audio"
+            android:name="edu.ust.alarmbuddy.ui.record_audio.RecordAudioFragment"
+            android:label="@string/title_record_audio"
+            tools:layout="@layout/fragment_record_audio"/>
 </navigation>
