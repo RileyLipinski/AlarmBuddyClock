@@ -27,4 +27,6 @@
             android:name="edu.ust.alarmbuddy.ui.record_audio.RecordAudioFragment"
             android:label="@string/title_record_audio"
             tools:layout="@layout/fragment_record_audio"/>
+    <fragment android:id="@+id/navigation_friends" android:name="edu.ust.alarmbuddy.ui.friends.FriendsFragment"
+              android:label="@string/title_friends" tools:layout="@layout/fragment_friends"/>
 </navigation>
