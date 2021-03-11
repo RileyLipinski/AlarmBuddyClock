@@ -1,9 +1,9 @@
 package edu.ust.alarmbuddy.ui.friends;
 
 public class Profile {
-    private int mImageResource;
-    private String mText1;
-    private String mText2;
+    private final int mImageResource;
+    private final String mText1;
+    private final String mText2;
 
     public Profile(int imageResource, String text1, String text2){
         mImageResource = imageResource;
