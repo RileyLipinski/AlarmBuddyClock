@@ -19,5 +19,9 @@
             android:id="@+id/navigation_record_audio"
             android:icon="@drawable/ic_baseline_mic_24"
             android:title="Record Audio"/>
+    <item
+            android:id="@+id/navigation_friends"
+            android:icon="@drawable/ic_baseline_account_box"
+            android:title="Friends"/>
 
 </menu>

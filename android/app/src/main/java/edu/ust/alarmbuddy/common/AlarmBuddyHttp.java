@@ -14,16 +14,16 @@ public class AlarmBuddyHttp {
 //    private static final String USER = "android";
 //    private static final String PASS = ";pR$-fM]s4-F?2V%";
 
-	private static final String LOCAL_SERVER_URL = "http://10.0.2.2:8080";
+    private static final String LOCAL_SERVER_URL = "http://10.0.2.2:8080";
 
-	private static final OkHttpClient client = new OkHttpClient();
+    private static final OkHttpClient client = new OkHttpClient();
 
-	public static void getLatestAlarmSound(Callback c) {
-		Request r = new Request.Builder()
-			.url(LOCAL_SERVER_URL + "/audio-test")
-			.get()
-			.build();
-		System.out.println("Sending request to " + r.url().toString());
-		client.newCall(r).enqueue(c);
-	}
+    public static void getLatestAlarmSound(Callback c) {
+        Request r = new Request.Builder()
+                .url(LOCAL_SERVER_URL + "/audio-test")
+                .get()
+                .build();
+        System.out.println("Sending request to " + r.url().toString());
+        client.newCall(r).enqueue(c);
+    }
 }
