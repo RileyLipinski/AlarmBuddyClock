@@ -15,12 +15,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 
 public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileViewHolder> implements Filterable {
-private final ArrayList<Profile> mProfileList;
-private final ArrayList<Profile> mProfileListFull;
+    private final ArrayList<Profile> mProfileList;
+    private final ArrayList<Profile> mProfileListFull;
+
     public static class ProfileViewHolder extends RecyclerView.ViewHolder {
         public ImageView mImageView;
         public TextView mTextView1;
         public TextView mTextView2;
+
         public ProfileViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
             mImageView = itemView.findViewById(R.id.imageView);
@@ -39,7 +41,7 @@ private final ArrayList<Profile> mProfileListFull;
     @NotNull
     @Override
     public ProfileViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.friend_list, parent,false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.friend_list, parent, false);
         return new ProfileViewHolder(v);
     }
 
@@ -59,7 +61,7 @@ private final ArrayList<Profile> mProfileListFull;
     }
 
     @Override
-    public Filter getFilter(){
+    public Filter getFilter() {
         return profileFilter;
     }
 
@@ -68,14 +70,13 @@ private final ArrayList<Profile> mProfileListFull;
         protected FilterResults performFiltering(CharSequence constraint) {
             ArrayList<Profile> filteredList = new ArrayList<>();
 
-            if (constraint == null || constraint.length() == 0){
+            if (constraint == null || constraint.length() == 0) {
                 filteredList.addAll(mProfileListFull);
-            }
-            else{
+            } else {
                 String filterPattern = constraint.toString().toLowerCase().trim();
 
-                for (Profile item: mProfileListFull){
-                    if (item.getText1().toLowerCase().contains(filterPattern)){
+                for (Profile item : mProfileListFull) {
+                    if (item.getText1().toLowerCase().contains(filterPattern)) {
                         filteredList.add(item);
                     }
                 }
@@ -89,7 +90,7 @@ private final ArrayList<Profile> mProfileListFull;
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
             mProfileList.clear();
-            mProfileList.addAll((ArrayList)results.values);
+            mProfileList.addAll((ArrayList) results.values);
             notifyDataSetChanged();
         }
     };

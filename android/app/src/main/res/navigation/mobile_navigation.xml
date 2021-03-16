@@ -12,10 +12,10 @@
             tools:layout="@layout/fragment_home"/>
 
     <fragment
-            android:id="@+id/navigation_dashboard"
-            android:name="edu.ust.alarmbuddy.ui.dashboard.DashboardFragment"
-            android:label="@string/title_dashboard"
-            tools:layout="@layout/fragment_dashboard"/>
+            android:id="@+id/navigation_alarm"
+            android:name="edu.ust.alarmbuddy.ui.alarm.AlarmFragment"
+            android:label="@string/title_alarm"
+            tools:layout="@layout/fragment_alarm"/>
 
     <fragment
             android:id="@+id/navigation_notifications"

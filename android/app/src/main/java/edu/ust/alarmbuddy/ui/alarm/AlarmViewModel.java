@@ -1,16 +1,16 @@
-package edu.ust.alarmbuddy.ui.dashboard;
+package edu.ust.alarmbuddy.ui.alarm;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class DashboardViewModel extends ViewModel {
+public class AlarmViewModel extends ViewModel {
 
-    private MutableLiveData<String> mText;
+    private final MutableLiveData<String> mText;
 
-    public DashboardViewModel() {
+    public AlarmViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is dashboard fragment");
+        mText.setValue("This is alarm fragment");
     }
 
     public LiveData<String> getText() {
