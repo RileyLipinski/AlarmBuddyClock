@@ -1,4 +1,4 @@
-#Sound File Format
+# Sound File Format
 
 In order for a sound file to be able to be played on the Alexa app, it must be in a specific file format.
 As such, it would be necessary for all parts of the application to adhere to these same requirements.
