@@ -1,5 +1,7 @@
 package edu.ust.alarmbuddy.ui.record_audio;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
@@ -10,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -21,19 +24,25 @@ import java.io.IOException;
 
 public class RecordAudioFragment extends Fragment {
 
+    private View root;
     private RecordAudioViewModel mViewModel;
+
     private static final String LOG_TAG = "AudioRecord";
+    private final int MY_PERMISSIONS_RECORD_AUDIO = 1;
+    private final int MY_PERMISSIONS_WRITE_EXTERNAL_STORAGE = 2;
 
     private File audioFile = null;
     private static String fileName = null;
 
     private Button recordButton = null;
     private Button   playButton = null;
+
     private TextView debugText = null;
 
     private MediaRecorder recorder = null;
     private MediaPlayer   player = null;
 
+    private boolean micPermission = false;
     private boolean mStartRecording = true;
     private boolean mStartPlaying = true;
 
@@ -41,7 +50,7 @@ public class RecordAudioFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_record_audio, container, false);
+        root = inflater.inflate(R.layout.fragment_record_audio, container, false);
 
         // where to store recorded audio file
         audioFile = new File(Environment.getExternalStorageDirectory(),
@@ -59,17 +68,23 @@ public class RecordAudioFragment extends Fragment {
         recordButton.setText("Start recording");
         playButton.setText("Start playing");
 
+        // request user for permission to access microphone
+        requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+
         // set listeners for button clicks
         View.OnClickListener recordClicker = new View.OnClickListener() {
             public void onClick(View v) {
-                // when clicked, start or stop recording
-                onRecord(mStartRecording);
-                if (mStartRecording) {
-                    recordButton.setText("Stop recording");
-                } else {
-                    recordButton.setText("Start recording");
+                // only starts recording if mic can be used
+                if (micPermission == true) {
+                    // when clicked, start or stop recording
+                    onRecord(mStartRecording);
+                    if (mStartRecording) {
+                        recordButton.setText("Stop recording");
+                    } else {
+                        recordButton.setText("Start recording");
+                    }
+                    mStartRecording = !mStartRecording;
                 }
-                mStartRecording = !mStartRecording;
             }
         };
         recordButton.setOnClickListener(recordClicker);
@@ -88,6 +103,7 @@ public class RecordAudioFragment extends Fragment {
             }
         };
         playButton.setOnClickListener(playClicker);
+
 
         return root;
     }
@@ -118,6 +134,43 @@ public class RecordAudioFragment extends Fragment {
         }
     }
 
+    // handling callback for permission request
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_RECORD_AUDIO: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay!
+                    micPermission = true;
+                    debugText.setText("mic permission granted");
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Toast.makeText(getActivity(), "Permissions Denied to record audio", Toast.LENGTH_LONG).show();
+                    debugText.setText("mic permission not granted");
+                }
+                return;
+            }
+            case MY_PERMISSIONS_WRITE_EXTERNAL_STORAGE: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay!
+                    micPermission = true;
+                    debugText.setText("write permission granted");
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Toast.makeText(getActivity(), "Permissions Denied to write to storage", Toast.LENGTH_LONG).show();
+                    debugText.setText("storage permission not granted");
+                }
+                return;
+            }
+        }
+    }
+
+
     private void onRecord(boolean start) {
         if (start) {
             startRecording();
@@ -147,7 +200,7 @@ public class RecordAudioFragment extends Fragment {
             player.prepare();
         }
         catch (IOException e) {
-            Log.e(LOG_TAG, "prepare() failed");
+            Log.e(LOG_TAG, "prepare() failed: ");
         }
 
         player.start();
