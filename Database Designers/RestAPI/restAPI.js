@@ -30,7 +30,7 @@ app.put('/newUser', (req, res)=>{
   var creationDateTimestamp = Date.now;
   var birthdate = req.body.birthDate;
   //need to check to make sure username is unique, check for users with that username, and if there is one, fail the whole process.
-
+  //connection.query()
 
   var salt = chosenUsername.substring(2,4);
   var hash = bcrypt.hashSync(passwordUnhashed,salt);
@@ -48,6 +48,19 @@ app.put('/newUser', (req, res)=>{
   
 
 });
+
+
+app.get('/friendsWith', (req, res)=>{
+
+  var primaryUser = req.body.primaryUser;
+  connection.query("SELECT friendsWithID FROM alarmbuddy.friendsWith WHERE userID = ?", primaryUser),
+    function(error, results, fields){
+      if (error) throw error;
+      res.json(results);
+    };
+});
+
+
 
 
 //This is for grabbing sounds for a specific user (needs to be stress tested)
