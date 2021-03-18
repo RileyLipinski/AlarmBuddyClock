@@ -68,7 +68,6 @@ app.post('/uploadSound', (req, res) =>{
   var soundName = req.params.soundName;
   var soundFile = req.params.soundFile;
 
-
   //May need to do something with the results?
   connection.query("INSERT INTO sounds (soundOwner, soundName, soundFile VALUES (?,?,?)", [userID,soundName,soundFile]), function(error, results, field){
     if(error) {
@@ -76,7 +75,8 @@ app.post('/uploadSound', (req, res) =>{
     }else{
       res.status(201).send('database updated sucessfully');
     }
-  }});
+  }
+});
 
 
 //This is for grabbing sounds for a specific user (needs to be stress tested)
