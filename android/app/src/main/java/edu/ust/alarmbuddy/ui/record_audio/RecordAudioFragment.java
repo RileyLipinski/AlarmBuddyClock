@@ -92,14 +92,20 @@ public class RecordAudioFragment extends Fragment {
         // set listener for play button
         View.OnClickListener playClicker = new View.OnClickListener() {
             public void onClick(View v) {
-                // when clicked, start or stop playing sound
-                onPlay(mStartPlaying);
-                if (mStartPlaying) {
-                    playButton.setText("Stop playing");
-                } else {
-                    playButton.setText("Start playing");
+                // check if there is a recorded file to play
+                if (audioFile.exists()) {
+                    // when clicked, start or stop playing sound
+                    onPlay(mStartPlaying);
+                    if (mStartPlaying) {
+                        playButton.setText("Stop playing");
+                    } else {
+                        playButton.setText("Start playing");
+                    }
+                    mStartPlaying = !mStartPlaying;
                 }
-                mStartPlaying = !mStartPlaying;
+                else {
+                    debugText.setText("there is no audio to play");
+                }
             }
         };
         playButton.setOnClickListener(playClicker);
