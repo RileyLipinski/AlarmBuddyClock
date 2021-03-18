@@ -18,7 +18,7 @@ app.route('/users/:userId')
   });
 
 
-app.put('/newUser', (req, res)=>{
+app.post('/newUser', (req, res)=>{
 //Need to be able to pull all the different params passed into this one
   var chosenUsername = req.body.username;
   //This should be cleartext?
@@ -35,7 +35,7 @@ app.put('/newUser', (req, res)=>{
   var salt = chosenUsername.substring(2,4);
   var hash = bcrypt.hashSync(passwordUnhashed,salt);
   console.log(hash);
-  
+  //  res.status(500).send('error:username already used');
   //if username is unique
   //also need to make sure that their username hits minimum requirements..
 
@@ -61,6 +61,22 @@ app.get('/friendsWith', (req, res)=>{
 });
 
 
+
+
+app.post('/uploadSound', (req, res) =>{
+  var userID = req.params.userID;
+  var soundName = req.params.soundName;
+  var soundFile = req.params.soundFile;
+
+
+  //May need to do something with the results?
+  connection.query("INSERT INTO sounds (soundOwner, soundName, soundFile VALUES (?,?,?)", [userID,soundName,soundFile]), function(error, results, field){
+    if(error) {
+      throw error;
+    }else{
+      res.status(201).send('database updated sucessfully');
+    }
+  }});
 
 
 //This is for grabbing sounds for a specific user (needs to be stress tested)
