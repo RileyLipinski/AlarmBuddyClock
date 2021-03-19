@@ -62,11 +62,42 @@ app.get('/friendsWith', (req, res)=>{
 
 
 
+app.get('/passwordAuthentication', (req,res)=>{
+  var submittedUsername = req.body.username;
+  //This should be cleartext?
+  var passwordUnhashed = req.body.password;
+  //maybe I need to async the hash part...
+  var salt = submittedUsername.substring(2,4);
+  var hash = bcrypt.hashSync(passwordUnhashed,salt);
+  var queryResults;
+  //this is pulling the password from that user
+  connection.query("SELECT password FROM alarmbuddy.users WHERE username = ?", submittedUsername),
+  function(error, results, fields){
+    if(error) throw error;
+    queryResults = results;
+  }
+  //need to have check here in case if results are blank meaning user doesnt exist
+  if(hash == queryResults){
+    res.status(200).send("User authenticated sucessfully");
+    //Probably shoudl send an auth token here
+  }else{
+    res.status(403).send("Incorrect Username Or Password");
+  }
+  //unsure if there needs to be some different way of saying if correct or not.
+
+
+})
+
+
 
 app.post('/uploadSound', (req, res) =>{
   var userID = req.params.userID;
   var soundName = req.params.soundName;
   var soundFile = req.params.soundFile;
+
+  //multer or  express-fileupload here
+
+
 
   //May need to do something with the results?
   connection.query("INSERT INTO sounds (soundOwner, soundName, soundFile VALUES (?,?,?)", [userID,soundName,soundFile]), function(error, results, field){
