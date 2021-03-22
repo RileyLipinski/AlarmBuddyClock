@@ -158,5 +158,6 @@ app.route('/sounds/:userId')
 app.get('/status', (req, res) => res.send('Working!'));
 
 //Port 8080 for Google App Engine
-app.set('port', process.env.PORT || 3000);
-app.listen(3000);
+//port 3000 i guess if youre doing local host 
+app.set('port', process.env.PORT || 8080);
+app.listen(8080);
