@@ -2,7 +2,7 @@
 const mysql = require('mysql');
 
 // Database Connection for Production
-
+/*
 let config = {
     user: process.env.SQL_USER,
     database: process.env.SQL_DATABASE,
@@ -14,9 +14,9 @@ if (process.env.INSTANCE_CONNECTION_NAME && process.env.NODE_ENV === 'production
 }
 
 let connection = mysql.createConnection(config);
-
+*/
 // Database Connection for Development
-/*
+
 let connection = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -31,5 +31,5 @@ let connection = mysql.createConnection({
     }
     console.log('Connected as thread id: ' + connection.threadId);
   });
-*/
+
 module.exports = connection;

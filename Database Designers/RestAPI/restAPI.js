@@ -50,16 +50,27 @@ app.post('/newUser', (req, res)=>{
 });
 
 
-app.get('/friendsWith', (req, res)=>{
+app.get('/friendsWith/:primaryUser', (req, res)=>{
 
-  var primaryUser = req.body.primaryUser;
-  connection.query("SELECT friendsWithID FROM alarmbuddy.friendsWith WHERE userID = ?", primaryUser),
+  
+  connection.query("SELECT friendsWithID FROM alarmbuddy.friendsWith WHERE userID = ?", req.params.primaryUser),
+    
     function(error, results, fields){
       if (error) throw error;
       res.json(results);
     };
 });
-
+app.route('/friendWith/:userId')
+//this just take in the UserId and returns all their information from the GoogleDB
+  .get(function(req, res, next) {
+    connection.query(
+      "SELECT friendsWithID FROM alarmbuddy.friendsWith WHERE userID = ?", req.params.userId,
+      function(error, results, fields) {
+        if (error) throw error;
+        res.json(results);
+      }
+    );
+  });
 
 
 app.get('/passwordAuthentication', (req,res)=>{
