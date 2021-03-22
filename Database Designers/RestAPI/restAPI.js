@@ -4,6 +4,9 @@ var app = express();
 var bodyParser = require('body-parser');
 var connection = require('./database');
 var bcrypt = require('bcryptjs');
+var fs = require('fs'); 
+var multer  = require('multer');
+var upload = multer({ dest: 'uploads/' })
 
 app.route('/users/:userId')
 //this just take in the UserId and returns all their information from the GoogleDB
@@ -50,16 +53,7 @@ app.post('/newUser', (req, res)=>{
 });
 
 
-app.get('/friendsWith/:primaryUser', (req, res)=>{
 
-  
-  connection.query("SELECT friendsWithID FROM alarmbuddy.friendsWith WHERE userID = ?", req.params.primaryUser),
-    
-    function(error, results, fields){
-      if (error) throw error;
-      res.json(results);
-    };
-});
 app.route('/friendWith/:userId')
 //this just take in the UserId and returns all their information from the GoogleDB
   .get(function(req, res, next) {
@@ -98,7 +92,33 @@ app.get('/passwordAuthentication', (req,res)=>{
 
 
 })
+app.post('/upload/:userID', upload.single('file'), function (req, res, next) {
+  var userID = req.params.userID;
 
+  var soundName = req.file.originalname;
+  var img = fs.readFileSync(req.file.path);
+
+  console.log(req.file);
+
+  var soundEntry = [
+    [userID,soundName,img]
+  ];
+
+  if (req.file.mimetype == "application/octet-stream"){
+    connection.query("INSERT INTO alarmbuddy.sounds (soundOwner, soundName, soundFile) VALUES ?", [soundEntry], function(error, results, field){
+      if(error) {
+        throw error;
+      }else{
+        fs.unlinkSync(req.file.path);
+        res.status(201).send('database updated sucessfully');
+      }
+    })
+  } else {
+    //not a mp3 file
+    fs.unlinkSync(req.file.path);
+  }
+
+})
 
 
 app.post('/uploadSound', (req, res) =>{
