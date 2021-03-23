@@ -92,46 +92,47 @@ app.get('/passwordAuthentication', (req,res)=>{
 
 
 })
-app.post('/upload/:userID', upload.single('file'), function (req, res, next) {
-  var userID = req.params.userID;
+//This is the old one table sound file
+// app.post('/upload/:userID', upload.single('file'), function (req, res, next) {
+//   var userID = req.params.userID;
 
-  var soundName = req.file.originalname;
-  var img = fs.readFileSync(req.file.path);
+//   var soundName = req.file.originalname;
+//   var img = fs.readFileSync(req.file.path);
 
-  console.log(req.file);
+//   console.log(req.file);
 
-  var soundEntry = [
-    [userID,soundName,img]
-  ];
+//   var soundEntry = [
+//     [userID,soundName,img]
+//   ];
 
-  if (req.file.mimetype == "application/octet-stream"){
-    connection.query("INSERT INTO alarmbuddy.sounds (soundOwner, soundName, soundFile) VALUES ?", [soundEntry], function(error, results, field){
-      if(error) {
-        throw error;
-      }else{
-        fs.unlinkSync(req.file.path);
-        res.status(201).send('database updated sucessfully');
-      }
-    })
-  } else {
-    //not a mp3 file
-    fs.unlinkSync(req.file.path);
-  }
+//   if (req.file.mimetype == "application/octet-stream"){
+//     connection.query("INSERT INTO alarmbuddy.sounds (soundOwner, soundName, soundFile) VALUES ?", [soundEntry], function(error, results, field){
+//       if(error) {
+//         throw error;
+//       }else{
+//         fs.unlinkSync(req.file.path);
+//         res.status(201).send('database updated sucessfully');
+//       }
+//     })
+//   } else {
+//     //not a mp3 file
+//     fs.unlinkSync(req.file.path);
+//   }
 
-})
+// })
+
+
 app.route('/download/:soundName').get(function(req,res,next) {
 
   connection.query("SELECT soundFile FROM alarmbuddy.sounds WHERE soundName = ?", req.params.soundName, function(error, results, fields) {
-      if (error) throw error;
-      fs.writeFile('./downloads/' + req.params.soundName, results[0].soundFile, function (err) {
+    if (error) throw error;
+      fs.writeFile('/tmp/' + req.params.soundName, results[0].soundFile, function (err) {
         if (err) throw err;
-        res.sendFile('./downloads/' + req.params.soundName, { root : __dirname}, (err) => {
-          fs.unlinkSync('./downloads/' + req.params.soundName);
+        res.sendFile('/tmp/' + req.params.soundName, (err) => {
+          fs.unlinkSync('/tmp/' + req.params.soundName);
         });
       });
-    }
-  );
-
+  });
 });
 
 
