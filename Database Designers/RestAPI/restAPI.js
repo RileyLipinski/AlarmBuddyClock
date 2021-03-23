@@ -136,23 +136,36 @@ app.route('/download/:soundName').get(function(req,res,next) {
 });
 
 
-app.post('/uploadSound', (req, res) =>{
+app.post('/upload/:userID', upload.single('file'), function (req, res, next) {
   var userID = req.params.userID;
-  var soundName = req.params.soundName;
-  var soundFile = req.params.soundFile;
 
-  //multer or  express-fileupload here
+  var soundName = req.file.originalname;
+  var mp3 = fs.readFileSync(req.file.path);
+
+  var soundInfoEntry = [
+    [userID,soundName]
+  ];
 
 
-
-  //May need to do something with the results?
-  connection.query("INSERT INTO sounds (soundOwner, soundName, soundFile VALUES (?,?,?)", [userID,soundName,soundFile]), function(error, results, field){
-    if(error) {
-      throw error;
-    }else{
-      res.status(201).send('database updated sucessfully');
-    }
+  if (req.file.mimetype == "application/octet-stream"){
+    connection.query("INSERT INTO alarmbuddy.soundInfo (soundOwner, soundName) VALUES ?", [soundInfoEntry], function(error, result, field){
+      if(error) {
+        throw error;
+      }else{
+        var soundFileEntry = [
+          [result.insertId, mp3]
+        ];
+        connection.query("INSERT INTO alarmbuddy.soundFile (soundID, soundFile) VALUES ?", [soundFileEntry], function(error, result, field){
+          fs.unlinkSync(req.file.path);
+          res.status(201).send('database updated sucessfully');
+        });
+      }
+    })
+  } else {
+    //not a mp3 file
+    fs.unlinkSync(req.file.path);
   }
+
 });
 
 
