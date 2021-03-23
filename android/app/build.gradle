@@ -6,9 +6,9 @@ android {
 
     defaultConfig {
         applicationId "edu.ust.alarmbuddy"
-        minSdkVersion 16
+        minSdkVersion 24
         //noinspection ExpiredTargetSdkVersion
-        targetSdkVersion 24
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
