@@ -119,6 +119,20 @@ app.post('/upload/:userID', upload.single('file'), function (req, res, next) {
   }
 
 })
+app.route('/download/:soundName').get(function(req,res,next) {
+
+  connection.query("SELECT soundFile FROM alarmbuddy.sounds WHERE soundName = ?", req.params.soundName, function(error, results, fields) {
+      if (error) throw error;
+      fs.writeFile('./downloads/' + req.params.soundName, results[0].soundFile, function (err) {
+        if (err) throw err;
+        res.sendFile('./downloads/' + req.params.soundName, { root : __dirname}, (err) => {
+          fs.unlinkSync('./downloads/' + req.params.soundName);
+        });
+      });
+    }
+  );
+
+});
 
 
 app.post('/uploadSound', (req, res) =>{
