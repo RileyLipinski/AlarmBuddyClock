@@ -22,3 +22,10 @@
 5. Navigate to AlarmBuddyClock/android/build.gradle
 6. Click 'OK'
 7. Wait for project to open then repeat steps 1 and 2.
+## Run application on physical Android phone
+1. On your phone, go to Settings ->  System -> Advanced -> Developer options.
+2. Make sure USB debugging is turned on. 
+3. Plug phone into your pc with USB charger.
+4. There should be an alert that pops on your phone, be sure to click yes to enable debugger tools.
+5. Click 'Run' icon in intellij.
+6. If it is the first time running the app, it may take extra time to setup. 
