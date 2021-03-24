@@ -7,6 +7,10 @@ var bcrypt = require('bcryptjs');
 var fs = require('fs'); 
 var multer  = require('multer');
 var upload = multer({ dest: 'uploads/' })
+app.use(express.json());
+app.use(express.urlencoded({
+  extended: true
+}));
 
 app.route('/users/:userId')
 //this just take in the UserId and returns all their information from the GoogleDB
@@ -21,36 +25,63 @@ app.route('/users/:userId')
   });
 
 
-app.post('/newUser', (req, res)=>{
-//Need to be able to pull all the different params passed into this one
-  var chosenUsername = req.body.username;
-  //This should be cleartext?
-  var passwordUnhashed = req.body.password;
-  var firstName = req.body.firstName;
-  var lastName = req.body.lastName;
-  var email = req.body.email;
-  var phoneNumber = req.body.phoneNumber;
-  var creationDateTimestamp = Date.now;
-  var birthdate = req.body.birthDate;
-  //need to check to make sure username is unique, check for users with that username, and if there is one, fail the whole process.
-  //connection.query()
+  app.post('/newUser', (req, res)=>{
 
-  var salt = chosenUsername.substring(2,4);
-  var hash = bcrypt.hashSync(passwordUnhashed,salt);
-  console.log(hash);
-  //  res.status(500).send('error:username already used');
-  //if username is unique
-  //also need to make sure that their username hits minimum requirements..
-
-  //HASH PASSWORD HERE
-
-
-  //"INSERT INTO users (username, password, first_Name, last_Name, email, phone_Number,creation_Date, birth_Date
-  // VALUES
-  // (?,?,?,?,?,?,?,?)", [chosenUsername,HASHED PASSWORD HERE,firstName,lastName,email,phoneNumber,creationDateTimestamp,birthdate]
+    var chosenUsername = req.body.username;
   
-
-});
+    connection.query("SELECT username FROM alarmbuddy.users WHERE username = ?", chosenUsername, function(error, results, fields) {
+        if (error) throw error;
+        if (JSON.stringify(results) == JSON.stringify([])){
+          var passwordUnhashed = req.body.password;
+          var salt = bcrypt.genSaltSync(10);
+          var passwordHashed = bcrypt.hashSync(passwordUnhashed,salt);
+  
+  
+          var firstName = req.body.firstName;
+          var lastName = req.body.lastName;
+          var email = req.body.email;
+          var phoneNumber = req.body.phoneNumber;
+  
+          let ts = Date.now();
+          let date_ob = new Date(ts);
+          let date = date_ob.getDate();
+          let month = date_ob.getMonth() + 1;
+          let year = date_ob.getFullYear();
+  
+          var creationDateTimestamp = year + "-" + month + "-" + date;
+  
+          var birthdate = req.body.birthDate;
+  
+          var userEntry = [
+            [chosenUsername, passwordHashed, firstName, lastName, email, phoneNumber, creationDateTimestamp, birthdate]
+          ]
+  
+          var missingInfo = false;
+  
+          for(let i = 0; i < userEntry[0].length; i++){
+            if (userEntry[0][i] == null){
+              missingInfo = true;
+            }
+          }
+  
+          if (missingInfo == false){
+            connection.query("INSERT INTO alarmbuddy.users (username, password, first_Name, last_Name, email, phone_Number, creation_Date, birth_Date) VALUES ?", [userEntry], function(error, result, field){
+              if (error) throw error;
+              res.status(201).send('database updated sucessfully');
+            }); 
+          } else {
+            console.log('ERROR: an entry was null');
+            res.status(418).send('ERROR: an entry was null');
+          }
+  
+        } else {
+          console.log('ERROR: username already in use');
+          res.status(418).send('ERROR: username already in use');
+        }
+  
+      }
+    );
+  });
 
 
 
