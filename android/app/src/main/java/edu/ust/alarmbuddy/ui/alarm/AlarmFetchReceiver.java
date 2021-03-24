@@ -5,14 +5,14 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 public class AlarmFetchReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		// TODO implement fetch of custom alarm sounds from database
-		System.out.println("Fetching alarm noise from database");
-		AlarmNoisemaker.makeDefaultNoise(context);
+		Log.i(getClass().toString(),"Fetching alarm noise from database");
 
 		long wakeupTime = intent.getLongExtra("wakeupTime", Long.MIN_VALUE);
 

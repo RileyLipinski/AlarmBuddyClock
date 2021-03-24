@@ -16,12 +16,18 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		// TODO allow for custom sounds here
 		System.out.println("Playing noise at " + new Date().toString());
-		makeDefaultNoise(context);
+		String uriString = intent.getStringExtra("uri");
+		if(uriString == null) {
+			uriString = "android.resource://edu.ust.alarmbuddy/" + R.raw.alarm_buddy;
+		}
+
+		Uri uri = Uri.parse(uriString);
+
+		makeNoise(context,uri);
 	}
 
-	public static void makeDefaultNoise(Context context) {
+	public static void makeNoise(Context context,Uri uri) {
 		try {
-			Uri myUri = Uri.parse("android.resource://edu.ust.alarmbuddy/" + R.raw.alarm_buddy);
 			MediaPlayer mediaPlayer = new MediaPlayer();
 			mediaPlayer.setAudioAttributes(
 				new AudioAttributes.Builder()
@@ -29,7 +35,7 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 					.setUsage(AudioAttributes.USAGE_MEDIA)
 					.build()
 			);
-			mediaPlayer.setDataSource(context, myUri);
+			mediaPlayer.setDataSource(context, uri);
 			mediaPlayer.prepare();
 			mediaPlayer.start();
 		} catch (IOException e) {
