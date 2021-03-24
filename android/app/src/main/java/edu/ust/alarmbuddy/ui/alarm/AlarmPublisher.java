@@ -10,6 +10,9 @@ import android.content.Intent;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
+import android.widget.Toast;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import edu.ust.alarmbuddy.MainActivity;
 import edu.ust.alarmbuddy.R;
@@ -29,22 +32,34 @@ import org.jetbrains.annotations.NotNull;
 
 public class AlarmPublisher extends BroadcastReceiver {
 
-    public static String NOTIFICATION_ID = "notification_id";
-    public static String NOTIFICATION = "notification";
+/*    public static String NOTIFICATION_ID = "notification_id";
+    public static String NOTIFICATION = "notification";*/
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        NotificationManager notificationManager = (NotificationManager) context
+
+        String alarmConfirmation = String.format("Alarm Confirmed");
+        Toast toast = Toast.makeText(context,  alarmConfirmation, Toast.LENGTH_LONG);
+        toast.show();
+        publishAlarm(context, intent);
+
+        /*NotificationManager notificationManager = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
 
         Notification notification = intent.getParcelableExtra(NOTIFICATION);
         int notificationId = intent.getIntExtra(NOTIFICATION_ID, 0);
         notificationManager.notify(notificationId, notification);
 
-        System.out.println("Playing alarm at exact time " + new Date().toString());
+        System.out.println("Playing alarm at exact time " + new Date().toString());*/
     }
 
-    public static void publishAlarm(Context context, int notificationId, int hours, int minutes) {
+    private void publishAlarm(Context context, Intent intent) {
+
+        Intent alarmIntent = new Intent(context, AlarmService.class);
+        context.startService(alarmIntent);
+
+
+
         //TODO scheduled alarms are deleted if the device is turned off
         // see: https://stackoverflow.com/questions/36902667/how-to-schedule-notification-in-android
         // see: https://singhajit.com/schedule-local-notification-in-android/
@@ -55,7 +70,7 @@ public class AlarmPublisher extends BroadcastReceiver {
 
         // TODO need to keep track of when alarms are set off
 
-        long wakeupTime = wakeupTime(hours, minutes, System.currentTimeMillis());
+        /*long wakeupTime = wakeupTime(hours, minutes, System.currentTimeMillis());
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
                 .setContentTitle("Alarm")
@@ -77,6 +92,7 @@ public class AlarmPublisher extends BroadcastReceiver {
                 dispatchAlarm();
             }
 
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response)
                     throws IOException {
@@ -130,7 +146,7 @@ public class AlarmPublisher extends BroadcastReceiver {
 
                 System.out.println("Set alarm for " + new Date(wakeupTime).toString());
             }
-        });
+        });*/
     }
 
     /**

@@ -5,11 +5,12 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         tools:context=".ui.alarm.AlarmFragment">
 
     <TextView
             android:id="@+id/text_alarm"
-            android:layout_width="358dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
@@ -17,21 +18,22 @@
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" android:gravity="center_horizontal"
-            tools:text="@tools:sample/lorem" app:layout_constraintVertical_bias="0.357"
-            app:layout_constraintTop_toBottomOf="@+id/createAlarm"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:gravity="center_horizontal"
+            tools:text="@tools:sample/lorem"
+            app:layout_constraintTop_toBottomOf="@+id/fragment_alarm_createAlarm"/>
     <Button
             android:text="Create Alarm"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/createAlarm"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/alarm_minutes" android:layout_marginTop="52dp"/>
+            android:id="@+id/fragment_alarm_createAlarm"
+            android:layout_gravity="center_horizontal"
+            app:layout_constraintTop_toBottomOf="@id/fragment_alarm_daysOfTheWeek"/>
     <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/alarm_minutes"
+            android:visibility="gone"
             tools:layout_editor_absoluteX="0dp"
             app:layout_constraintTop_toBottomOf="@+id/alarm_hours"
             android:layout_marginTop="44dp"/>
@@ -39,7 +41,65 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/alarm_hours"
+            android:visibility="gone"
             tools:layout_editor_absoluteX="0dp"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@id/fragment_alarm_createAlarm"
             android:layout_marginTop="112dp"/>
+    <TimePicker
+            android:id="@+id/fragment_alarm_clock"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+    <EditText
+            android:id="@+id/fragment_alarm_alarmName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Name for Alarm"
+            app:layout_constraintTop_toBottomOf="@id/fragment_alarm_clock"/>
+
+    <LinearLayout
+            android:id="@+id/fragment_alarm_daysOfTheWeek"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@+id/fragment_alarm_alarmName">
+
+            <CheckBox
+                    android:id="@+id/fragment_alarm_sunday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sun"/>
+            <CheckBox
+                    android:id="@+id/fragment_alarm_monday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mon"/>
+            <CheckBox
+                    android:id="@+id/fragment_alarm_tuesday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tue"/>
+            <CheckBox
+                    android:id="@+id/fragment_alarm_wednesday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Wed"/>
+            <CheckBox
+                    android:id="@+id/fragment_alarm_thursday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Thu"/>
+            <CheckBox
+                    android:id="@+id/fragment_alarm_friday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Fri"/>
+            <CheckBox
+                    android:id="@+id/fragment_alarm_saturday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sat"/>
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
