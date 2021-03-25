@@ -1,0 +1,10 @@
+.footer {
+	margin-top: 1rem;
+	padding: 1rem;
+	background-color: linear-gradient(90deg, rgb(28, 27, 27) 0%, rgb(26, 23, 23) 100%);
+	position: sticky;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+  }
+  
