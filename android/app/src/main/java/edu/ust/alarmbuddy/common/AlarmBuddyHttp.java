@@ -14,7 +14,7 @@ public class AlarmBuddyHttp {
 //    private static final String USER = "android";
 //    private static final String PASS = ";pR$-fM]s4-F?2V%";
 
-	private static final String LOCAL_SERVER_URL = "http://10.0.2.2:8080";
+	public static final String LOCAL_SERVER_URL = "http://10.0.2.2:8080";
 
 	private static final OkHttpClient client = new OkHttpClient();
 

@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.util.Log;
 import edu.ust.alarmbuddy.R;
+import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
@@ -14,19 +16,16 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		// TODO allow for custom sounds here
-		System.out.println("Playing noise at " + new Date().toString());
-		String uriString = intent.getStringExtra("uri");
-		if(uriString == null) {
-			uriString = "android.resource://edu.ust.alarmbuddy/" + R.raw.alarm_buddy;
+		//TODO this is caching the downloaded sound for some reason
+		Log.i(AlarmNoisemaker.class.getName(), "Playing noise at " + new Date().toString());
+		if(intent.getBooleanExtra("useDefaultNoise",true)) {
+			makeDefaultNoise(context);
+		} else {
+			makeNoise(context, Uri.fromFile(new File(context.getFilesDir(),"databaseAlarm.mp3")));
 		}
-
-		Uri uri = Uri.parse(uriString);
-
-		makeNoise(context,uri);
 	}
 
-	public static void makeNoise(Context context,Uri uri) {
+	public static void makeNoise(Context context, Uri uri) {
 		try {
 			MediaPlayer mediaPlayer = new MediaPlayer();
 			mediaPlayer.setAudioAttributes(
@@ -41,5 +40,9 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 		} catch (IOException e) {
 			System.out.println("NOISEMAKER FAILED");
 		}
+	}
+
+	public static void makeDefaultNoise(Context context) {
+		makeNoise(context, Uri.parse("android.resource://edu.ust.alarmbuddy/" + R.raw.alarm_buddy));
 	}
 }
