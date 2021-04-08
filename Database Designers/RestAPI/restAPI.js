@@ -111,16 +111,31 @@ app.post('/newUser', (req, res)=>{
 
 
 
-app.route('/friendWith/:userId')
+app.route('/friendsWith/:username')
 //this just take in the UserId and returns all their information from the GoogleDB
 .get(function(req, res, next) {
-  connection.query(
-    "SELECT friendsWithID FROM alarmbuddy.friendsWith WHERE userID = ?", req.params.userId,
-    function(error, results, fields) {
-      if (error) throw error;
-      res.json(results);
+
+
+  var token = req.headers.authorization;
+    if (!token){
+      res.status(401).send({ auth: false, message: 'No token provided.' });
+    } else {
+      jwt.verify(token, config.secret, function(err, decoded) {
+        if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+        if (decoded.id == req.params.username){
+          connection.query(
+            "SELECT username2 FROM alarmbuddy.friendsWith WHERE username1 = ?", req.params.username,
+            function(error, results, fields) {
+              if (error) throw error;
+              res.json(results);
+            }
+          );
+        } else { 
+          res.status(401).send('ERROR: Access to provided user denied.')
+        }
+
+      });
     }
-  );
 });
 
 
@@ -144,95 +159,102 @@ app.post('/login', (req,res)=>{
     }
   }); 
 })
-//This is the old one table sound file
-// app.post('/upload/:userID', upload.single('file'), function (req, res, next) {
-//   var userID = req.params.userID;
-
-//   var soundName = req.file.originalname;
-//   var img = fs.readFileSync(req.file.path);
-
-//   console.log(req.file);
-
-//   var soundEntry = [
-//     [userID,soundName,img]
-//   ];
-
-//   if (req.file.mimetype == "application/octet-stream"){
-//     connection.query("INSERT INTO alarmbuddy.sounds (soundOwner, soundName, soundFile) VALUES ?", [soundEntry], function(error, results, field){
-//       if(error) {
-//         throw error;
-//       }else{
-//         fs.unlinkSync(req.file.path);
-//         res.status(201).send('database updated sucessfully');
-//       }
-//     })
-//   } else {
-//     //not a mp3 file
-//     fs.unlinkSync(req.file.path);
-//   }
-
-// })
 
 
-app.route('/download/:soundName').get(function(req,res,next) {
+app.route('/download/:username/:soundName').get(function(req,res,next) {
 
-  connection.query("SELECT soundFile FROM alarmbuddy.sounds WHERE soundName = ?", req.params.soundName, function(error, results, fields) {
-    if (error) throw error;
-      fs.writeFile('/tmp/' + req.params.soundName, results[0].soundFile, function (err) {
-        if (err) throw err;
-        res.sendFile('/tmp/' + req.params.soundName, (err) => {
-          fs.unlinkSync('/tmp/' + req.params.soundName);
-        });
+  var token = req.headers.authorization;
+    if (!token){
+      res.status(401).send({ auth: false, message: 'No token provided.' });
+    } else {
+      jwt.verify(token, config.secret, function(err, decoded) {
+        if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+        if (decoded.id == req.params.username){
+          connection.query("SELECT soundID FROM alarmbuddy.soundInfo WHERE soundName = ? AND soundOwner = ?", [req.params.soundName, req.params.username], function(error, results, fields) {
+            if (error) throw error;
+              connection.query("SELECT soundFile FROM alarmbuddy.soundFile WHERE soundID = ?", results[0].soundID, function(error, results, fields){
+                fs.writeFile('/tmp/' + req.params.soundName, results[0].soundFile, function (err) {
+                  if (err) throw err;
+                  res.sendFile('/tmp/' + req.params.soundName, (err) => {
+                    fs.unlinkSync('/tmp/' + req.params.soundName);
+                  });
+                });
+              });
+          });
+        } else { 
+          res.status(401).send('ERROR: Access to provided user denied.')
+        }
       });
-  });
+    }
 });
 
 
-app.post('/upload/:userID', upload.single('file'), function (req, res, next) {
-  var userID = req.params.userID;
+app.post('/upload/:username', upload.single('file'), function (req, res, next) {
 
-  var soundName = req.file.originalname;
-  var mp3 = fs.readFileSync(req.file.path);
+  var token = req.headers.authorization;
 
-  var soundInfoEntry = [
-    [userID,soundName]
-  ];
-
-
-  if (req.file.mimetype == "application/octet-stream"){
-    connection.query("INSERT INTO alarmbuddy.soundInfo (soundOwner, soundName) VALUES ?", [soundInfoEntry], function(error, result, field){
-      if(error) {
-        throw error;
-      }else{
-        var soundFileEntry = [
-          [result.insertId, mp3]
-        ];
-        connection.query("INSERT INTO alarmbuddy.soundFile (soundID, soundFile) VALUES ?", [soundFileEntry], function(error, result, field){
-          fs.unlinkSync(req.file.path);
-          res.status(201).send('database updated sucessfully');
-        });
-      }
-    })
+  if (!token){
+    res.status(401).send({ auth: false, message: 'No token provided.' });
   } else {
-    //not a mp3 file
-    fs.unlinkSync(req.file.path);
-  }
+    jwt.verify(token, config.secret, function(err, decoded) {
+      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+      if (decoded.id == req.params.username){
+        var username = req.params.username;
 
+        var soundName = req.file.originalname;
+        var mp3 = fs.readFileSync(req.file.path);
+
+        var soundInfoEntry = [
+          [username,soundName]
+        ];
+
+        if (req.file.mimetype == "application/octet-stream"){
+          connection.query("INSERT INTO alarmbuddy.soundInfo (soundOwner, soundName) VALUES ?", [soundInfoEntry], function(error, result, field){
+            if(error) {
+              throw error;
+            }else{
+              var soundFileEntry = [
+                [result.insertId, mp3]
+              ];
+              connection.query("INSERT INTO alarmbuddy.soundFile (soundID, soundFile) VALUES ?", [soundFileEntry], function(error, result, field){
+                fs.unlinkSync(req.file.path);
+                res.status(201).send('database updated sucessfully');
+              });
+            }
+          })
+        } else {
+          //not a mp3 file
+          fs.unlinkSync(req.file.path);
+        }
+      } else { 
+        res.status(401).send('ERROR: Access to provided user denied.')
+      }
+    });
+  }
 });
 
 
 //This is for grabbing sounds for a specific user (needs to be stress tested)
 
-app.route('/sounds/:userId')
-  .get(function(req,res,next){
-    connection.query(
-      "SELECT * FROM alarmbuddy.sounds WHERE soundOwner = ?", req.params.userId,
-      function(error,results,fields){
-        if (error) throw error;
-        res.json(results);
-      }
-    );
-  });
+app.route('/sounds/:username').get(function(req,res,next){
+
+    var token = req.headers.authorization;
+    if (!token){
+      res.status(401).send({ auth: false, message: 'No token provided.' });
+    } else {
+      jwt.verify(token, config.secret, function(err, decoded) {
+        if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+        if (decoded.id == req.params.username){
+          connection.query("SELECT soundName FROM alarmbuddy.soundInfo WHERE soundOwner = ?", req.params.username, function(error, results, fields) {
+            if (error) throw error;
+            res.json(results);
+          });
+        } else { 
+          res.status(401).send('ERROR: Access to provided user denied.')
+        }
+      });
+    }
+});
 
 
 app.get('/status', (req, res) => res.send('Working!'));
