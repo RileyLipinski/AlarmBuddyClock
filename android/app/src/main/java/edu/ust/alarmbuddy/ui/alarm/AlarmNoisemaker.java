@@ -38,7 +38,7 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 			mediaPlayer.prepare();
 			mediaPlayer.start();
 		} catch (IOException e) {
-			System.out.println("NOISEMAKER FAILED");
+			Log.e(AlarmNoisemaker.class.getName(),"NOISEMAKER FAILED");
 		}
 	}
 

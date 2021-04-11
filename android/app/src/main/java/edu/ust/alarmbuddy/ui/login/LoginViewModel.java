@@ -1,4 +1,4 @@
-package edu.ust.alarmbuddy.ui;
+package edu.ust.alarmbuddy.ui.login;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

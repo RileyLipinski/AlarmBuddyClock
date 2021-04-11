@@ -9,35 +9,31 @@ import java.util.Calendar;
 
 public class AlarmPublisher {
 
-	public static int FIVE_MINUTES = 5 * 60 * 1000;
+	public static int TWO_MINUTES = 2 * 60 * 1000;
 	public static int TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 
 	public static void publishAlarm(Context context, int hours, int minutes) {
+		//TODO add some kind of debug setting for the demo
+			// possibly a new button in the UI
 		long wakeupTime = wakeupTime(hours, minutes, System.currentTimeMillis());
 
 		Intent intent;
 		PendingIntent pendingIntent;
 		AlarmManager alarmManager = getAlarmManager(context);
 
-//		if(wakeupTime - (FIVE_MINUTES * 2L) < System.currentTimeMillis()) {
-//		    Log.i(AlarmPublisher.class.getName(),"Setting default alarm");
-//		    intent = new Intent(context,AlarmNoisemaker.class);
-//		    pendingIntent = PendingIntent.getBroadcast(context,0,intent,0);
-//		    alarmManager.setExact(AlarmManager.RTC_WAKEUP,wakeupTime,pendingIntent);
-//        } else {
-//			Log.i(AlarmPublisher.class.getName(),"Scheduling fetch");
-//			intent = new Intent(context, AlarmFetchReceiver.class);
-//			intent.putExtra("wakeupTime", wakeupTime);
-//			pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
-//			alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeupTime - FIVE_MINUTES, pendingIntent);
-//			AlarmNoisemaker.makeDefaultNoise(context);
-//        }
-// TODO set this back to the default noise
-		Log.i(AlarmPublisher.class.getName(),"Scheduling test fetch");
-		intent = new Intent(context, AlarmFetchReceiver.class);
-		intent.putExtra("wakeupTime", wakeupTime);
-		pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
-		alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, 1000L, pendingIntent);
+		if(wakeupTime - (TWO_MINUTES + 30000L) < System.currentTimeMillis()) {
+			// set default alarm because there is not time to guarantee a successful fetch
+		    Log.i(AlarmPublisher.class.getName(),"Setting default alarm");
+		    intent = new Intent(context,AlarmNoisemaker.class);
+		    pendingIntent = PendingIntent.getBroadcast(context,0,intent,0);
+		    alarmManager.setExact(AlarmManager.RTC_WAKEUP,wakeupTime,pendingIntent);
+        } else {
+			Log.i(AlarmPublisher.class.getName(),"Scheduling alarm fetch");
+			intent = new Intent(context, AlarmFetchReceiver.class);
+			intent.putExtra("wakeupTime", wakeupTime);
+			pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+			alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeupTime - TWO_MINUTES, pendingIntent);
+        }
 	}
 
 	/**

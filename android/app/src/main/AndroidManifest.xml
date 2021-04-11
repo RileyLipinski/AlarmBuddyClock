@@ -37,10 +37,9 @@
       </intent-filter>
     </activity>
 
-    <activity android:name=".AlarmActivity"></activity>
+    <activity android:name=".AlarmActivity"/>
 
-    <service android:name="edu.ust.alarmbuddy.ui.alarm.AlarmService"/>
-
+    <service android:name=".ui.alarm.AlarmService" />
   </application>
 
 </manifest>
