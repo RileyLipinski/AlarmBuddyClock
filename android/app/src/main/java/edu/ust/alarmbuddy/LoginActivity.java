@@ -2,14 +2,19 @@ package edu.ust.alarmbuddy;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import androidx.lifecycle.ViewModelProviders;
+import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import edu.ust.alarmbuddy.ui.login.FailedLoginDialogFragment;
 import edu.ust.alarmbuddy.ui.login.LoginViewModel;
 import edu.ust.alarmbuddy.R;
+import okhttp3.Callback;
+
+import java.io.IOException;
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -27,23 +32,27 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
-                // TODO: text comparison not working
                 // get username/password from input
                 TextView username = findViewById(R.id.textUsername);
                 TextView password = findViewById(R.id.textPassword);
+
                 // convert TextView to strings for comparison
                 String stringUsername = username.getText().toString();
                 String stringPassword = password.getText().toString();
+
                 // if username and password match, "login" to homepage
-                //Type "android" for username/password to see failed login attempt. Anything else will log you into the app.
-                if (stringUsername.equals("android") && stringPassword.equals("android")  && loginAttempts < 4) {
-                    //loginToHome(v);
-                    FailedLoginDialogFragment dialog = new FailedLoginDialogFragment();
-                    dialog.show(getSupportFragmentManager(), "ABC");
+                AlarmBuddyHttp h = new AlarmBuddyHttp();
+                try {
+                    if (h.authenticateLogin(stringUsername, stringPassword) && loginAttempts < 4) {
+                        loginToHome(v);
+                    } else {
+                        loginAttempts++;
+                        FailedLoginDialogFragment dialog = new FailedLoginDialogFragment();
+                        dialog.show(getSupportFragmentManager(), "TAG");
+                    }
                 }
-                else {
-                    loginAttempts++;
-                    loginToHome(v);
+                catch (Exception e) {
+                    Log.d("TAG", e.toString());
                 }
             }
         });
