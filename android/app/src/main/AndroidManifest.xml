@@ -38,7 +38,7 @@
     </activity>
 
     <activity android:name=".AlarmActivity"/>
-
+  <activity android:name=".CreateAccountActivity"/>
     <service android:name=".ui.alarm.AlarmService" />
   </application>
 
