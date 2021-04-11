@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
+import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.CountDownLatch;
 
 public class FriendsFragment extends Fragment {
     private RecyclerView mRecyclerView;
@@ -29,33 +31,54 @@ public class FriendsFragment extends Fragment {
     }
 
     //reads names from a txt file and then populates and returns a arraylist of profiles sorted by the names associated with them
-    private void populateArray(){
+    private void populateArray() throws InterruptedException {
         ArrayList<Profile> profileList = new ArrayList<>();
         ArrayList<String> nameList = new ArrayList<>();
-        String name;
+        nameList.add("Default");
 
-        try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(requireContext().getAssets().open("100_common_names.txt")));
-            while ((name = br.readLine()) != null) {
-                nameList.add(name);
-            }
-            //sorts the list of names alphabetically before using them to create Profile objects
-            Collections.sort(nameList, String::compareToIgnoreCase);
+        getRequest(nameList);
 
-            //uses the sorted names to create Profile objects
-            for (String s : nameList) {
-                profileList.add(new Profile(R.drawable.ic_baseline_account_box, s, "details"));
+        //sorts the list of names alphabetically before using them to create Profile objects
+        Collections.sort(nameList, String::compareToIgnoreCase);
+
+        //uses the sorted names to create Profile objects
+        for (String s : nameList) {
+            profileList.add(new Profile(R.drawable.ic_baseline_account_box, s, "details")); }
+
+        mProfileList = profileList;
+}
+
+    public static void getRequest(ArrayList<String> nameList) throws InterruptedException {
+        OkHttpClient client = new OkHttpClient();
+        String token ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IktIYW5kcm9pZCIsImlhdCI6MTYxODExMDQ1MiwiZXhwIjoxNjE4MTk2ODUyfQ.QDDyk9yQgGvGkl1gdND-MpsR8bBCHEagsTadwznOjNw";
+
+        Request request = new Request.Builder()
+                //{"auth":true,"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IktIYW5kcm9pZCIsImlhdCI6MTYxODExMDQ1MiwiZXhwIjoxNjE4MTk2ODUyfQ.QDDyk9yQgGvGkl1gdND-MpsR8bBCHEagsTadwznOjNw"}
+                .url("https://alarmbuddy.wm.r.appspot.com/FriendsWith/KHandroid")
+                .header("Authorization",token)
+                .build();
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                nameList.add("Failure");
+                countDownLatch.countDown();
             }
-            br.close();
-        }catch (IOException e){
-            //if a file exception is thrown, clears profileList and adds 100 default profile objects
-            profileList.clear();
-            for (int i=0; i<100; i++){
-                profileList.add(new Profile(R.drawable.ic_baseline_account_box,"DefaultName", "details"));
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.isSuccessful()){
+                    final String myResponse = response.body().string();
+                    nameList.add(myResponse);
+                }
+                else {
+                    nameList.add("ElseResponse");
+                }
+                countDownLatch.countDown();
             }
-       }finally {
-            mProfileList = profileList;
-        }
+        });
+        countDownLatch.await();
     }
 
     @Override
@@ -70,7 +93,11 @@ public class FriendsFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_friends, container, false);
 
         setHasOptionsMenu(true);
-        buildRecyclerView(v);
+        try {
+            buildRecyclerView(v);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         return v;
     }
@@ -79,7 +106,7 @@ public class FriendsFragment extends Fragment {
         return this.mProfileList;
     }
 
-    private void buildRecyclerView(View v){
+    private void buildRecyclerView(View v) throws InterruptedException {
         mRecyclerView = v.findViewById(R.id.recyclerView);
         populateArray();
         mAdapter = new ProfileAdapter(getMProfileList());
