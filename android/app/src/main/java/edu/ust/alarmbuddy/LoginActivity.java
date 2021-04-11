@@ -29,6 +29,8 @@ public class LoginActivity extends AppCompatActivity {
         LoginViewModel viewModel = ViewModelProviders.of(this).get(LoginViewModel.class);
 
         final Button loginButton = findViewById(R.id.loginButton);
+        final Button goToCreateAccountButton = findViewById(R.id.goToCreateAccountButton);
+
         loginButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
@@ -44,7 +46,7 @@ public class LoginActivity extends AppCompatActivity {
                 AlarmBuddyHttp h = new AlarmBuddyHttp();
                 try {
                     if (h.authenticateLogin(stringUsername, stringPassword) && loginAttempts < 4) {
-                        loginToHome(v);
+                        loginToHome();
                     } else {
                         loginAttempts++;
                         FailedLoginDialogFragment dialog = new FailedLoginDialogFragment();
@@ -58,14 +60,24 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         //final Button forgotPasswordButton = findViewById(R.id.loginButton)
+        // TODO: forgot password action
+
+        goToCreateAccountButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                moveToCreateAccount();
+            }
+        });
+
     }
 
-    public void loginToHome(View view) {
-        Intent homepage = new Intent(this, MainActivity.class);
-        startActivity(homepage);
+    public void loginToHome() {
+        startActivity(new Intent(this, MainActivity.class));
+
     }
 
-
+    private void moveToCreateAccount() {
+        startActivity(new Intent(this, CreateAccountActivity.class));
+    }
 }
 
 

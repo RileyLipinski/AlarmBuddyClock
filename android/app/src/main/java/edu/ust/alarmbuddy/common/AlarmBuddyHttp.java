@@ -76,4 +76,43 @@ public class AlarmBuddyHttp {
         return stringResponse[0].substring(8,12).equals("true") && stringResponse[0] != null;
 
     }
+
+    public static boolean createUser (String username, String password, String firstName, String lastName,
+                                      String email, String phoneNumber, String birthdate)
+    {
+        String data = String.format("username=%s&password=%s&firstName=%s&lastName=%s&email=%s&phoneNumber=%s&birthDate=%s",
+                username, password, firstName, lastName, email, phoneNumber, birthdate);
+        RequestBody body = RequestBody.create(data, QUERYSTRING);
+        Request request = new Request.Builder()
+                .url("https://alarmbuddy.wm.r.appspot.com/register")
+                .post(body)
+                .build();
+
+
+        //execute the request and wait for a response
+        final String[] stringResponse = new String[1];
+        final CountDownLatch latch = new CountDownLatch(1);
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                call.cancel();
+                latch.countDown();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                stringResponse[0] = response.body().string();
+                latch.countDown();
+            }
+        });
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return stringResponse[0] != null && stringResponse[0].substring(8,12).equals("true");
+
+    }
+
 }
