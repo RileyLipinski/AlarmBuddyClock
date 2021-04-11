@@ -12,6 +12,9 @@ import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import edu.ust.alarmbuddy.ui.login.FailedLoginDialogFragment;
 import edu.ust.alarmbuddy.ui.login.LoginViewModel;
 import edu.ust.alarmbuddy.R;
+import okhttp3.Callback;
+
+import java.io.IOException;
 
 
 public class LoginActivity extends AppCompatActivity {
