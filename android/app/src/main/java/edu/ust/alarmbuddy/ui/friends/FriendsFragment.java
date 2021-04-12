@@ -14,19 +14,19 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
-import okhttp3.*;
-import org.jetbrains.annotations.NotNull;
-import java.util.regex.*;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
+
+
 
 /***
  * @author Keghan Halloran
@@ -57,6 +57,10 @@ public class FriendsFragment extends Fragment {
 
         getRequest(nameList);
 
+        for (int i =0; i<10; i++){
+            nameList.add("Placeholder");
+        }
+
         //sorts the list of names alphabetically before using them to create Profile objects
         nameList.sort(String::compareToIgnoreCase);
 
@@ -72,8 +76,7 @@ public class FriendsFragment extends Fragment {
         //generates a get request from the database for a users friends list
         //currently using hardcoded values, as dynamically obtaining all relevant user data is not yet possible.
         OkHttpClient client = new OkHttpClient();
-        String token = getToken();
-        //KHString token ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IktIYW5kcm9pZCIsImlhdCI6MTYxODI0MjQ2MywiZXhwIjoxNjE4MzI4ODYzfQ.E2GS-HHaubdMiyx1iFqD4MEU1PUBNV4lsQDuR7ywfe8";
+        String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImpvaG5ueSIsImlhdCI6MTYxODI1MzM0NSwiZXhwIjoxNjE4MzM5NzQ1fQ.1T3OmHwt81S0Wt0CWshSH3GoQPthnA_bYgIUKZGJ37s";
         Request request = new Request.Builder()
                 .url("https://alarmbuddy.wm.r.appspot.com/FriendsWith/johnny")
                 .header("Authorization",token)
@@ -105,9 +108,6 @@ public class FriendsFragment extends Fragment {
                         nameList.add(result.get(i));
                     }
 
-                    for (int i =0; i<10; i++){
-                        nameList.add("Placeholder");
-                    }
                 }
                 else {
                     nameList.add("ElseResponse");
