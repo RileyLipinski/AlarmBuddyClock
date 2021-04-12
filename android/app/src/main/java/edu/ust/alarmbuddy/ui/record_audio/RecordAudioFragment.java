@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,8 +35,6 @@ public class RecordAudioFragment extends Fragment {
 	private Button recordButton = null;
 	private Button playButton = null;
 
-	private TextView debugText = null;
-
 	private MediaRecorder recorder = null;
 	private MediaPlayer player = null;
 
@@ -57,15 +54,12 @@ public class RecordAudioFragment extends Fragment {
 		// name to access audio file
 		fileName = audioFile.getAbsolutePath();
 
-		// for debugging purposes, delete later
-		debugText = root.findViewById(R.id.recordText);
-
 		// set buttons
 		recordButton = root.findViewById(R.id.recordButton);
 		playButton = root.findViewById(R.id.playButton);
 
 		recordButton.setText("Start recording");
-		playButton.setText("Start playing");
+		playButton.setText("Play sound");
 
 		// request user for permission to access microphone
 		requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO,
@@ -99,11 +93,9 @@ public class RecordAudioFragment extends Fragment {
 					if (mStartPlaying) {
 						playButton.setText("Stop playing");
 					} else {
-						playButton.setText("Start playing");
+						playButton.setText("Play sound");
 					}
 					mStartPlaying = !mStartPlaying;
-				} else {
-					debugText.setText("there is no audio to play");
 				}
 			}
 		};
@@ -148,13 +140,11 @@ public class RecordAudioFragment extends Fragment {
 					&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 					// permission was granted, yay!
 					micPermission = true;
-					debugText.setText("mic permission granted");
 				} else {
 					// permission denied, boo! Disable the
 					// functionality that depends on this permission.
 					Toast.makeText(getActivity(), "Permissions Denied to record audio",
 						Toast.LENGTH_LONG).show();
-					debugText.setText("mic permission not granted");
 				}
 				return;
 			}
@@ -163,13 +153,11 @@ public class RecordAudioFragment extends Fragment {
 					&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 					// permission was granted, yay!
 					micPermission = true;
-					debugText.setText("write permission granted");
 				} else {
 					// permission denied, boo! Disable the
 					// functionality that depends on this permission.
 					Toast.makeText(getActivity(), "Permissions Denied to write to storage",
 						Toast.LENGTH_LONG).show();
-					debugText.setText("storage permission not granted");
 				}
 				return;
 			}
@@ -197,7 +185,6 @@ public class RecordAudioFragment extends Fragment {
 		player = new MediaPlayer();
 		try {
 			player.setDataSource(fileName);
-			debugText.setText("playing from " + fileName);
 		} catch (IOException e) {
 			Log.e(LOG_TAG, "setDataSource() failed");
 		}
@@ -220,7 +207,6 @@ public class RecordAudioFragment extends Fragment {
 		recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 		recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
 		recorder.setOutputFile(fileName);
-		debugText.setText("recording to " + fileName);
 		recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
 		try {
