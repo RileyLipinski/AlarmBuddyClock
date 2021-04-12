@@ -1,0 +1,43 @@
+.top-container {
+    background-color: #4b5cbd;
+    height: 53rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    object-fit: contains;
+  
+}
+
+.top-container > h1 {
+    color: #00000;
+    font-size: 6.25rem;
+    margin-top: -6.25rem;
+}
+
+.top-container > p{
+    align-items: center;
+    margin-top: 0.5rem;
+    color: #fff;
+    font-size: 3rem;
+    font-weight: 900;
+    font-family: serif;
+
+}
+@media screen and (max-width: 60rem){
+    .top-container > h1 {
+        font-size: 4.375rem;
+        margin-top: 9.375rem;
+    }
+}
+@media screen and (max-width: 768px){
+    .top-container > h1 {
+        font-size: 1rem;
+        margin-top: -6.25rem;
+    }
+
+    .top-container > p {
+        font-size: 0.188rem;
+    }
+}
