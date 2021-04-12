@@ -23,16 +23,17 @@ import org.jetbrains.annotations.NotNull;
 
 public class AlarmFetchReceiver extends BroadcastReceiver {
 
+	/**
+	 * Fetches an alarm sound from the database and schedules job to make noise and alert the user
+	 *
+	 * @param context The application context
+	 * @param intent  Android Intent parameters
+	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		Log.i(getClass().toString(), "Fetching alarm noise from database");
 
 		long wakeupTime = intent.getLongExtra("wakeupTime", Long.MIN_VALUE);
-
-//		if (wakeupTime < System.currentTimeMillis()) {
-//			throw new RuntimeException(
-//				"Tried to schedule an alarm for earlier than the current time");
-//		}
 
 		OkHttpClient client = new OkHttpClient();
 		// TODO remove hard-coded url in production
@@ -68,6 +69,10 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 				scheduleAlarm(true);
 			}
 
+			/**
+			 * @param useDefaultNoise Determines whether alarm will be scheduled using the
+			 *                        default noise
+			 */
 			private void scheduleAlarm(boolean useDefaultNoise) {
 				Log.i(AlarmFetchReceiver.class.getName(),
 					"Scheduling alarm. Default: " + useDefaultNoise);
@@ -88,6 +93,13 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 
 	}
 
+	/**
+	 * Retrieves the user token from file storage
+	 *
+	 * @param context Application context
+	 *
+	 * @return The user's token as read from disk
+	 */
 	public static String getToken(Context context) {
 		// TODO remove hard-coded token file once storage solution is settled
 		String jsonString;

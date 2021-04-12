@@ -27,7 +27,6 @@ import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
 
-
 /***
  * @author Keghan Halloran
  * This is the Fragment responsible for a users friends list. it does the following:
@@ -37,156 +36,160 @@ import org.jetbrains.annotations.NotNull;
  * that handles sending friend requests to other users.
  */
 public class FriendsFragment extends Fragment {
-    private RecyclerView mRecyclerView;
-    private ProfileAdapter mAdapter;
-    private final RecyclerView.LayoutManager mlayoutManager;
-    private ArrayList<Profile> mProfileList;
-    private Button button;
 
-    public FriendsFragment() {
-        mRecyclerView = null;
-        mAdapter = null;
-        mlayoutManager = new LinearLayoutManager(getContext());
-        mProfileList = null;
-        button = null;
-    }
+	private RecyclerView mRecyclerView;
+	private ProfileAdapter mAdapter;
+	private final RecyclerView.LayoutManager mlayoutManager;
+	private ArrayList<Profile> mProfileList;
+	private Button button;
 
-    private void populateArray() throws InterruptedException {
-        ArrayList<Profile> profileList = new ArrayList<>();
-        ArrayList<String> nameList = new ArrayList<>();
+	public FriendsFragment() {
+		mRecyclerView = null;
+		mAdapter = null;
+		mlayoutManager = new LinearLayoutManager(getContext());
+		mProfileList = null;
+		button = null;
+	}
 
-        getRequest(nameList);
+	private void populateArray() throws InterruptedException {
+		ArrayList<Profile> profileList = new ArrayList<>();
+		ArrayList<String> nameList = new ArrayList<>();
 
-        for (int i =0; i<10; i++){
-            nameList.add("Placeholder");
-        }
+		getRequest(nameList);
 
-        //sorts the list of names alphabetically before using them to create Profile objects
-        nameList.sort(String::compareToIgnoreCase);
+		for (int i = 0; i < 10; i++) {
+			nameList.add("Placeholder");
+		}
 
-        //uses the sorted names to create Profile objects
-        for (String s : nameList) {
-            profileList.add(new Profile(R.drawable.ic_baseline_account_box, s, "details")); }
+		//sorts the list of names alphabetically before using them to create Profile objects
+		nameList.sort(String::compareToIgnoreCase);
 
-        setMProfileList(profileList);
-}
+		//uses the sorted names to create Profile objects
+		for (String s : nameList) {
+			profileList.add(new Profile(R.drawable.ic_baseline_account_box, s, "details"));
+		}
 
-    private static void getRequest(ArrayList<String> nameList) throws InterruptedException {
+		setMProfileList(profileList);
+	}
 
-        //generates a get request from the database for a users friends list
-        //currently using hardcoded values, as dynamically obtaining all relevant user data is not yet possible.
-        OkHttpClient client = new OkHttpClient();
-        String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImpvaG5ueSIsImlhdCI6MTYxODI1MzM0NSwiZXhwIjoxNjE4MzM5NzQ1fQ.1T3OmHwt81S0Wt0CWshSH3GoQPthnA_bYgIUKZGJ37s";
-        Request request = new Request.Builder()
-                .url("https://alarmbuddy.wm.r.appspot.com/FriendsWith/johnny")
-                .header("Authorization",token)
-                .build();
+	private static void getRequest(ArrayList<String> nameList) throws InterruptedException {
 
-        //insures that the get request is completed before the code continues
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                nameList.add("Failure");
-                countDownLatch.countDown();
-            }
+		//generates a get request from the database for a users friends list
+		//currently using hardcoded values, as dynamically obtaining all relevant user data is not yet possible.
+		OkHttpClient client = new OkHttpClient();
+		String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImpvaG5ueSIsImlhdCI6MTYxODI1MzM0NSwiZXhwIjoxNjE4MzM5NzQ1fQ.1T3OmHwt81S0Wt0CWshSH3GoQPthnA_bYgIUKZGJ37s";
+		Request request = new Request.Builder()
+			.url("https://alarmbuddy.wm.r.appspot.com/FriendsWith/johnny")
+			.header("Authorization", token)
+			.build();
 
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                final String myResponse;
-                if (response.isSuccessful()){
-                   myResponse = response.body().string();
-                    response.close();
-                    Pattern pattern = Pattern.compile("\"([^\"]*)\"");
-                    Matcher matcher = pattern.matcher(myResponse);
-                    ArrayList<String> result = new ArrayList<>();
+		//insures that the get request is completed before the code continues
+		CountDownLatch countDownLatch = new CountDownLatch(1);
+		client.newCall(request).enqueue(new Callback() {
+			@Override
+			public void onFailure(@NotNull Call call, @NotNull IOException e) {
+				nameList.add("Failure");
+				countDownLatch.countDown();
+			}
 
-                    while (matcher.find()){
-                        result.add(matcher.group(1));
-                    }
-                    for (int i =1; i<result.size();i+=2){
-                        nameList.add(result.get(i));
-                    }
+			@Override
+			public void onResponse(@NotNull Call call, @NotNull Response response)
+				throws IOException {
+				final String myResponse;
+				if (response.isSuccessful()) {
+					myResponse = response.body().string();
+					response.close();
+					Pattern pattern = Pattern.compile("\"([^\"]*)\"");
+					Matcher matcher = pattern.matcher(myResponse);
+					ArrayList<String> result = new ArrayList<>();
 
-                }
-                else {
-                    nameList.add("ElseResponse");
-                }
-                countDownLatch.countDown();
-            }
-        });
-        countDownLatch.await();
-    }
+					while (matcher.find()) {
+						result.add(matcher.group(1));
+					}
+					for (int i = 1; i < result.size(); i += 2) {
+						nameList.add(result.get(i));
+					}
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+				} else {
+					nameList.add("ElseResponse");
+				}
+				countDownLatch.countDown();
+			}
+		});
+		countDownLatch.await();
+	}
 
-    }
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)  {
-        // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_friends, container, false);
+	}
 
-        buildButton(v);
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+		Bundle savedInstanceState) {
+		// Inflate the layout for this fragment
+		View v = inflater.inflate(R.layout.fragment_friends, container, false);
 
-        setHasOptionsMenu(true);
-        try {
-            buildRecyclerView(v);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+		buildButton(v);
 
-        return v;
-    }
+		setHasOptionsMenu(true);
+		try {
+			buildRecyclerView(v);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
-    private ArrayList<Profile> getMProfileList(){
-        return this.mProfileList;
-    }
+		return v;
+	}
 
-    private void setMProfileList(ArrayList<Profile> input){
-        mProfileList = input;
-    }
+	private ArrayList<Profile> getMProfileList() {
+		return this.mProfileList;
+	}
 
-    private void buildButton(View v){
-        button = v.findViewById(R.id.button);
-        button.setOnClickListener(v1 -> openSendRequest());
-    }
+	private void setMProfileList(ArrayList<Profile> input) {
+		mProfileList = input;
+	}
 
-    private void openSendRequest(){
-        Intent intent = new Intent(getActivity(), SendRequest.class);
-        startActivity(intent);
-    }
+	private void buildButton(View v) {
+		button = v.findViewById(R.id.button);
+		button.setOnClickListener(v1 -> openSendRequest());
+	}
 
-    private void buildRecyclerView(View v) throws InterruptedException {
-        mRecyclerView = v.findViewById(R.id.recyclerView);
-        populateArray();
-        mAdapter = new ProfileAdapter(getMProfileList());
-        mRecyclerView.setLayoutManager(mlayoutManager);
-        mRecyclerView.setAdapter(mAdapter);
-    }
+	private void openSendRequest() {
+		Intent intent = new Intent(getActivity(), SendRequest.class);
+		startActivity(intent);
+	}
 
-    @Override
-    public void onCreateOptionsMenu(@NotNull Menu menu, MenuInflater inflater){
-        inflater.inflate(R.menu.search_menu, menu);
+	private void buildRecyclerView(View v) throws InterruptedException {
+		mRecyclerView = v.findViewById(R.id.recyclerView);
+		populateArray();
+		mAdapter = new ProfileAdapter(getMProfileList());
+		mRecyclerView.setLayoutManager(mlayoutManager);
+		mRecyclerView.setAdapter(mAdapter);
+	}
 
-        androidx.appcompat.widget.SearchView searchView = (androidx.appcompat.widget.SearchView) menu.findItem(R.id.action_search).getActionView();
+	@Override
+	public void onCreateOptionsMenu(@NotNull Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.search_menu, menu);
 
-        searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
+		androidx.appcompat.widget.SearchView searchView = (androidx.appcompat.widget.SearchView) menu
+			.findItem(R.id.action_search).getActionView();
 
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
+		searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                mAdapter.getFilter().filter(newText);
-                return false;
-            }
-        });
-    }
+		searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+			@Override
+			public boolean onQueryTextSubmit(String query) {
+				return false;
+			}
+
+			@Override
+			public boolean onQueryTextChange(String newText) {
+				mAdapter.getFilter().filter(newText);
+				return false;
+			}
+		});
+	}
 
 }

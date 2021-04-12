@@ -18,7 +18,8 @@ import org.jetbrains.annotations.NotNull;
  * This adapter is necessary to correctly adapt the information in a users friends list
  * to our recyclerview.
  */
-public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileViewHolder> implements Filterable {
+public class ProfileAdapter extends
+	RecyclerView.Adapter<ProfileAdapter.ProfileViewHolder> implements Filterable {
 
 	private final ArrayList<Profile> mProfileList;
 	private final ArrayList<Profile> mProfileListFull;

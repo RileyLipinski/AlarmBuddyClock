@@ -1,6 +1,7 @@
 package edu.ust.alarmbuddy.ui.friends;
 
 import android.app.Activity;
+import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -10,7 +11,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import android.os.Bundle;
 import edu.ust.alarmbuddy.R;
 
 /***
@@ -22,41 +22,43 @@ import edu.ust.alarmbuddy.R;
  * is dependant on further collaboration with the database team.
  */
 public class SendRequest extends AppCompatActivity {
-    private Button button;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_send_request);
+	private Button button;
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle("Friend Request");
-        actionBar.setDisplayHomeAsUpEnabled(true);
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_send_request);
 
-        button = findViewById(R.id.button);
-        button.setOnClickListener(v -> showToast());
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setTitle("Friend Request");
+		actionBar.setDisplayHomeAsUpEnabled(true);
+
+		button = findViewById(R.id.button);
+		button.setOnClickListener(v -> showToast());
 
 
-    }
+	}
 
-    private void showToast(){
-        LayoutInflater inflater = getLayoutInflater();
-        View layout = inflater.inflate(R.layout.friend_request_toast, findViewById(R.id.toast_root));
-        Toast toast = new Toast(getApplicationContext());
-        toast.setGravity(Gravity.CENTER, 0,0);
-        toast.setDuration(Toast.LENGTH_LONG);
-        toast.setView(layout);
-        toast.show();
-    }
+	private void showToast() {
+		LayoutInflater inflater = getLayoutInflater();
+		View layout = inflater
+			.inflate(R.layout.friend_request_toast, findViewById(R.id.toast_root));
+		Toast toast = new Toast(getApplicationContext());
+		toast.setGravity(Gravity.CENTER, 0, 0);
+		toast.setDuration(Toast.LENGTH_LONG);
+		toast.setView(layout);
+		toast.show();
+	}
 
-    //allows the back arrow at the top of this activity to go back to the Friends Fragment instead of a parent activity
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        super.onOptionsItemSelected(item);
-        if(item.getItemId() == android.R.id.home){
-            setResult(Activity.RESULT_CANCELED);
-            finish();
-        }
-        return super.onOptionsItemSelected(item);
-    }
+	//allows the back arrow at the top of this activity to go back to the Friends Fragment instead of a parent activity
+	@Override
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+		super.onOptionsItemSelected(item);
+		if (item.getItemId() == android.R.id.home) {
+			setResult(Activity.RESULT_CANCELED);
+			finish();
+		}
+		return super.onOptionsItemSelected(item);
+	}
 }

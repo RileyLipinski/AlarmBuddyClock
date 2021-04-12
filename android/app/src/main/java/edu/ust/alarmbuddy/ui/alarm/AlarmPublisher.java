@@ -14,8 +14,17 @@ public class AlarmPublisher {
 	public static int TWO_MINUTES = 2 * 60 * 1000;
 	public static int TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 
+	/**
+	 * Receives a request to schedule an alarm and sets up a listener to either fetch an alarm from
+	 * the API or play a default alarm.
+	 *
+	 * @param context The application context
+	 * @param hours   The hours value for the scheduled alarm time
+	 * @param minutes The minutes value for the scheduled alarm time
+	 * @param demo    Temporary boolean addition to cover demo cases
+	 */
+	//TODO remove demo version of this function
 	public static void publishAlarm(Context context, int hours, int minutes, boolean demo) {
-
 		if (demo) {
 			Intent intent;
 			PendingIntent pendingIntent;
@@ -30,7 +39,6 @@ public class AlarmPublisher {
 			alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, 100L, pendingIntent);
 		} else {
 			long wakeupTime = wakeupTime(hours, minutes, System.currentTimeMillis());
-
 			Intent intent;
 			PendingIntent pendingIntent;
 			AlarmManager alarmManager = getAlarmManager(context);
@@ -58,6 +66,9 @@ public class AlarmPublisher {
 	}
 
 	/**
+	 * Determines the time that the alarm should be set. If the alarm time today has already passed,
+	 * it will be set for tomorrow.
+	 *
 	 * @param hours   The hours the alarm will be set for
 	 * @param minutes The minute the alarm will be set for
 	 * @param now     The current time, in milliseconds

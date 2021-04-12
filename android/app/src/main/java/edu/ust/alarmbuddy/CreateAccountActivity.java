@@ -52,25 +52,25 @@ public class CreateAccountActivity extends AppCompatActivity {
 				} else if (confirmPassword.getText().toString().equals("")) {
 					createAccountErrorText.setText("Please confirm your password");
 				} else if (!password.getText().toString()
-						.equals(confirmPassword.getText().toString())) {
+					.equals(confirmPassword.getText().toString())) {
 					createAccountErrorText.setText("Passwords do not match");
 				} else {
 					// reformat birthday for request (from MM-DD-YYYY to YYYY-MM-DD)
 					String birthdate = birthday.getText().toString();
 					birthdate = birthdate.substring(6, 10) + "-" + birthdate.substring(0, 2) + "-"
-							+ birthdate.substring(3, 5);
+						+ birthdate.substring(3, 5);
 
 					// make post request to create user
 					if (AlarmBuddyHttp.createUser(username.getText().toString(),
-							password.getText().toString(),
-							firstName.getText().toString(),
-							lastName.getText().toString(),
-							email.getText().toString(),
-							phoneNumber.getText().toString(),
-							birthdate)) {
+						password.getText().toString(),
+						firstName.getText().toString(),
+						lastName.getText().toString(),
+						email.getText().toString(),
+						phoneNumber.getText().toString(),
+						birthdate)) {
 						// if account created successfully, inform user
 						createAccountErrorText
-								.setText("Account created, return to login page to login");
+							.setText("Account created, return to login page to login");
 					} else {
 						// if request unsuccessful, show error text
 						createAccountErrorText.setText("Error: could not create user");
@@ -106,7 +106,7 @@ public class CreateAccountActivity extends AppCompatActivity {
 
 			// reformat birthday to ISO date format (YYYYMMDD)
 			birthday =
-					birthday.substring(6, 10) + birthday.substring(0, 2) + birthday.substring(3, 5);
+				birthday.substring(6, 10) + birthday.substring(0, 2) + birthday.substring(3, 5);
 			//check if valid date
 			DateTimeFormatter dateFormatter = DateTimeFormatter.BASIC_ISO_DATE;
 			try {

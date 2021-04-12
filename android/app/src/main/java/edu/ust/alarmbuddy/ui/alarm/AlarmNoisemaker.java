@@ -16,12 +16,18 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 
 	private static MediaPlayer mediaPlayer;
 
+	/**
+	 * Plays the alarm sound set in the input Intent
+	 *
+	 * @param context Application context
+	 * @param intent  Received Android Intent
+	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		if (mediaPlayer != null) {
 			mediaPlayer.release();
 		}
-		MediaPlayer mediaPlayer = new MediaPlayer();
+
 		Log.i(AlarmNoisemaker.class.getName(), "Playing noise at " + new Date().toString());
 		Log.i(AlarmNoisemaker.class.getName(),
 			"Default noise: " + intent.getBooleanExtra("useDefaultNoise", true));
@@ -36,6 +42,12 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 		intent.removeExtra("useDefaultNoise");
 	}
 
+	/**
+	 * Plays an audio file
+	 *
+	 * @param context Application context
+	 * @param uri     Uri of file to be played
+	 */
 	public static void makeNoise(Context context, Uri uri) {
 		try {
 			mediaPlayer = new MediaPlayer();
@@ -53,6 +65,11 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 		}
 	}
 
+	/**
+	 * Plays the default audio file by calling makeNoise()
+	 *
+	 * @param context Application context
+	 */
 	public static void makeDefaultNoise(Context context) {
 		makeNoise(context, Uri.parse("android.resource://edu.ust.alarmbuddy/" + R.raw.alarm_buddy));
 	}
