@@ -38,7 +38,7 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 		// TODO remove hard-coded url in production
 		Request request = new Request.Builder()
 			.url("https://alarmbuddy.wm.r.appspot.com/download/johnny/erokia.wav")
-			.header("Authorization", getToken())
+			.header("Authorization", getToken(context))
 			.get()
 			.build();
 
@@ -86,11 +86,11 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 
 	}
 
-	public static String getToken() {
+	public static String getToken(Context context) {
 		// TODO remove hard-coded token file once storage solution is settled
 		String jsonString;
 		try {
-			File file = new File("/data/user/0/edu.ust.alarmbuddy/files/token");
+			File file = new File(context.getExternalFilesDir(""),"token");
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			jsonString = reader.readLine();
 		} catch (FileNotFoundException e) {

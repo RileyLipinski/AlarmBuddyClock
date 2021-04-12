@@ -28,7 +28,7 @@ public class AlarmBuddyHttp {
 
 	public static final String LOCAL_SERVER_URL = "http://10.0.2.2:8080";
 
-	private static final OkHttpClient client = new OkHttpClient();
+	public static final OkHttpClient client = new OkHttpClient();
 	private static final String AB_RESTAPI = "https://alarmbuddy.wm.r.appspot.com/";
 	public static final MediaType QUERYSTRING = MediaType
 		.parse("application/x-www-form-urlencoded");
@@ -43,49 +43,7 @@ public class AlarmBuddyHttp {
 	}
 
 	@RequiresApi(api = Build.VERSION_CODES.KITKAT)
-	public static boolean authenticateLogin(String username, String password) throws IOException {
 
-		//build the request
-		String data = "username=" + username + "&password=" + password;
-		URL url = new URL("https://alarmbuddy.wm.r.appspot.com/login");
-		RequestBody body = RequestBody.create(data, QUERYSTRING);
-		Request request = new Request.Builder()
-			.url(url)
-			.post(body)
-			.build();
-
-		//execute the request and wait for a response
-		final String[] stringResponse = new String[1];
-		final CountDownLatch latch = new CountDownLatch(1);
-		client.newCall(request).enqueue(new Callback() {
-			@Override
-			public void onFailure(Call call, IOException e) {
-				call.cancel();
-				latch.countDown();
-			}
-
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				stringResponse[0] = response.body().string();
-				latch.countDown();
-			}
-		});
-		try {
-			latch.await();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		// TODO replace with more robust token storage solution
-		Log.i(AlarmBuddyHttp.class.getName(), "Writing token to file");
-		File file = new File("/data/user/0/edu.ust.alarmbuddy/files/token");
-
-		FileOutputStream outputStream = new FileOutputStream(file);
-		outputStream.write(stringResponse[0].getBytes());
-		outputStream.close();
-
-		return stringResponse[0].substring(8, 12).equals("true") && stringResponse[0] != null;
-	}
 
 	public static boolean createUser(String username, String password, String firstName,
 		String lastName,
