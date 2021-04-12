@@ -94,10 +94,10 @@ app.post('/register', (req, res)=>{
 
         // create a time stamp for when the user registered
         let ts = Date.now();
-        let date_ob = new Date(ts);
-        let date = date_ob.getDate();
-        let month = date_ob.getMonth() + 1;
-        let year = date_ob.getFullYear();
+        let date_Ob = new Date(ts);
+        let date = date_Ob.getDate();
+        let month = date_Ob.getMonth() + 1;
+        let year = date_Ob.getFullYear();
 
         var creationDateTimestamp = year + "-" + month + "-" + date;
 
