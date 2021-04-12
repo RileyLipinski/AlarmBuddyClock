@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import edu.ust.alarmbuddy.R;
+import edu.ust.alarmbuddy.ui.alarm.AlarmPublisher;
 
 public class NotificationsFragment extends Fragment {
 
@@ -27,6 +29,10 @@ public class NotificationsFragment extends Fragment {
 			public void onChanged(@Nullable String s) {
 				textView.setText(s);
 			}
+		});
+		final Button demoButton = root.findViewById(R.id.demo_button);
+		demoButton.setOnClickListener(view -> {
+			AlarmPublisher.publishAlarm(getContext(), 0, 0, true);
 		});
 		return root;
 	}

@@ -41,11 +41,6 @@ public class AlarmFragment extends Fragment {
 
 			alarm.setAlarm(getContext());
 		});
-
-		final Button demoButton = root.findViewById(R.id.demo_button);
-		demoButton.setOnClickListener(view -> {
-			AlarmPublisher.publishAlarm(getContext(), 0, 0, true);
-		});
 		return root;
 	}
 }
