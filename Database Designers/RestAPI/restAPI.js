@@ -30,13 +30,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// app.use((req, res, next) => {
-//   res.header('Access-Control-Allow-Origin', '*');
-//   next();
-// });
-
-
-
 // handler for getting user information
 app.route('/users/:username').get(function(req, res, next) {
 
@@ -171,7 +164,7 @@ app.route('/friendsWith/:username').get(function(req, res, next) {
         // check if extracted username from token matches the username provided in the request
         if (decoded.id == req.params.username){
           // selct all usernames from the database that the username provided is friends with
-          connection.query("SELECT username2 FROM alarmbuddy.friendsWith WHERE username1 = ?", req.params.username, function(error, results, fields) {
+          connection.query("SELECT username2 FROM alarmbuddy.friendsWith WHERE username1 = ? UNION SELECT username1 FROM alarmbuddy.friendsWith WHERE username2 = ?", [req.params.username, req.params.username], function(error, results, fields) {
               if (error){
                 // respond with error if selection fails
                 res.status(500).send('ERROR: database query error.');
@@ -366,6 +359,41 @@ app.route('/sounds/:username').get(function(req,res,next){
       });
     }
 });
+
+
+// handler for deleting a sound
+app.route('/deleteAlarm/:username/:soundName').get(function(req,res,next) {
+
+  // extract token from reqest header
+  var token = req.headers.authorization;
+    // check if token was provided in the request
+    if (!token){
+     // res.status(401).send({ auth: false, message: 'No token provided.' });
+    } else {
+      // verify that token provided is a valid token
+      jwt.verify(token, config.secret, function(error, decoded) {
+        // respond with error that token could not be authenticated
+        if (error) {
+          res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+        }
+        // check if extracted username from token matches the username provided in the request
+        if (decoded.id == req.params.username){
+
+          connection.query("DELETE FROM alarmbuddy.soundInfo WHERE soundName = ? AND soundOwner = ?", [req.params.soundName, req.params.username], function(error, results, fields) {
+            if (error){
+              // respond with error if database query failed
+              res.status(500).send('ERROR: database query error.');
+            }
+            res.status(200).send('Successfully deleted sound.')
+          });
+        } else { 
+          // extracted token username did not match provided username from request so send error
+          res.status(401).send('ERROR: Access to provided user denied.');
+        }
+      });
+    }
+});
+
 
 // handler for checking if the rest API is online
 app.get('/status', (req, res) => res.send('Working!'));
