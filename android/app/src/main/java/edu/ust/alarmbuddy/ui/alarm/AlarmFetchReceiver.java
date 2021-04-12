@@ -29,10 +29,10 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 
 		long wakeupTime = intent.getLongExtra("wakeupTime", Long.MIN_VALUE);
 
-		if (wakeupTime < System.currentTimeMillis()) {
-			throw new RuntimeException(
-				"Tried to schedule an alarm for earlier than the current time");
-		}
+//		if (wakeupTime < System.currentTimeMillis()) {
+//			throw new RuntimeException(
+//				"Tried to schedule an alarm for earlier than the current time");
+//		}
 
 		OkHttpClient client = new OkHttpClient();
 		// TODO remove hard-coded url in production
@@ -69,7 +69,8 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 			}
 
 			private void scheduleAlarm(boolean useDefaultNoise) {
-				Log.i(AlarmFetchReceiver.class.getName(), "Scheduling alarm.");
+				Log.i(AlarmFetchReceiver.class.getName(),
+					"Scheduling alarm. Default: " + useDefaultNoise);
 
 				Intent outputIntent = new Intent(context, AlarmNoisemaker.class);
 				outputIntent.putExtra("useDefaultNoise", useDefaultNoise);

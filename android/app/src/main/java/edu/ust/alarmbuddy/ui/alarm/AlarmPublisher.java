@@ -36,6 +36,7 @@ public class AlarmPublisher {
 				// set default alarm because there is not time to guarantee a successful fetch
 				Log.i(CLASS, "Setting default alarm");
 				intent = new Intent(context, AlarmNoisemaker.class);
+				intent.putExtra("useDefaultNoise", true);
 				pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
 				alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeupTime, pendingIntent);
 			} else {

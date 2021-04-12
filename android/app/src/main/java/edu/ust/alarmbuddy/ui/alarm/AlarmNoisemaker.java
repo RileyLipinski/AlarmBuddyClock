@@ -18,23 +18,27 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		if(mediaPlayer != null) {
+		//TODO the intent value for "usedefaultnoise" is being cached, which prevents playing
+		// different noises in one installation
+		if (mediaPlayer != null) {
 			mediaPlayer.release();
 		}
 		MediaPlayer mediaPlayer = new MediaPlayer();
 		Log.i(AlarmNoisemaker.class.getName(), "Playing noise at " + new Date().toString());
-		Log.i(AlarmNoisemaker.class.getName(), "Default noise: " + intent.getBooleanExtra("useDefaultNoise",true));
+		Log.i(AlarmNoisemaker.class.getName(),
+			"Default noise: " + intent.getBooleanExtra("useDefaultNoise", true));
 		if (intent.getBooleanExtra("useDefaultNoise", true)) {
 			makeDefaultNoise(context);
 		} else {
 			// TODO base the file name on the file type being downloaded
 			makeNoise(context, Uri.fromFile(new File(context.getFilesDir(), "databaseAlarm.wav")));
 		}
+
+		intent.removeExtra("useDefaultNoise");
 	}
 
 	public static void makeNoise(Context context, Uri uri) {
 		try {
-			//TODO mediaplayer is caching sounds, so only one tone can be played per startup
 			mediaPlayer = new MediaPlayer();
 			mediaPlayer.setAudioAttributes(
 				new AudioAttributes.Builder()
