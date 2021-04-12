@@ -12,11 +12,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
+import java.util.regex.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
+
+import static edu.ust.alarmbuddy.ui.alarm.AlarmFetchReceiver.getToken;
 
 public class FriendsFragment extends Fragment {
     private RecyclerView mRecyclerView;
@@ -38,12 +41,6 @@ public class FriendsFragment extends Fragment {
         ArrayList<Profile> profileList = new ArrayList<>();
         ArrayList<String> nameList = new ArrayList<>();
 
-        for (int i=0; i<20; i++)
-        {
-            nameList.add("Default");
-        }
-
-
         getRequest(nameList);
 
         //sorts the list of names alphabetically before using them to create Profile objects
@@ -59,10 +56,11 @@ public class FriendsFragment extends Fragment {
     public static void getRequest(ArrayList<String> nameList) throws InterruptedException {
 
         OkHttpClient client = new OkHttpClient();
-        String token ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IktIYW5kcm9pZCIsImlhdCI6MTYxODExMDQ1MiwiZXhwIjoxNjE4MTk2ODUyfQ.QDDyk9yQgGvGkl1gdND-MpsR8bBCHEagsTadwznOjNw";
+        String token = getToken();
+        //KHString token ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IktIYW5kcm9pZCIsImlhdCI6MTYxODExMDQ1MiwiZXhwIjoxNjE4MTk2ODUyfQ.QDDyk9yQgGvGkl1gdND-MpsR8bBCHEagsTadwznOjNw";
         Request request = new Request.Builder()
                 //{"auth":true,"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IktIYW5kcm9pZCIsImlhdCI6MTYxODExMDQ1MiwiZXhwIjoxNjE4MTk2ODUyfQ.QDDyk9yQgGvGkl1gdND-MpsR8bBCHEagsTadwznOjNw"}
-                .url("https://alarmbuddy.wm.r.appspot.com/FriendsWith/KHandroid")
+                .url("https://alarmbuddy.wm.r.appspot.com/FriendsWith/johnny")
                 .header("Authorization",token)
                 .build();
 
@@ -79,7 +77,22 @@ public class FriendsFragment extends Fragment {
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 if (response.isSuccessful()){
                     final String myResponse = response.body().string();
-                    nameList.add(myResponse);
+                    response.close();
+                    Pattern pattern = Pattern.compile("\"([^\"]*)\"");
+                    Matcher matcher = pattern.matcher(myResponse);
+                    ArrayList<String> result = new ArrayList<>();
+
+                    while (matcher.find()){
+                        result.add(matcher.group(1));
+                    }
+                    for (int i =1; i<result.size();i+=2){
+                        nameList.add(result.get(i));
+                    }
+
+                    for (int i =0; i<10; i++){
+                        nameList.add("Placeholder");
+                    }
+
                 }
                 else {
                     nameList.add("ElseResponse");
