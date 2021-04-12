@@ -3,17 +3,14 @@ package edu.ust.alarmbuddy.ui.alarm;
 import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 import org.jetbrains.annotations.NotNull;
 
 public class AlarmViewModel extends AndroidViewModel {
 
 
-    public AlarmViewModel(@NonNull @NotNull Application application) {
-        super(application);
-    }
+	public AlarmViewModel(@NonNull @NotNull Application application) {
+		super(application);
+	}
 
     /*private final MutableLiveData<String> mText;
 
@@ -26,6 +23,6 @@ public class AlarmViewModel extends AndroidViewModel {
         return mText;
     }*/
 
-    public void insert(Alarm alarm) {
-    }
+	public void insert(Alarm alarm) {
+	}
 }

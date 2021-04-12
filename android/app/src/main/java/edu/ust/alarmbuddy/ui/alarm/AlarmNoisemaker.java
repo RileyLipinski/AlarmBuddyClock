@@ -14,20 +14,28 @@ import java.util.Date;
 
 public class AlarmNoisemaker extends BroadcastReceiver {
 
+	private static MediaPlayer mediaPlayer;
+
 	@Override
 	public void onReceive(Context context, Intent intent) {
+		if(mediaPlayer != null) {
+			mediaPlayer.release();
+		}
+		MediaPlayer mediaPlayer = new MediaPlayer();
 		Log.i(AlarmNoisemaker.class.getName(), "Playing noise at " + new Date().toString());
-		if(intent.getBooleanExtra("useDefaultNoise",true)) {
+		Log.i(AlarmNoisemaker.class.getName(), "Default noise: " + intent.getBooleanExtra("useDefaultNoise",true));
+		if (intent.getBooleanExtra("useDefaultNoise", true)) {
 			makeDefaultNoise(context);
 		} else {
 			// TODO base the file name on the file type being downloaded
-			makeNoise(context, Uri.fromFile(new File(context.getFilesDir(),"databaseAlarm.wav")));
+			makeNoise(context, Uri.fromFile(new File(context.getFilesDir(), "databaseAlarm.wav")));
 		}
 	}
 
 	public static void makeNoise(Context context, Uri uri) {
 		try {
-			MediaPlayer mediaPlayer = new MediaPlayer();
+			//TODO mediaplayer is caching sounds, so only one tone can be played per startup
+			mediaPlayer = new MediaPlayer();
 			mediaPlayer.setAudioAttributes(
 				new AudioAttributes.Builder()
 					.setContentType(AudioAttributes.CONTENT_TYPE_UNKNOWN)
@@ -38,7 +46,7 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 			mediaPlayer.prepare();
 			mediaPlayer.start();
 		} catch (IOException e) {
-			Log.e(AlarmNoisemaker.class.getName(),"NOISEMAKER FAILED");
+			Log.e(AlarmNoisemaker.class.getName(), "NOISEMAKER FAILED");
 		}
 	}
 

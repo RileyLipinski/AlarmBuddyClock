@@ -38,7 +38,7 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 		// TODO remove hard-coded url in production
 		Request request = new Request.Builder()
 			.url("https://alarmbuddy.wm.r.appspot.com/download/johnny/erokia.wav")
-			.header("Authorization",getToken())
+			.header("Authorization", getToken())
 			.get()
 			.build();
 
@@ -47,7 +47,7 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 			public void onResponse(@NotNull Call call, @NotNull Response response)
 				throws IOException {
 				// TODO add error check on file type header
-				File file = new File(context.getFilesDir(),"databaseAlarm.wav");
+				File file = new File(context.getFilesDir(), "databaseAlarm.wav");
 				byte[] responseBytes = response.body().bytes();
 
 				FileOutputStream outputStream = new FileOutputStream(file);
@@ -59,6 +59,7 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 
 				scheduleAlarm(false);
 			}
+
 			@Override
 			public void onFailure(@NotNull Call call, @NotNull IOException e) {
 				call.cancel();
@@ -68,12 +69,13 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 			}
 
 			private void scheduleAlarm(boolean useDefaultNoise) {
-				Log.i(AlarmFetchReceiver.class.getName(),"Scheduling alarm.");
+				Log.i(AlarmFetchReceiver.class.getName(), "Scheduling alarm.");
 
-				Intent outputIntent = new Intent(context,AlarmNoisemaker.class);
-				outputIntent.putExtra("useDefaultNoise",useDefaultNoise);
+				Intent outputIntent = new Intent(context, AlarmNoisemaker.class);
+				outputIntent.putExtra("useDefaultNoise", useDefaultNoise);
 
-				PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, outputIntent, 0);
+				PendingIntent pendingIntent = PendingIntent
+					.getBroadcast(context, 0, outputIntent, 0);
 				AlarmManager alarmManager = AlarmPublisher.getAlarmManager(context);
 				alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, 1000L, pendingIntent);
 // TODO need to revise this to set alarms for the true time
@@ -96,7 +98,7 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 			throw new RuntimeException("Error reading file in AlarmFetchReceiver");
 		}
 
-		if(jsonString != null) {
+		if (jsonString != null) {
 			JsonElement json = JsonParser.parseString(jsonString);
 			String token = json.getAsJsonObject()
 				.get("token")

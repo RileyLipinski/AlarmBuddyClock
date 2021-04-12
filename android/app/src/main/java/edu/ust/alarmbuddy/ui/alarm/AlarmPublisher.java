@@ -13,18 +13,18 @@ public class AlarmPublisher {
 	public static int TWO_MINUTES = 2 * 60 * 1000;
 	public static int TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 
-	public static void publishAlarm(Context context, int hours, int minutes,boolean demo) {
+	public static void publishAlarm(Context context, int hours, int minutes, boolean demo) {
 
-		if(demo) {
+		if (demo) {
 			Intent intent;
 			PendingIntent pendingIntent;
 			AlarmManager alarmManager = getAlarmManager(context);
 
-			Log.i(CLASS,"Setting a demo alarm");
+			Log.i(CLASS, "Setting a demo alarm");
 			intent = new Intent(context, AlarmFetchReceiver.class);
-			intent.putExtra("wakeupTime",System.currentTimeMillis() + 10000L);
-			pendingIntent = PendingIntent.getBroadcast(context,0,intent,0);
-			alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,100L,pendingIntent);
+			intent.putExtra("wakeupTime", System.currentTimeMillis() + 10000L);
+			pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+			alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, 100L, pendingIntent);
 		} else {
 			long wakeupTime = wakeupTime(hours, minutes, System.currentTimeMillis());
 

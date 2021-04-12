@@ -42,7 +42,8 @@ public class AlarmFragment extends Fragment {
 
 			alarm.setAlarm(getContext());
 
-			AlarmPublisher.publishAlarm(getContext(), timePicker.getHour(), timePicker.getMinute(),false);
+			AlarmPublisher
+				.publishAlarm(getContext(), timePicker.getHour(), timePicker.getMinute(), false);
 			Toast.makeText(getContext(), String
 					.format("Setting time for %2d:%2d", timePicker.getHour(), timePicker.getMinute()),
 				Toast.LENGTH_SHORT);
@@ -50,7 +51,7 @@ public class AlarmFragment extends Fragment {
 
 		final Button demoButton = root.findViewById(R.id.demo_button);
 		demoButton.setOnClickListener(view -> {
-			AlarmPublisher.publishAlarm(getContext(),0,0,true);
+			AlarmPublisher.publishAlarm(getContext(), 0, 0, true);
 		});
 		return root;
 	}
