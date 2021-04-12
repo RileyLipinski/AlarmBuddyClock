@@ -13,17 +13,25 @@ import edu.ust.alarmbuddy.R;
 import java.util.ArrayList;
 import org.jetbrains.annotations.NotNull;
 
-public class ProfileAdapter extends
-	RecyclerView.Adapter<ProfileAdapter.ProfileViewHolder> implements Filterable {
+/***
+ * @author Keghan Halloran
+ * This adapter is necessary to correctly adapt the information in a users friends list
+ * to our recyclerview.
+ */
+public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileViewHolder> implements Filterable {
 
 	private final ArrayList<Profile> mProfileList;
 	private final ArrayList<Profile> mProfileListFull;
 
+	/***
+	 * @author Keghan Halloran
+	 * This class is used by the ProfileAdapter. It holds references to items as a means of increasing proformance.
+	 */
 	public static class ProfileViewHolder extends RecyclerView.ViewHolder {
 
-		public ImageView mImageView;
-		public TextView mTextView1;
-		public TextView mTextView2;
+		private ImageView mImageView;
+		private TextView mTextView1;
+		private TextView mTextView2;
 
 		public ProfileViewHolder(@NonNull @NotNull View itemView) {
 			super(itemView);

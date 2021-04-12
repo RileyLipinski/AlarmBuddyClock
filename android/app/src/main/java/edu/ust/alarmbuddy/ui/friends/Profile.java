@@ -1,5 +1,9 @@
 package edu.ust.alarmbuddy.ui.friends;
 
+/***
+ * @author Keghan Halloran
+ * creates a Profile object that contains and image and two text fields
+ */
 public class Profile {
 
 	private final int mImageResource;

@@ -2,7 +2,11 @@ package edu.ust.alarmbuddy.ui.friends;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import androidx.appcompat.widget.SearchView;
@@ -10,14 +14,24 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
-import okhttp3.*;
-import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 
+/***
+ * @author Keghan Halloran
+ * This is the Fragment responsible for a users friends list. it does the following:
+ * Obtains the users friends list from the database using an OKHTTP request.
+ * Generates profile objects for those friends and displays them in a recyclerview.
+ * Creates a "Send Friend Request" button that redirects a user to the SendRequest activity
+ * that handles sending friend requests to other users.
+ */
 public class FriendsFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private ProfileAdapter mAdapter;
@@ -33,7 +47,6 @@ public class FriendsFragment extends Fragment {
         button = null;
     }
 
-    //gets a list of friend names from the database and then populates and returns a arraylist of profiles sorted by the names associated with them
     private void populateArray() throws InterruptedException {
         ArrayList<Profile> profileList = new ArrayList<>();
         ArrayList<String> nameList = new ArrayList<>();
@@ -47,21 +60,22 @@ public class FriendsFragment extends Fragment {
         getRequest(nameList);
 
         //sorts the list of names alphabetically before using them to create Profile objects
-        Collections.sort(nameList, String::compareToIgnoreCase);
+        nameList.sort(String::compareToIgnoreCase);
 
         //uses the sorted names to create Profile objects
         for (String s : nameList) {
             profileList.add(new Profile(R.drawable.ic_baseline_account_box, s, "details")); }
 
-        mProfileList = profileList;
+        setMProfileList(profileList);
 }
 
-    public static void getRequest(ArrayList<String> nameList) throws InterruptedException {
+    private static void getRequest(ArrayList<String> nameList) throws InterruptedException {
 
+        //generates a get request from the database for a users friends list
+        //currently using hardcoded values, as dynamically obtaining all relevant user data is not yet possible.
         OkHttpClient client = new OkHttpClient();
-        String token ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IktIYW5kcm9pZCIsImlhdCI6MTYxODExMDQ1MiwiZXhwIjoxNjE4MTk2ODUyfQ.QDDyk9yQgGvGkl1gdND-MpsR8bBCHEagsTadwznOjNw";
+        String token ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IktIYW5kcm9pZCIsImlhdCI6MTYxODI0MjQ2MywiZXhwIjoxNjE4MzI4ODYzfQ.E2GS-HHaubdMiyx1iFqD4MEU1PUBNV4lsQDuR7ywfe8";
         Request request = new Request.Builder()
-                //{"auth":true,"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IktIYW5kcm9pZCIsImlhdCI6MTYxODExMDQ1MiwiZXhwIjoxNjE4MTk2ODUyfQ.QDDyk9yQgGvGkl1gdND-MpsR8bBCHEagsTadwznOjNw"}
                 .url("https://alarmbuddy.wm.r.appspot.com/FriendsWith/KHandroid")
                 .header("Authorization",token)
                 .build();
@@ -77,8 +91,9 @@ public class FriendsFragment extends Fragment {
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                final String myResponse;
                 if (response.isSuccessful()){
-                    final String myResponse = response.body().string();
+                   myResponse = response.body().string();
                     nameList.add(myResponse);
                 }
                 else {
@@ -117,17 +132,16 @@ public class FriendsFragment extends Fragment {
         return this.mProfileList;
     }
 
-    private void buildButton(View v){
-        button = v.findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openSendRequest();
-            }
-        });
+    private void setMProfileList(ArrayList<Profile> input){
+        mProfileList = input;
     }
 
-    public void openSendRequest(){
+    private void buildButton(View v){
+        button = v.findViewById(R.id.button);
+        button.setOnClickListener(v1 -> openSendRequest());
+    }
+
+    private void openSendRequest(){
         Intent intent = new Intent(getActivity(), SendRequest.class);
         startActivity(intent);
     }

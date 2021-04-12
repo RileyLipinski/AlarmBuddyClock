@@ -1,8 +1,10 @@
 package edu.ust.alarmbuddy.ui.friends;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.view.*;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -11,6 +13,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import edu.ust.alarmbuddy.R;
 
+/***
+ * @author Keghan Halloran
+ * This activity provides the framework for sending friend requests
+ * it currently does nothing other than displaying a message to the user
+ * since we do not have the ability to add to a users friends list
+ * or send a user a friend request yet. Implementing the intended usage
+ * is dependant on further collaboration with the database team.
+ */
 public class SendRequest extends AppCompatActivity {
     private Button button;
 
@@ -29,7 +39,7 @@ public class SendRequest extends AppCompatActivity {
 
     }
 
-    public void showToast(){
+    private void showToast(){
         LayoutInflater inflater = getLayoutInflater();
         View layout = inflater.inflate(R.layout.friend_request_toast, findViewById(R.id.toast_root));
         Toast toast = new Toast(getApplicationContext());
@@ -39,6 +49,7 @@ public class SendRequest extends AppCompatActivity {
         toast.show();
     }
 
+    //allows the back arrow at the top of this activity to go back to the Friends Fragment instead of a parent activity
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         super.onOptionsItemSelected(item);
