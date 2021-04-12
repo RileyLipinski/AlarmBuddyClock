@@ -31,7 +31,7 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 			makeDefaultNoise(context);
 		} else {
 			// TODO base the file name on the file type being downloaded
-			makeNoise(context, Uri.fromFile(new File(context.getFilesDir(), "databaseAlarm.wav")));
+			makeNoise(context, Uri.fromFile(new File(context.getExternalFilesDir(""),"databaseAlarm.wav")));
 		}
 
 		intent.removeExtra("useDefaultNoise");

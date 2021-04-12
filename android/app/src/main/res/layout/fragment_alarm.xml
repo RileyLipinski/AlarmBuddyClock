@@ -47,8 +47,8 @@
     android:layout_marginTop="112dp"/>
   <TimePicker
     android:id="@+id/fragment_alarm_clock"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_width="412dp"
+    android:layout_height="346dp"
     app:layout_constraintTop_toTopOf="parent"/>
 
   <EditText

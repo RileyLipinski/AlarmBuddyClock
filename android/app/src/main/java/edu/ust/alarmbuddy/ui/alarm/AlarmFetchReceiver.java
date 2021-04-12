@@ -47,7 +47,7 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 			public void onResponse(@NotNull Call call, @NotNull Response response)
 				throws IOException {
 				// TODO add error check on file type header
-				File file = new File(context.getFilesDir(), "databaseAlarm.wav");
+				File file = new File(context.getExternalFilesDir(""),"databaseAlarm.wav");
 				byte[] responseBytes = response.body().bytes();
 
 				FileOutputStream outputStream = new FileOutputStream(file);
