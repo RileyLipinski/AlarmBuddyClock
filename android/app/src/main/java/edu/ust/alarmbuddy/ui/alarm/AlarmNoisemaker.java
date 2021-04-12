@@ -16,12 +16,12 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		//TODO this is caching the downloaded sound for some reason
 		Log.i(AlarmNoisemaker.class.getName(), "Playing noise at " + new Date().toString());
 		if(intent.getBooleanExtra("useDefaultNoise",true)) {
 			makeDefaultNoise(context);
 		} else {
-			makeNoise(context, Uri.fromFile(new File(context.getFilesDir(),"databaseAlarm.mp3")));
+			// TODO base the file name on the file type being downloaded
+			makeNoise(context, Uri.fromFile(new File(context.getFilesDir(),"databaseAlarm.wav")));
 		}
 	}
 
@@ -30,7 +30,7 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 			MediaPlayer mediaPlayer = new MediaPlayer();
 			mediaPlayer.setAudioAttributes(
 				new AudioAttributes.Builder()
-					.setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+					.setContentType(AudioAttributes.CONTENT_TYPE_UNKNOWN)
 					.setUsage(AudioAttributes.USAGE_MEDIA)
 					.build()
 			);

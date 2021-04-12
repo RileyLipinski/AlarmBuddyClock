@@ -1,7 +1,10 @@
 package edu.ust.alarmbuddy.common;
 
 import android.os.Build;
+import android.util.Log;
 import androidx.annotation.RequiresApi;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.CountDownLatch;
@@ -37,6 +40,7 @@ public class AlarmBuddyHttp {
 		System.out.println("Sending request to " + r.url().toString());
 		client.newCall(r).enqueue(c);
 	}
+
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public static boolean authenticateLogin(String username, String password) throws IOException {
 
@@ -71,8 +75,15 @@ public class AlarmBuddyHttp {
             e.printStackTrace();
         }
 
-        return stringResponse[0].substring(8,12).equals("true") && stringResponse[0] != null;
+        // TODO replace with more robust token storage solution
+        Log.i(AlarmBuddyHttp.class.getName(),"Writing token to file");
+        File file = new File("/data/user/0/edu.ust.alarmbuddy/files/token");
 
+        FileOutputStream outputStream = new FileOutputStream(file);
+        outputStream.write(stringResponse[0].getBytes());
+        outputStream.close();
+
+        return stringResponse[0].substring(8,12).equals("true") && stringResponse[0] != null;
     }
 
     public static boolean createUser (String username, String password, String firstName, String lastName,

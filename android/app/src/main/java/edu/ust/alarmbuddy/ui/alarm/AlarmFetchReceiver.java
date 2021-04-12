@@ -6,9 +6,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -31,8 +35,10 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 		}
 
 		OkHttpClient client = new OkHttpClient();
+		// TODO remove hard-coded url in production
 		Request request = new Request.Builder()
-			.url(AlarmBuddyHttp.LOCAL_SERVER_URL + "/audio-test")
+			.url("https://alarmbuddy.wm.r.appspot.com/download/johnny/erokia.wav")
+			.header("Authorization",getToken())
 			.get()
 			.build();
 
@@ -40,7 +46,8 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 			@Override
 			public void onResponse(@NotNull Call call, @NotNull Response response)
 				throws IOException {
-				File file = new File(context.getFilesDir(),"databaseAlarm.mp3");
+				// TODO add error check on file type header
+				File file = new File(context.getFilesDir(),"databaseAlarm.wav");
 				byte[] responseBytes = response.body().bytes();
 
 				FileOutputStream outputStream = new FileOutputStream(file);
@@ -74,5 +81,28 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 			}
 		});
 
+	}
+
+	public static String getToken() {
+		// TODO remove hard-coded token file once storage solution is settled
+		String jsonString;
+		try {
+			File file = new File("/data/user/0/edu.ust.alarmbuddy/files/token");
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+			jsonString = reader.readLine();
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException("Error reading file in AlarmFetchReceiver");
+		} catch (IOException e) {
+			throw new RuntimeException("Error reading file in AlarmFetchReceiver");
+		}
+
+		if(jsonString != null) {
+			JsonElement json = JsonParser.parseString(jsonString);
+			String token = json.getAsJsonObject()
+				.get("token")
+				.getAsString();
+			return token;
+		}
+		return null;
 	}
 }
