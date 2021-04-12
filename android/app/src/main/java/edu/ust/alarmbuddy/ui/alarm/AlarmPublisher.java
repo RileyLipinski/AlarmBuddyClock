@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import java.util.Calendar;
+import java.util.Date;
 
 public class AlarmPublisher {
 
@@ -22,7 +23,9 @@ public class AlarmPublisher {
 
 			Log.i(CLASS, "Setting a demo alarm");
 			intent = new Intent(context, AlarmFetchReceiver.class);
-			intent.putExtra("wakeupTime", System.currentTimeMillis() + 10000L);
+			long wakeupTime = System.currentTimeMillis() + 10000L;
+			intent.putExtra("wakeupTime", wakeupTime);
+			Log.i(CLASS, "Setting wakeup time: " + new Date().toString());
 			pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
 			alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, 100L, pendingIntent);
 		} else {
@@ -36,6 +39,10 @@ public class AlarmPublisher {
 				// set default alarm because there is not time to guarantee a successful fetch
 				Log.i(CLASS, "Setting default alarm");
 				intent = new Intent(context, AlarmNoisemaker.class);
+				if (intent.getExtras() != null && intent.getExtras()
+					.containsKey("useDefaultNoise")) {
+					intent.removeExtra("useDefaultNoise");
+				}
 				intent.putExtra("useDefaultNoise", true);
 				pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
 				alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeupTime, pendingIntent);

@@ -73,14 +73,16 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 					"Scheduling alarm. Default: " + useDefaultNoise);
 
 				Intent outputIntent = new Intent(context, AlarmNoisemaker.class);
+				if (outputIntent.getExtras() != null && outputIntent.getExtras()
+					.containsKey("useDefaultNoise")) {
+					outputIntent.removeExtra("useDefaultNoise");
+				}
 				outputIntent.putExtra("useDefaultNoise", useDefaultNoise);
 
 				PendingIntent pendingIntent = PendingIntent
 					.getBroadcast(context, 0, outputIntent, 0);
 				AlarmManager alarmManager = AlarmPublisher.getAlarmManager(context);
-				alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, 1000L, pendingIntent);
-// TODO need to revise this to set alarms for the true time
-				//				alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeupTime, pendingIntent);
+				alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeupTime, pendingIntent);
 			}
 		});
 

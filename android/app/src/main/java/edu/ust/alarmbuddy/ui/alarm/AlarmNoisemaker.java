@@ -18,8 +18,6 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		//TODO the intent value for "usedefaultnoise" is being cached, which prevents playing
-		// different noises in one installation
 		if (mediaPlayer != null) {
 			mediaPlayer.release();
 		}
