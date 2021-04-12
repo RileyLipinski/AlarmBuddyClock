@@ -20,7 +20,8 @@
     <receiver android:name=".ui.alarm.AlarmFetchReceiver"/>
     <receiver android:name=".ui.alarm.AlarmNoisemaker"/>
 
-    <activity
+    <activity android:name=".ui.friends.SendRequest"></activity>
+        <activity
       android:name="edu.ust.alarmbuddy.MainActivity"
       android:label="@string/app_name">
       <intent-filter>
@@ -36,7 +37,6 @@
         <category android:name="android.intent.category.LAUNCHER"/>
       </intent-filter>
     </activity>
-
     <activity android:name=".AlarmActivity"/>
     <activity android:name=".CreateAccountActivity"/>
 
