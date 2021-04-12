@@ -38,7 +38,7 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 		// TODO remove hard-coded url in production
 		Request request = new Request.Builder()
 			.url("https://alarmbuddy.wm.r.appspot.com/download/johnny/erokia.wav")
-			.header("Authorization", getToken())
+			.header("Authorization", getToken(context))
 			.get()
 			.build();
 
@@ -47,7 +47,7 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 			public void onResponse(@NotNull Call call, @NotNull Response response)
 				throws IOException {
 				// TODO add error check on file type header
-				File file = new File(context.getFilesDir(), "databaseAlarm.wav");
+				File file = new File(context.getExternalFilesDir(""), "databaseAlarm.wav");
 				byte[] responseBytes = response.body().bytes();
 
 				FileOutputStream outputStream = new FileOutputStream(file);
@@ -73,24 +73,26 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 					"Scheduling alarm. Default: " + useDefaultNoise);
 
 				Intent outputIntent = new Intent(context, AlarmNoisemaker.class);
+				if (outputIntent.getExtras() != null && outputIntent.getExtras()
+					.containsKey("useDefaultNoise")) {
+					outputIntent.removeExtra("useDefaultNoise");
+				}
 				outputIntent.putExtra("useDefaultNoise", useDefaultNoise);
 
 				PendingIntent pendingIntent = PendingIntent
 					.getBroadcast(context, 0, outputIntent, 0);
 				AlarmManager alarmManager = AlarmPublisher.getAlarmManager(context);
-				alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, 1000L, pendingIntent);
-// TODO need to revise this to set alarms for the true time
-				//				alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeupTime, pendingIntent);
+				alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeupTime, pendingIntent);
 			}
 		});
 
 	}
 
-	public static String getToken() {
+	public static String getToken(Context context) {
 		// TODO remove hard-coded token file once storage solution is settled
 		String jsonString;
 		try {
-			File file = new File("/data/user/0/edu.ust.alarmbuddy/files/token");
+			File file = new File(context.getExternalFilesDir(""), "token");
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			jsonString = reader.readLine();
 		} catch (FileNotFoundException e) {

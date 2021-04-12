@@ -3,7 +3,9 @@
   package="edu.ust.alarmbuddy">
 
   <uses-permission android:name="android.permission.INTERNET"/>
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
   <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 
   <uses-feature
@@ -21,7 +23,7 @@
     <receiver android:name=".ui.alarm.AlarmNoisemaker"/>
 
     <activity android:name=".ui.friends.SendRequest"></activity>
-        <activity
+    <activity
       android:name="edu.ust.alarmbuddy.MainActivity"
       android:label="@string/app_name">
       <intent-filter>

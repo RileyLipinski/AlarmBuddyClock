@@ -1,5 +1,6 @@
 package edu.ust.alarmbuddy;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,6 +12,17 @@ import androidx.lifecycle.ViewModelProviders;
 import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import edu.ust.alarmbuddy.ui.login.FailedLoginDialogFragment;
 import edu.ust.alarmbuddy.ui.login.LoginViewModel;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.util.concurrent.CountDownLatch;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -41,7 +53,8 @@ public class LoginActivity extends AppCompatActivity {
 				// if username and password match, "login" to homepage
 				AlarmBuddyHttp h = new AlarmBuddyHttp();
 				try {
-					if (h.authenticateLogin(stringUsername, stringPassword) && loginAttempts < 4) {
+					if (authenticateLogin(stringUsername, stringPassword, getApplicationContext())
+						&& loginAttempts < 4) {
 						loginToHome();
 					} else {
 						loginAttempts++;
@@ -72,6 +85,53 @@ public class LoginActivity extends AppCompatActivity {
 
 	private void moveToCreateAccount() {
 		startActivity(new Intent(this, CreateAccountActivity.class));
+	}
+
+	public static boolean authenticateLogin(String username, String password, Context context)
+		throws IOException {
+
+		//build the request
+		String data = "username=" + username + "&password=" + password;
+		URL url = new URL("https://alarmbuddy.wm.r.appspot.com/login");
+		RequestBody body = RequestBody.create(data, MediaType
+			.parse("application/x-www-form-urlencoded"));
+		Request request = new Request.Builder()
+			.url(url)
+			.post(body)
+			.build();
+
+		//execute the request and wait for a response
+		final String[] stringResponse = new String[1];
+		final CountDownLatch latch = new CountDownLatch(1);
+		AlarmBuddyHttp.client.newCall(request).enqueue(new Callback() {
+			@Override
+			public void onFailure(Call call, IOException e) {
+				call.cancel();
+				latch.countDown();
+			}
+
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				stringResponse[0] = response.body().string();
+				latch.countDown();
+			}
+		});
+		try {
+			latch.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		// TODO replace with more robust token storage solution
+		Log.i(AlarmBuddyHttp.class.getName(), "Writing token to file");
+		File file = new File(context.getExternalFilesDir(""), "token");
+
+		FileOutputStream outputStream = new FileOutputStream(file);
+		outputStream.write(stringResponse[0].getBytes());
+		outputStream.close();
+		System.out.println(file.getAbsolutePath());
+
+		return stringResponse[0].substring(8, 12).equals("true") && stringResponse[0] != null;
 	}
 }
 

@@ -101,7 +101,7 @@ public class Alarm {
 	public void setAlarm(Context context) {
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
-		Intent intent = new Intent(context, AlarmPublisher.class);
+		Intent intent = new Intent(context, AlarmNoisemaker.class);
 
 		/** intent.putExtra(String, value)
 		 Needed for days of the week and name?
