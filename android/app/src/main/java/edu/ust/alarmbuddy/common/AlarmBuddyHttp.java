@@ -1,12 +1,8 @@
 package edu.ust.alarmbuddy.common;
 
 import android.os.Build;
-import android.util.Log;
 import androidx.annotation.RequiresApi;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.util.concurrent.CountDownLatch;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -43,7 +39,6 @@ public class AlarmBuddyHttp {
 	}
 
 	@RequiresApi(api = Build.VERSION_CODES.KITKAT)
-
 
 	public static boolean createUser(String username, String password, String firstName,
 		String lastName,

@@ -47,7 +47,7 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 			public void onResponse(@NotNull Call call, @NotNull Response response)
 				throws IOException {
 				// TODO add error check on file type header
-				File file = new File(context.getExternalFilesDir(""),"databaseAlarm.wav");
+				File file = new File(context.getExternalFilesDir(""), "databaseAlarm.wav");
 				byte[] responseBytes = response.body().bytes();
 
 				FileOutputStream outputStream = new FileOutputStream(file);
@@ -90,7 +90,7 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 		// TODO remove hard-coded token file once storage solution is settled
 		String jsonString;
 		try {
-			File file = new File(context.getExternalFilesDir(""),"token");
+			File file = new File(context.getExternalFilesDir(""), "token");
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			jsonString = reader.readLine();
 		} catch (FileNotFoundException e) {

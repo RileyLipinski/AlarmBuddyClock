@@ -53,7 +53,8 @@ public class LoginActivity extends AppCompatActivity {
 				// if username and password match, "login" to homepage
 				AlarmBuddyHttp h = new AlarmBuddyHttp();
 				try {
-					if (authenticateLogin(stringUsername, stringPassword,getApplicationContext()) && loginAttempts < 4) {
+					if (authenticateLogin(stringUsername, stringPassword, getApplicationContext())
+						&& loginAttempts < 4) {
 						loginToHome();
 					} else {
 						loginAttempts++;
@@ -86,7 +87,8 @@ public class LoginActivity extends AppCompatActivity {
 		startActivity(new Intent(this, CreateAccountActivity.class));
 	}
 
-	public static boolean authenticateLogin(String username, String password, Context context) throws IOException {
+	public static boolean authenticateLogin(String username, String password, Context context)
+		throws IOException {
 
 		//build the request
 		String data = "username=" + username + "&password=" + password;
@@ -122,7 +124,7 @@ public class LoginActivity extends AppCompatActivity {
 
 		// TODO replace with more robust token storage solution
 		Log.i(AlarmBuddyHttp.class.getName(), "Writing token to file");
-		File file = new File(context.getExternalFilesDir(""),"token");
+		File file = new File(context.getExternalFilesDir(""), "token");
 
 		FileOutputStream outputStream = new FileOutputStream(file);
 		outputStream.write(stringResponse[0].getBytes());
