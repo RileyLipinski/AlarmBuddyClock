@@ -13,13 +13,13 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import edu.ust.alarmbuddy.R;
 
-public class AlarmsFragment extends Fragment {
+public class AlarmListFragment extends Fragment {
 
-	private AlarmsViewModel alarmsViewModel;
+	private AlarmListViewModel alarmsViewModel;
 
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
 		Bundle savedInstanceState) {
-		alarmsViewModel = ViewModelProviders.of(this).get(AlarmsViewModel.class);
+		alarmsViewModel = ViewModelProviders.of(this).get(AlarmListViewModel.class);
 		View root = inflater.inflate(R.layout.fragment_alarms, container, false);
 		final TextView textView = root.findViewById(R.id.alarm_text);
 		final Switch alarmSwitch = root.findViewById(R.id.alarmSwitch);
