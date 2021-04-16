@@ -4,11 +4,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class AlarmsViewModel extends ViewModel {
+public class AlarmListViewModel extends ViewModel {
 
 	private MutableLiveData<String> mText;
 
-	public AlarmsViewModel() {
+	public AlarmListViewModel() {
 		mText = new MutableLiveData<>();
 		mText.setValue("Alarm #1");
 	}

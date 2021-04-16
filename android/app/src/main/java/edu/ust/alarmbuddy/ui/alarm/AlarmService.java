@@ -11,16 +11,18 @@ import androidx.core.app.NotificationCompat;
 import edu.ust.alarmbuddy.AlarmActivity;
 import edu.ust.alarmbuddy.R;
 
+import static edu.ust.alarmbuddy.ui.alarm.App.CHANNEL_ID;
+
 public class AlarmService extends Service {
 
 	private MediaPlayer mediaPlayer;
 
+	@Override
 	public void onCreate() {
 		super.onCreate();
 
 		mediaPlayer = mediaPlayer.create(this, R.raw.alarm_buddy);
 		mediaPlayer.setLooping(true);
-
 	}
 
 	@Override
@@ -30,7 +32,7 @@ public class AlarmService extends Service {
 
 		//String alarmName = String.format("%s Alarm", intent.getStringExtra(name));
 
-		Notification notification = new NotificationCompat.Builder(this)
+		Notification alarmNotification = new NotificationCompat.Builder(this, CHANNEL_ID)
 			.setContentTitle("ALARM")
 			.setContentText("RING RING RING")
 			.setSmallIcon(R.drawable.ic_baseline_access_alarm_24)
@@ -39,7 +41,7 @@ public class AlarmService extends Service {
 
 		mediaPlayer.start();
 
-		startForeground(1, notification);
+		startForeground(1, alarmNotification);
 
 		return START_STICKY;
 	}

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
 import edu.ust.alarmbuddy.R;
 import java.io.File;
@@ -57,9 +58,16 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 					.setUsage(AudioAttributes.USAGE_MEDIA)
 					.build()
 			);
+			mediaPlayer.setLooping(true);
 			mediaPlayer.setDataSource(context, uri);
 			mediaPlayer.prepare();
-			mediaPlayer.start();
+			//mediaPlayer.start();
+			Intent intentService = new Intent(context, AlarmService.class);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				context.startForegroundService(intentService);
+			} else {
+				context.startService(intentService);
+			}
 		} catch (IOException e) {
 			Log.e(AlarmNoisemaker.class.getName(), "NOISEMAKER FAILED");
 		}
