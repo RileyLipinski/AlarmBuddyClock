@@ -17,14 +17,13 @@ var multer  = require('multer');
 
 var uploadSound = multer({ 
   dest: 'uploads/',
-  limits: { fileSize: 30*1024*1024} //30 mb limit
+  limits: { fileSize: 30 * 1024 * 1024}
 }).single('file');
 
 var uploadImage = multer({ 
   dest: 'uploads/',
-  limits: { fileSize: 30*1024*1024} //30mb limit
+  limits: { fileSize: 30 * 1024 * 1024}
 }).single('file');
-
 
 var cors = require('cors');
 
@@ -227,7 +226,7 @@ app.post('/login', (req,res) => {
 })
 
 // handler for downloading sound file from database
-app.route('/download/:username/:soundName/:soundID').get(function(req,res,next) {
+app.route('/download/:username/:soundID').get(function(req,res,next) {
 
   // extract token from reqest header
   var token = req.headers.authorization;
@@ -243,31 +242,32 @@ app.route('/download/:username/:soundName/:soundID').get(function(req,res,next) 
       }
       // check if extracted username from token matches the username provided in the request
       if (decoded.id == req.params.username){
-        connection.query("SELECT * FROM alarmbuddy.soundOwnership WHERE username = ? AND soundName = ? AND soundID = ?", [req.params.username, req.params.soundName, req.params.soundID], function(error, results, field){
+        connection.query("SELECT * FROM alarmbuddy.soundOwnership WHERE username = ? AND soundID = ?", [req.params.username, req.params.soundID], function(error, results, field){
           if(error) {
             // respond with error if insert failed
             res.status(500).send('ERROR: database query error.');
           }
           if (!(JSON.stringify(results) == JSON.stringify([]))){
             // select the sound file from the soundFile table based off the soundID from the previous query
-            connection.query("SELECT soundFile FROM alarmbuddy.soundFile WHERE soundID = ?", req.params.soundID, function(error, results, fields){
+            connection.query("SELECT soundName, soundFile FROM alarmbuddy.soundFile INNER JOIN alarmbuddy.soundInfo ON alarmbuddy.soundFile.soundID = alarmbuddy.soundInfo.soundID WHERE alarmbuddy.soundFile.soundID = ?", req.params.soundID, function(error, results, fields){
               if(error) {
                 // respond with error if insert failed
+                console.log(error);
                 res.status(500).send('ERROR: database query error.');
               }
               // write the sound file to the tmp folder
-              fs.writeFile('/tmp/' + req.params.soundName, results[0].soundFile, function (error) {
+              fs.writeFile('/tmp/' + results[0].soundName, results[0].soundFile, function (error) {
                 if (error){
                   // respond with error if writing to file failed
                   res.status(500).send('ERROR: write to file error.');
                 }
                 // respond with written file
-                res.sendFile('/tmp/' + req.params.soundName, (error) => {
+                res.sendFile('/tmp/' + results[0].soundName, (error) => {
                   if (error){
-                    res.status(500).send('ERROR: could not send file.');
+                    console.log(error);
                   }
                   // delete the sound file from the temp folder
-                  fs.unlinkSync('/tmp/' + req.params.soundName);
+                  fs.unlinkSync('/tmp/' + results[0].soundName);
                 });
               });
             });
@@ -315,15 +315,19 @@ app.post('/upload/:username', function (req, res, next) {
             var username = req.params.username;
             // assign sound name from the uploaded file sound name
             var soundName = req.file.originalname;
+
+            var soundDescription = req.body.soundDescription;
+
             // create the mp3 file
             var mp3 = fs.readFileSync(req.file.path);
 
             // check if the file type is a media file
             if (req.file.mimetype == "application/octet-stream"){
               // insert sound sound name into the soundInfo table
-              connection.query("INSERT INTO alarmbuddy.soundInfo (soundName) VALUES (?)", soundName, function(error, result, field){
+              connection.query("INSERT INTO alarmbuddy.soundInfo (soundName, soundDescription) VALUES (?, ?)", [soundName, soundDescription], function(error, result, field){
                 if(error) {
                   // respond with error if insert failed
+                  console.log(error);
                   res.status(500).send('ERROR: database query error.');
                 }else{
                   // create soundfile entry using the results from previous query and the mp3 file
@@ -343,10 +347,10 @@ app.post('/upload/:username', function (req, res, next) {
                     fs.unlinkSync(req.file.path);
                     
                     var ownershipEntry = [
-                      [username, soundID, soundName]
+                      [username, soundID]
                     ]
 
-                    connection.query("INSERT INTO alarmbuddy.soundOwnership (username, soundID, soundName) VALUES ?", [ownershipEntry], function(error, result,field) {
+                    connection.query("INSERT INTO alarmbuddy.soundOwnership (username, soundID) VALUES ?", [ownershipEntry], function(error, result,field) {
                       if(error) {
                         // respond with error if insert failed
                         res.status(500).send('ERROR: database query error.');
@@ -390,7 +394,7 @@ app.route('/sounds/:username').get(function(req,res,next){
         // check if extracted username from token matches the username provided in the request
         if (decoded.id == req.params.username){
           // select the list of soundNames from soundOwnership table based off the username provided in the request
-          connection.query("SELECT * FROM alarmbuddy.soundOwnership WHERE username = ?", req.params.username, function(error, results, fields) {
+          connection.query("SELECT * FROM alarmbuddy.soundOwnership INNER JOIN alarmbuddy.soundInfo ON alarmbuddy.soundOwnership.soundID = alarmbuddy.soundInfo.soundID WHERE username = ?", req.params.username, function(error, results, fields) {
             if (error) {
               // respond with error if database query failed
               res.status(500).send('ERROR: database query error.');
@@ -408,7 +412,7 @@ app.route('/sounds/:username').get(function(req,res,next){
 
 
 // handler for deleting a sound
-app.route('/deleteAlarm/:username/:soundName/:soundID').delete(function(req,res,next) {
+app.route('/deleteSound/:username/:soundID').delete(function(req,res,next) {
 
   // extract token from reqest header
   var token = req.headers.authorization;
@@ -424,19 +428,19 @@ app.route('/deleteAlarm/:username/:soundName/:soundID').delete(function(req,res,
         }
         // check if extracted username from token matches the username provided in the request
         if (decoded.id == req.params.username){
-          connection.query("SELECT * FROM alarmbuddy.soundOwnership WHERE username = ? AND soundName = ? AND soundID = ?", [req.params.username, req.params.soundName, req.params.soundID], function(error, results, field){
+          connection.query("SELECT * FROM alarmbuddy.soundOwnership WHERE username = ? AND soundID = ?", [req.params.username, req.params.soundID], function(error, results, field){
             if(error) {
               // respond with error if insert failed
               res.status(500).send('ERROR: database query error.');
             }
             if (!(JSON.stringify(results) == JSON.stringify([]))){
-              connection.query("SELECT COUNT(soundName) AS numberOfOwners FROM alarmbuddy.soundOwnership WHERE soundName = ? AND soundID = ?", [req.params.soundName, req.params.soundID], function(error, results, field){
+              connection.query("SELECT COUNT(soundID) AS numberOfOwners FROM alarmbuddy.soundOwnership WHERE soundID = ?", [req.params.soundName, req.params.soundID], function(error, results, field){
                 if(error) {
                   // respond with error if insert failed
                   res.status(500).send('ERROR: database query error.');
                 }
                 if (results[0].numberOfOwners > 1){
-                  connection.query("DELETE FROM alarmbuddy.soundOwnership WHERE username = ? AND soundName = ? AND soundID = ?", [req.params.username, req.params.soundName, req.params.soundID], function(error, results, field){
+                  connection.query("DELETE FROM alarmbuddy.soundOwnership WHERE username = ? AND soundID = ?", [req.params.username, req.params.soundName, req.params.soundID], function(error, results, field){
                     if(error) {
                       // respond with error if insert failed
                       res.status(500).send('ERROR: database query error.');
@@ -521,7 +525,50 @@ app.post('/setProfilePicture/:username', function (req, res, next) {
       } 
     }   
   });
+});
 
+app.route('/shareSound/:sender/:reciever/:soundID').post(function(req,res,next){
+
+  // extract token from reqest header
+  var token = req.headers.authorization;
+  // check if token was provided in the request
+  if (!token){
+    res.status(401).send({ auth: false, message: 'No token provided.' });
+  } else {
+    // verify that token provided is a valid token
+    jwt.verify(token, config.secret, function(error, decoded) {
+      // respond with error that token could not be authenticated
+      if (error) {
+        res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+      }
+      // check if extracted username from token matches the username provided in the request
+      if (decoded.id == req.params.sender){
+        connection.query("SELECT * FROM alarmbuddy.soundOwnership WHERE username = ? AND soundID = ?", [req.params.sender, req.params.soundID], function(error, results, field){
+          if(error) {
+            // respond with error if insert failed
+            res.status(500).send('ERROR: database query error.');
+          }
+          if (!(JSON.stringify(results) == JSON.stringify([]))){
+    
+            connection.query("REPLACE INTO alarmbuddy.soundOwnership SET username = ?, soundID = ?", [req.params.reciever, req.params.soundID], function(error, result, field){
+              if(error) {
+                // respond with error if insert failed
+                console.log(error);
+                res.status(500).send('ERROR: database query error.');
+              } else {
+                res.status(201).send("Shared sound successfully.");
+              }
+            });
+          } else {
+            res.status(500).send('ERROR: no access to audio file or file does not exist.');
+          }
+        });
+      } else {
+        // extracted token username did not match provided username from request so send error
+        res.status(401).send('ERROR: Access to provided user denied.');
+      }
+    });
+  }
 });
 
 
