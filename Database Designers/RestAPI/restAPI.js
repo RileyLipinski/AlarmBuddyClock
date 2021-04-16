@@ -289,7 +289,7 @@ app.route('/download/:username/:soundID').get(function(req,res,next) {
   }
 });
 
-// handler for updloading sound file to database
+// handler for uploading sound file to database
 app.post('/upload/:username', function (req, res, next) {
   uploadSound(req, res, function (err) {
     if (err instanceof multer.MulterError) {
@@ -536,7 +536,7 @@ app.post('/setProfilePicture/:username', function (req, res, next) {
 });
 
 // handler for sharing sounds after they have been uploaded to the database
-app.route('/shareSound/:sender/:reciever/:soundID').post(function(req,res,next){
+app.route('/shareSound/:sender/:receiver/:soundID').post(function(req,res,next){
 
   // extract token from reqest header
   var token = req.headers.authorization;
@@ -560,8 +560,8 @@ app.route('/shareSound/:sender/:reciever/:soundID').post(function(req,res,next){
           }
           // check if the query above responded with a row from the soundOwnership table or not
           if (!(JSON.stringify(results) == JSON.stringify([]))){
-            // create a new entry in the soundOwnership table for the reciever of the sound being sent
-            connection.query("REPLACE INTO alarmbuddy.soundOwnership SET username = ?, soundID = ?", [req.params.reciever, req.params.soundID], function(error, result, field){
+            // create a new entry in the soundOwnership table for the receiver of the sound being sent
+            connection.query("REPLACE INTO alarmbuddy.soundOwnership SET username = ?, soundID = ?", [req.params.receiver, req.params.soundID], function(error, result, field){
               if(error) {
                 // respond with error if insert/replace failed
                 res.status(500).send('ERROR: database query error.');
