@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import edu.ust.alarmbuddy.R;
-import edu.ust.alarmbuddy.ui.alarm.AlarmPublisher;
+import edu.ust.alarmbuddy.ui.alarm.AlarmNoisemaker;
 
 public class NotificationsFragment extends Fragment {
 
@@ -32,7 +32,7 @@ public class NotificationsFragment extends Fragment {
 		});
 		final Button demoButton = root.findViewById(R.id.demo_button);
 		demoButton.setOnClickListener(view -> {
-			AlarmPublisher.publishAlarm(getContext(), 0, 0, true);
+			AlarmNoisemaker.demoButton(getContext());
 		});
 		return root;
 	}
