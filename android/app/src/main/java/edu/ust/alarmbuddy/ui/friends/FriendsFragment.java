@@ -89,9 +89,17 @@ public class FriendsFragment extends Fragment {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		String username = "";
+		try {
+			username = UserData.getString(context, "username");
+		} catch (GeneralSecurityException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		Request request = new Request.Builder()
-			.url("https://alarmbuddy.wm.r.appspot.com/FriendsWith/johnny")
+			.url("https://alarmbuddy.wm.r.appspot.com/FriendsWith/" + username)
 			.header("Authorization", token)
 			.build();
 
