@@ -10,10 +10,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
 import com.google.gson.JsonParser;
 import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
+import edu.ust.alarmbuddy.common.UserData;
 import edu.ust.alarmbuddy.ui.login.FailedLoginDialogFragment;
 import edu.ust.alarmbuddy.ui.login.LoginViewModel;
 import java.io.IOException;
 import java.net.URL;
+import java.security.GeneralSecurityException;
 import java.util.concurrent.CountDownLatch;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -121,12 +123,16 @@ public class LoginActivity extends AppCompatActivity {
 			.get("token")
 			.getAsString();
 
-		//TODO should encrypt SharedPreferences before release
-		getApplicationContext().getSharedPreferences("userData", MODE_PRIVATE).edit()
-			.putString("username", username)
-			.putString("token", token)
-			.apply();
+		try {
+			UserData.getSharedPreferences(getApplicationContext()).edit()
+				.putString("username", username)
+				.putString("token", token)
+				.apply();
 
+		} catch (GeneralSecurityException e) {
+			//TODO verify that this is acceptable behavior
+			return false;
+		}
 		return stringResponse[0] != null && stringResponse[0].substring(8, 12).equals("true");
 	}
 }

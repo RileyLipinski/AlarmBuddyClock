@@ -15,7 +15,9 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
+import edu.ust.alarmbuddy.common.UserData;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
@@ -75,14 +77,22 @@ public class FriendsFragment extends Fragment {
 
 	private static void getRequest(ArrayList<String> nameList, Context context)
 		throws InterruptedException {
-
 		//generates a get request from the database for a users friends list
 		//currently using hardcoded values, as dynamically obtaining all relevant user data is not yet possible.
 		OkHttpClient client = new OkHttpClient();
+
+		String token = "";
+		try {
+			token = UserData.getString(context, "token");
+		} catch (GeneralSecurityException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		Request request = new Request.Builder()
 			.url("https://alarmbuddy.wm.r.appspot.com/FriendsWith/johnny")
-			.header("Authorization", context.getSharedPreferences("userData", Context.MODE_PRIVATE)
-				.getString("token", ""))
+			.header("Authorization", token)
 			.build();
 
 		//insures that the get request is completed before the code continues

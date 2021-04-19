@@ -6,9 +6,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import edu.ust.alarmbuddy.common.UserData;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -30,12 +32,20 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 
 		long wakeupTime = intent.getLongExtra("wakeupTime", Long.MIN_VALUE);
 
+		String token = "";
+		try {
+			token = UserData.getString(context, "token");
+		} catch (GeneralSecurityException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		OkHttpClient client = new OkHttpClient();
 		// TODO remove hard-coded url in production
 		Request request = new Request.Builder()
 			.url("https://alarmbuddy.wm.r.appspot.com/download/johnny/erokia.wav")
-			.header("Authorization", context.getSharedPreferences("userData", Context.MODE_PRIVATE)
-				.getString("token", ""))
+			.header("Authorization", token)
 			.get()
 			.build();
 
