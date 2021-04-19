@@ -80,7 +80,8 @@ public class FriendsFragment extends Fragment {
 		//currently using hardcoded values, as dynamically obtaining all relevant user data is not yet possible.
 		OkHttpClient client = new OkHttpClient();
 		Request request = new Request.Builder()
-			.url("https://alarmbuddy.wm.r.appspot.com/FriendsWith/johnny")
+			.url("https://alarmbuddy.wm.r.appspot.com/FriendsWith/" +context.getSharedPreferences("userData", Context.MODE_PRIVATE)
+					.getString("username", ""))
 			.header("Authorization", context.getSharedPreferences("userData", Context.MODE_PRIVATE)
 				.getString("token", ""))
 			.build();
