@@ -103,10 +103,6 @@ public class Alarm {
 
 		Intent intent = new Intent(context, AlarmNoisemaker.class);
 
-		/** intent.putExtra(String, value)
-		 Needed for days of the week and name?
-		 */
-
 		PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, alarmId, intent, 0);
 
 		Calendar calendar = Calendar.getInstance();
@@ -116,9 +112,25 @@ public class Alarm {
 		calendar.set(Calendar.MINUTE, minute);
 		calendar.set(Calendar.HOUR_OF_DAY, hour);
 
+		String dayOfWeek = "day";
+		if(calendar.get(Calendar.DAY_OF_WEEK) == 1) {
+			dayOfWeek = "Sunday";
+		} else if (calendar.get(Calendar.DAY_OF_WEEK) == 2) {
+			dayOfWeek = "Monday";
+		} else if (calendar.get(Calendar.DAY_OF_WEEK) == 3) {
+			dayOfWeek = "Tuesday";
+		} else if (calendar.get(Calendar.DAY_OF_WEEK) == 4) {
+			dayOfWeek = "Wednesday";
+		} else if (calendar.get(Calendar.DAY_OF_WEEK) == 5) {
+			dayOfWeek = "Thursday";
+		} else if (calendar.get(Calendar.DAY_OF_WEEK) == 6) {
+			dayOfWeek = "Friday";
+		} else if (calendar.get(Calendar.DAY_OF_WEEK) == 7) {
+			dayOfWeek = "Saturday";
+		}
+
 		String alarmConfirmation = String
-			.format("Alarm (%s) set for %s at %d:%d", name, calendar.get(Calendar.DAY_OF_WEEK),
-				hour, minute);
+			.format("Alarm (%s) set for %s at %02d:%02d", name, dayOfWeek, hour, minute);
 		Toast toast = Toast.makeText(context, alarmConfirmation, Toast.LENGTH_LONG);
 		toast.show();
 

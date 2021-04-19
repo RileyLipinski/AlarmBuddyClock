@@ -8,21 +8,24 @@ import androidx.annotation.RequiresApi;
 
 public class App extends Application {
 
-	//API 26
-	@RequiresApi(api = Build.VERSION_CODES.O)
+	public static final String CHANNEL_ID = "AlarmServiceChannel";
+
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		createNotificationChannel();
 	}
 
-	//API 26
-	@RequiresApi(api = Build.VERSION_CODES.O)
 	public void createNotificationChannel() {
-		NotificationChannel notificationChannel = new NotificationChannel(
-			NotificationChannel.DEFAULT_CHANNEL_ID, "Alarm Service Channel",
-			NotificationManager.IMPORTANCE_DEFAULT);
-		NotificationManager notificationManager = getSystemService((NotificationManager.class));
-		notificationManager.createNotificationChannel(notificationChannel);
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			NotificationChannel notificationChannel = new NotificationChannel(
+					CHANNEL_ID,
+					"Alarm Service Channel",
+					NotificationManager.IMPORTANCE_DEFAULT
+			);
+
+			NotificationManager notificationManager = getSystemService(NotificationManager.class);
+			notificationManager.createNotificationChannel(notificationChannel);
+		}
 	}
 }

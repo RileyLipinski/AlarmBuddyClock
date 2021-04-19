@@ -1,6 +1,5 @@
 package edu.ust.alarmbuddy;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,11 +8,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
+import com.google.gson.JsonParser;
 import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import edu.ust.alarmbuddy.ui.login.FailedLoginDialogFragment;
 import edu.ust.alarmbuddy.ui.login.LoginViewModel;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.CountDownLatch;
@@ -41,7 +39,6 @@ public class LoginActivity extends AppCompatActivity {
 
 		loginButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-
 				// get username/password from input
 				TextView username = findViewById(R.id.textUsername);
 				TextView password = findViewById(R.id.textPassword);
@@ -51,9 +48,8 @@ public class LoginActivity extends AppCompatActivity {
 				String stringPassword = password.getText().toString();
 
 				// if username and password match, "login" to homepage
-				AlarmBuddyHttp h = new AlarmBuddyHttp();
 				try {
-					if (authenticateLogin(stringUsername, stringPassword, getApplicationContext())
+					if (authenticateLogin(stringUsername, stringPassword)
 						&& loginAttempts < 4) {
 						loginToHome();
 					} else {
@@ -78,18 +74,16 @@ public class LoginActivity extends AppCompatActivity {
 
 	}
 
-	public void loginToHome() {
+	private void loginToHome() {
 		startActivity(new Intent(this, MainActivity.class));
-
 	}
 
 	private void moveToCreateAccount() {
 		startActivity(new Intent(this, CreateAccountActivity.class));
 	}
 
-	public static boolean authenticateLogin(String username, String password, Context context)
+	private boolean authenticateLogin(String username, String password)
 		throws IOException {
-
 		//build the request
 		String data = "username=" + username + "&password=" + password;
 		URL url = new URL("https://alarmbuddy.wm.r.appspot.com/login");
@@ -122,16 +116,18 @@ public class LoginActivity extends AppCompatActivity {
 			e.printStackTrace();
 		}
 
-		// TODO replace with more robust token storage solution
-		Log.i(AlarmBuddyHttp.class.getName(), "Writing token to file");
-		File file = new File(context.getExternalFilesDir(""), "token");
+		String token = JsonParser.parseString(stringResponse[0])
+			.getAsJsonObject()
+			.get("token")
+			.getAsString();
 
-		FileOutputStream outputStream = new FileOutputStream(file);
-		outputStream.write(stringResponse[0].getBytes());
-		outputStream.close();
-		System.out.println(file.getAbsolutePath());
+		//TODO should encrypt SharedPreferences before release
+		getApplicationContext().getSharedPreferences("userData", MODE_PRIVATE).edit()
+			.putString("username", username)
+			.putString("token", token)
+			.apply();
 
-		return stringResponse[0].substring(8, 12).equals("true") && stringResponse[0] != null;
+		return stringResponse[0] != null && stringResponse[0].substring(8, 12).equals("true");
 	}
 }
 

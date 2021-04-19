@@ -6,13 +6,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -39,7 +34,8 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 		// TODO remove hard-coded url in production
 		Request request = new Request.Builder()
 			.url("https://alarmbuddy.wm.r.appspot.com/download/johnny/erokia.wav")
-			.header("Authorization", getToken(context))
+			.header("Authorization", context.getSharedPreferences("userData", Context.MODE_PRIVATE)
+				.getString("token", ""))
 			.get()
 			.build();
 
@@ -91,35 +87,5 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 			}
 		});
 
-	}
-
-	/**
-	 * Retrieves the user token from file storage
-	 *
-	 * @param context Application context
-	 *
-	 * @return The user's token as read from disk
-	 */
-	public static String getToken(Context context) {
-		// TODO remove hard-coded token file once storage solution is settled
-		String jsonString;
-		try {
-			File file = new File(context.getExternalFilesDir(""), "token");
-			BufferedReader reader = new BufferedReader(new FileReader(file));
-			jsonString = reader.readLine();
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException("Error reading file in AlarmFetchReceiver");
-		} catch (IOException e) {
-			throw new RuntimeException("Error reading file in AlarmFetchReceiver");
-		}
-
-		if (jsonString != null) {
-			JsonElement json = JsonParser.parseString(jsonString);
-			String token = json.getAsJsonObject()
-				.get("token")
-				.getAsString();
-			return token;
-		}
-		return null;
 	}
 }

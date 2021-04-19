@@ -1,5 +1,6 @@
 package edu.ust.alarmbuddy.ui.friends;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -55,7 +56,7 @@ public class FriendsFragment extends Fragment {
 		ArrayList<Profile> profileList = new ArrayList<>();
 		ArrayList<String> nameList = new ArrayList<>();
 
-		getRequest(nameList);
+		getRequest(nameList, getActivity().getApplicationContext());
 
 		for (int i = 0; i < 10; i++) {
 			nameList.add("Placeholder");
@@ -72,15 +73,16 @@ public class FriendsFragment extends Fragment {
 		setMProfileList(profileList);
 	}
 
-	private static void getRequest(ArrayList<String> nameList) throws InterruptedException {
+	private static void getRequest(ArrayList<String> nameList, Context context)
+		throws InterruptedException {
 
 		//generates a get request from the database for a users friends list
 		//currently using hardcoded values, as dynamically obtaining all relevant user data is not yet possible.
 		OkHttpClient client = new OkHttpClient();
-		String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImpvaG5ueSIsImlhdCI6MTYxODI1MzM0NSwiZXhwIjoxNjE4MzM5NzQ1fQ.1T3OmHwt81S0Wt0CWshSH3GoQPthnA_bYgIUKZGJ37s";
 		Request request = new Request.Builder()
 			.url("https://alarmbuddy.wm.r.appspot.com/FriendsWith/johnny")
-			.header("Authorization", token)
+			.header("Authorization", context.getSharedPreferences("userData", Context.MODE_PRIVATE)
+				.getString("token", ""))
 			.build();
 
 		//insures that the get request is completed before the code continues

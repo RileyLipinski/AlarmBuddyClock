@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
 import edu.ust.alarmbuddy.R;
 import java.io.File;
@@ -17,18 +18,17 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 	private static MediaPlayer mediaPlayer;
 
 	/**
-	 * Plays the alarm sound set in the input Intent
+	 * Plays the alarm sound downloaded by AlarmFetchReceiver, or the default noise if the download
+	 * was not completed successfully.
 	 *
 	 * @param context Application context
 	 * @param intent  Received Android Intent
 	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		if (mediaPlayer != null) {
-			mediaPlayer.release();
-		}
+		releaseMediaPlayer();
 
-		Log.i(AlarmNoisemaker.class.getName(), "Playing noise at " + new Date().toString());
+		Log.i(AlarmNoisemaker.class.getName(), "Playing noise at " + new Date());
 		Log.i(AlarmNoisemaker.class.getName(),
 			"Default noise: " + intent.getBooleanExtra("useDefaultNoise", true));
 		if (intent.getBooleanExtra("useDefaultNoise", true)) {
@@ -43,7 +43,7 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 	}
 
 	/**
-	 * Plays an audio file
+	 * Plays the audio file specified by the parameter Uri
 	 *
 	 * @param context Application context
 	 * @param uri     Uri of file to be played
@@ -57,20 +57,40 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 					.setUsage(AudioAttributes.USAGE_MEDIA)
 					.build()
 			);
+			mediaPlayer.setLooping(true);
 			mediaPlayer.setDataSource(context, uri);
 			mediaPlayer.prepare();
-			mediaPlayer.start();
+			//mediaPlayer.start();
+			Intent intentService = new Intent(context, AlarmService.class);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				context.startForegroundService(intentService);
+			} else {
+				context.startService(intentService);
+			}
 		} catch (IOException e) {
 			Log.e(AlarmNoisemaker.class.getName(), "NOISEMAKER FAILED");
 		}
 	}
 
-	/**
-	 * Plays the default audio file by calling makeNoise()
-	 *
-	 * @param context Application context
-	 */
 	public static void makeDefaultNoise(Context context) {
 		makeNoise(context, Uri.parse("android.resource://edu.ust.alarmbuddy/" + R.raw.alarm_buddy));
+	}
+
+	public static void demoButton(Context context) {
+		mediaPlayer = MediaPlayer.create(context, R.raw.pre_alarm_noise);
+		mediaPlayer.start();
+		mediaPlayer.setOnCompletionListener(mediaPlayer -> {
+			mediaPlayer.release();
+			mediaPlayer = MediaPlayer.create(context, R.raw.alarm_buddy2);
+			mediaPlayer.start();
+			mediaPlayer.setOnCompletionListener(mediaPlayer1 -> releaseMediaPlayer());
+		});
+	}
+
+	private static void releaseMediaPlayer() {
+		if (mediaPlayer != null) {
+			mediaPlayer.release();
+			mediaPlayer = null;
+		}
 	}
 }
