@@ -5,7 +5,7 @@
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
-  tools:context=".ui.alarms.AlarmsFragment">
+  tools:context=".ui.alarms.AlarmListFragment">
 
   <TextView
     android:id="@+id/alarm_text"
