@@ -11,7 +11,7 @@ var fs = require('fs');
 var jwt = require('jsonwebtoken');
 // config for jsonwebtoken
 var config = require('./config');
-
+var FileType = require('file-type');
 // package for reading files from requests
 var multer  = require('multer');
 
@@ -290,6 +290,7 @@ app.route('/download/:username/:soundID').get(function(req,res,next) {
 });
 
 // handler for uploading sound file to database
+// handler for updloading sound file to database
 app.post('/upload/:username', function (req, res, next) {
   uploadSound(req, res, function (err) {
     if (err instanceof multer.MulterError) {
@@ -323,49 +324,59 @@ app.post('/upload/:username', function (req, res, next) {
             // create the mp3 file
             var mp3 = fs.readFileSync(req.file.path);
 
-            // check if the file type is a media file
-            if (req.file.mimetype == "application/octet-stream"){
-              // insert sound sound name and sound description into the soundInfo table
-              connection.query("INSERT INTO alarmbuddy.soundInfo (soundName, soundDescription) VALUES (?, ?)", [soundName, soundDescription], function(error, result, field){
-                if(error) {
-                  // respond with error if insert failed
-                  res.status(500).send('ERROR: database query error.');
-                }else{
-                  // assign soundID from above query to var
-                  var soundID = result.insertId;
-                  // create soundfile entry using the results from previous query and the mp3 file
-                  var soundFileEntry = [
-                    [soundID, mp3]
-                  ];
-                  // insert the soundID and sound file into the soundFile table
-                  connection.query("INSERT INTO alarmbuddy.soundFile (soundID, soundFile) VALUES ?", [soundFileEntry], function(error, result, field){
-                    if(error) {
-                      // respond with error if insert failed
-                      res.status(500).send('ERROR: database query error.');
-                    }
-                    // delete the mp3 file from temp storage
-                    fs.unlinkSync(req.file.path);
+            (async () => {
+              const stream = fs.createReadStream(req.file.path);
+
+              const fileType = await FileType.fromStream(stream);
+
+              // check if audio file is mp3
+              if (fileType.mime == "audio/mpeg" && fileType.ext == "mp3" && req.file.mimetype == "application/octet-stream"){
+                // insert sound sound name and sound description into the soundInfo table
+                connection.query("INSERT INTO alarmbuddy.soundInfo (soundName, soundDescription) VALUES (?, ?)", [soundName, soundDescription], function(error, result, field){
+                  if(error) {
+                    // respond with error if insert failed
+                    res.status(500).send('ERROR: database query error.');
+                  }else{
                     
-                    // create ownership entry using the username and soundID
-                    var ownershipEntry = [
-                      [username, soundID]
-                    ]
-                    // insert ownership entry into soundOwnership table
-                    connection.query("INSERT INTO alarmbuddy.soundOwnership (username, soundID) VALUES ?", [ownershipEntry], function(error, result,field) {
+                    // assign soundID from above query to var
+                    var soundID = result.insertId;
+                    // create soundfile entry using the results from previous query and the mp3 file
+                    var soundFileEntry = [
+                      [soundID, mp3]
+                    ];
+                    // insert the soundID and sound file into the soundFile table
+                    connection.query("INSERT INTO alarmbuddy.soundFile (soundID, soundFile) VALUES ?", [soundFileEntry], function(error, result, field){
                       if(error) {
+                        console.log("here");
                         // respond with error if insert failed
                         res.status(500).send('ERROR: database query error.');
                       }
-                      // respond with valid upload to database
-                      res.status(201).send('database updated sucessfully');
+                      
+                      // delete the mp3 file from temp storage
+                      fs.unlinkSync(req.file.path);
+                      
+                      // create ownership entry using the username and soundID
+                      var ownershipEntry = [
+                        [username, soundID]
+                      ]
+                      // insert ownership entry into soundOwnership table
+                      connection.query("INSERT INTO alarmbuddy.soundOwnership (username, soundID) VALUES ?", [ownershipEntry], function(error, result,field) {
+                        if(error) {
+                          // respond with error if insert failed
+                          res.status(500).send('ERROR: database query error.');
+                        }
+                        // respond with valid upload to database
+                        res.status(201).send('database updated sucessfully');
+                      });
                     });
-                  });
-                }
-              })
-            } else {
-              // delete the file because it wasn't an mp3 file
-              fs.unlinkSync(req.file.path);
-            }
+                  }
+                })
+              } else {
+                // delete the file because it wasn't an mp3 file
+                fs.unlinkSync(req.file.path);
+                res.status(401).send('ERROR: file type not supported.')
+              }
+            })();
           } else {
             // extracted token username did not match provided username from request so send error
             res.status(401).send('ERROR: Access to provided user denied.');
