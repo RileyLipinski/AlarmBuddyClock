@@ -121,11 +121,11 @@ public class Alarm {
 	 */
 	@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 	public void setAlarm(Context context) {
-		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-
-		Intent intent = new Intent(context, AlarmNoisemaker.class);
-
-		PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, alarmId, intent, 0);
+//		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+//
+//		Intent intent = new Intent(context, AlarmPublisher.class);
+//
+//		PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, alarmId, intent, 0);
 
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(System.currentTimeMillis());
@@ -156,9 +156,7 @@ public class Alarm {
 		Toast toast = Toast.makeText(context, toastCreateAlarm, Toast.LENGTH_LONG);
 		toast.show();
 
-		//alarmManager.RTC_WAKEUP: will wake up device if screen is off
-		alarmManager
-			.setExact(alarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), alarmPendingIntent);
+		AlarmPublisher.publishAlarm(context,calendar.getTimeInMillis());
 	}
 
 	/**
