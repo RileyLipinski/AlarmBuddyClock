@@ -49,6 +49,7 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 	 * @param uri     Uri of file to be played
 	 */
 	public static void makeNoise(Context context, Uri uri) {
+		Log.i(AlarmNoisemaker.class.getName(),"Making noise using file " + uri.getPath());
 		try {
 			mediaPlayer = new MediaPlayer();
 			mediaPlayer.setAudioAttributes(
@@ -61,6 +62,7 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 			mediaPlayer.setDataSource(context, uri);
 			mediaPlayer.prepare();
 			//mediaPlayer.start();
+			//TODO still plays default noise even when alarm is fetched
 			Intent intentService = new Intent(context, AlarmService.class);
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 				context.startForegroundService(intentService);
