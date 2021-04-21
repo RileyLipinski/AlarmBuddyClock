@@ -1,16 +1,18 @@
 package edu.ust.alarmbuddy.common;
 
+import android.content.Context;
 import android.os.Build;
+import android.util.Log;
+import android.webkit.MimeTypeMap;
 import androidx.annotation.RequiresApi;
-import java.io.IOException;
+
+import java.io.*;
 import java.util.concurrent.CountDownLatch;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import edu.ust.alarmbuddy.R;
+import okhttp3.*;
 
 /**
  * Tutorial: https://www.journaldev.com/13629/okhttp-android-example-tutorial
@@ -77,5 +79,95 @@ public class AlarmBuddyHttp {
 		return stringResponse[0] != null && stringResponse[0].substring(8, 12).equals("true");
 
 	}
+/*
+	public static boolean uploadSound(Context context, String sound_path) {
+
+		try {
+			sound_path = "file:///android_asset/multiply.mp3"; //"file:///edu.ust.alarmbuddy/raw/multiply";
+		}
+		catch (Exception e) {
+			Log.e("Upload Sound", "sound path " + e);
+		}
+
+		String mime = getMimeType(sound_path);
+
+		Log.i("Upload Sound", sound_path + "  " + mime);
+
+		String username = "";
+		String token = "";
+		try {
+			username = UserData.getString(context, "username");
+			token = UserData.getString(context, "token");
+		} catch (Exception e) {
+			Log.e("Upload Sound", "Could not retrieve username or token");
+		}
+
+		RequestBody body = new MultipartBody.Builder()
+				.setType(MultipartBody.FORM)
+				.addFormDataPart("file", "file:/" + "/" + "/android_asset/multiply.mp3",
+						RequestBody.create(MediaType.parse(mime),
+								new File(sound_path)))
+				.build();
+
+		//RequestBody body = RequestBody.create(data, QUERYSTRING);
+		Request request = new Request.Builder()
+				.url("https://alarmbuddy.wm.r.appspot.com/upload/" + username)
+				.header("Authorization", token)
+				.post(body)
+				.build();
+
+		Log.i("Upload Sound", request.toString());
+		Log.i("Upload Sound", body.toString());
+
+		//execute the request and wait for a response
+		final String[] stringResponse = new String[1];
+		final CountDownLatch latch = new CountDownLatch(1);
+		client.newCall(request).enqueue(new Callback() {
+			@Override
+			public void onFailure(Call call, IOException e) {
+				call.cancel();
+				latch.countDown();
+				Log.i("call request", "onFailure");
+			}
+
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				stringResponse[0] = response.body().string();
+				latch.countDown();
+				Log.i("call request", "onResponse");
+			}
+		});
+		try {
+			latch.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+
+		Call call = client.newCall(request);
+		try {
+			Response response = call.execute();
+			Log.i("Upload Sound", response.toString());
+		}
+		catch(IOException e) {
+			Log.e("Execute Call", "IOException" + e);
+		}
+
+
+
+		return stringResponse[0] != null && stringResponse[0].substring(8, 12).equals("true");
+
+		return false;
+	}
+
+	public static String getMimeType(String url) {
+		String type = null;
+		String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+		if (extension != null) {
+			type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+		}
+		return type;
+	}
+*/
 
 }

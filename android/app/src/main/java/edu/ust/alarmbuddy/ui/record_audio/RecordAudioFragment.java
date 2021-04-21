@@ -3,9 +3,11 @@ package edu.ust.alarmbuddy.ui.record_audio;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,7 +28,9 @@ import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class RecordAudioFragment extends Fragment {
 
@@ -37,7 +41,8 @@ public class RecordAudioFragment extends Fragment {
 	private final int MY_PERMISSIONS_RECORD_AUDIO = 1;
 	private final int MY_PERMISSIONS_WRITE_EXTERNAL_STORAGE = 2;
 
-	private static File audioFile = null;
+	private File audioFile = null;
+	private File formattedAudioFile = null;
 
 	private Button recordButton = null;
 	private Button playButton = null;
@@ -57,8 +62,8 @@ public class RecordAudioFragment extends Fragment {
 		root = inflater.inflate(R.layout.fragment_record_audio, container, false);
 
 		// where to store recorded audio file
-		audioFile = new File(getContext().getExternalFilesDir(""),
-			"android_test.wav");
+		audioFile = new File(Environment.getExternalStorageDirectory(),
+			"android_test.3gpp");
 
 		// set buttons
 		recordButton = root.findViewById(R.id.recordButton);
@@ -109,10 +114,9 @@ public class RecordAudioFragment extends Fragment {
 
 		View.OnClickListener uploadClicker = new View.OnClickListener() {
 			public void onClick(View v) {
-				//if (audioFile.exists()) {
-					//uploadSound(getContext(), audioFile.getAbsolutePath());
-				//}
-				uploadSound(getContext(), audioFile.getAbsolutePath());
+				if (audioFile.exists()) {
+					uploadSound(getContext(), audioFile.getAbsolutePath());
+				}
 			}
 		};
 		uploadSoundButton.setOnClickListener(uploadClicker);
@@ -236,7 +240,7 @@ public class RecordAudioFragment extends Fragment {
 		recorder = null;
 	}
 
-	public static void uploadSound(Context context, String sound_path) {
+	public void uploadSound(Context context, String sound_path) {
 		/*
 		try {
 			sound_path = "file:///android_asset/multiply.mp3"; //"file:///edu.ust.alarmbuddy/raw/multiply";
@@ -250,7 +254,7 @@ public class RecordAudioFragment extends Fragment {
 			FFmpeg ffmpeg = FFmpeg.getInstance(context);
 
 
-			File formattedAudioFile = new File(context.getExternalFilesDir(""), "android_test.mp3");
+			formattedAudioFile = new File(Environment.getExternalStorageDirectory(), "a.mp3");
 			try {
 				String[] cmd = new String[]{"-y", "-i", sound_path, formattedAudioFile.getAbsolutePath()};
 				ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
@@ -262,7 +266,9 @@ public class RecordAudioFragment extends Fragment {
 					@Override
 					public void onSuccess(String message) {
 						Log.i("Convert to mp3", "Success " + message);
+
 						String mime = getMimeType(formattedAudioFile.getAbsolutePath());
+
 						String username = "";
 						String token = "";
 						try {
@@ -272,12 +278,12 @@ public class RecordAudioFragment extends Fragment {
 							Log.e("Upload Sound", "Could not retrieve username or token");
 						}
 
+						RequestBody fileContent = RequestBody.create(formattedAudioFile, MediaType.parse("audio/mpeg"));
+
 						RequestBody body = new MultipartBody.Builder()
 								.setType(MultipartBody.FORM)
-								.addFormDataPart("file", formattedAudioFile.getName(),
-										RequestBody.create(formattedAudioFile, MediaType.parse("audio/mpeg")))
+								.addFormDataPart("file", formattedAudioFile.getName(), fileContent)
 								.build();
-
 
 						//RequestBody body = RequestBody.create(data, QUERYSTRING);
 						Request request = new Request.Builder()
@@ -287,7 +293,13 @@ public class RecordAudioFragment extends Fragment {
 								.build();
 
 						Log.i("Upload Sound", request.toString());
-						Log.i("Upload Sound", body.toString() + " " + mime);
+						try {
+							Log.i("Upload Sound", fileContent.toString() + " " + fileContent.contentLength()
+									+ " " + fileContent.contentType());
+						}
+						catch (IOException e) {
+							Log.e("upload", "contentLength " + e);
+						}
 
 						client.newCall(request).enqueue(new Callback() {
 							@Override
@@ -297,7 +309,7 @@ public class RecordAudioFragment extends Fragment {
 
 							@Override
 							public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-								Log.i("Response", response.body().string());
+								Log.i("Response", response.toString() + " / " +response.body().string());
 							}
 						});
 					}
@@ -365,5 +377,6 @@ public class RecordAudioFragment extends Fragment {
 		}
 		return type;
 	}
+
 
 }
