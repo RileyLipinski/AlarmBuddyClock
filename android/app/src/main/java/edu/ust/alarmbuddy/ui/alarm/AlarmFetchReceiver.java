@@ -70,7 +70,7 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 
 				if (mimeType != null && mimeType.equals("audio/mpeg")) {
 					// response contained a proper audio file
-					File file = new File(context.getExternalFilesDir(""), "databaseAlarm.wav");
+					File file = new File(context.getExternalFilesDir(""), "databaseAlarm.mp3");
 					byte[] responseBytes = response.body().bytes();
 
 					FileOutputStream outputStream = new FileOutputStream(file);
