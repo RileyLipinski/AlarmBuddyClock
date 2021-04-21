@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Arrays;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -20,11 +19,6 @@ import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
 public class AlarmFetchReceiver extends BroadcastReceiver {
-
-	public static final String[] AUDIO_MIME_TYPES = {
-		"audio/mpeg",
-		"audio/wav"
-	};
 
 	/**
 	 * Fetches an alarm sound from the database and schedules job to make noise and alert the user
@@ -46,11 +40,21 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		String username = "";
+		try {
+			username = UserData.getString(context, "username");
+		} catch (GeneralSecurityException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		String soundId = "58";
+		//TODO remove hardcoded sound id in production
 
 		OkHttpClient client = new OkHttpClient();
-		// TODO remove hard-coded url in production
 		Request request = new Request.Builder()
-			.url("https://alarmbuddy.wm.r.appspot.com/download/johnny/erokia.wav")
+			.url(String
+				.format("https://alarmbuddy.wm.r.appspot.com/download/%s/%s", username, soundId))
 			.header("Authorization", token)
 			.get()
 			.build();
@@ -59,29 +63,33 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 			@Override
 			public void onResponse(@NotNull Call call, @NotNull Response response)
 				throws IOException {
+				//TODO handle non-200 response codes in here
+
 				// error check on Content-Type response header
 				String mimeType = response.header("Content-Type");
-				if (mimeType == null || Arrays.binarySearch(AUDIO_MIME_TYPES, mimeType) < 0) {
-					StringBuilder message = new StringBuilder(
-						"Mime type " + mimeType + " is not permitted. Allowed types: ");
-					for (String x : AUDIO_MIME_TYPES) {
-						message.append(x).append(", ");
-					}
-					message.delete(message.length() - 2, message.length());
-					throw new IllegalArgumentException(message.toString());
+
+				if (mimeType != null && mimeType.equals("audio/mpeg")) {
+					// response contained a proper audio file
+					File file = new File(context.getExternalFilesDir(""), "databaseAlarm.wav");
+					byte[] responseBytes = response.body().bytes();
+
+					FileOutputStream outputStream = new FileOutputStream(file);
+					outputStream.write(responseBytes);
+					outputStream.flush();
+					outputStream.close();
+
+					Log.i(AlarmFetchReceiver.class.getName(),
+						"File successfully downloaded from database: " + file.getAbsolutePath());
+
+					scheduleAlarm(false);
+				} else {
+					// response came back with a disallowed file type
+					Log.e(AlarmFetchReceiver.class.getName(), "Mime type " + mimeType
+						+ " is not permitted. Only audio/mpeg is permitted.");
+					Log.e(AlarmFetchReceiver.class.getName(),
+						"RESPONSE: \n" + response.body().string());
+					scheduleAlarm(true);
 				}
-
-				File file = new File(context.getExternalFilesDir(""), "databaseAlarm.wav");
-				byte[] responseBytes = response.body().bytes();
-
-				FileOutputStream outputStream = new FileOutputStream(file);
-				outputStream.write(responseBytes);
-				outputStream.close();
-
-				Log.i(AlarmFetchReceiver.class.getName(),
-					"File successfully downloaded from database: " + file.getAbsolutePath());
-
-				scheduleAlarm(false);
 			}
 
 			@Override
@@ -113,6 +121,5 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 				alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeupTime, pendingIntent);
 			}
 		});
-
 	}
 }
