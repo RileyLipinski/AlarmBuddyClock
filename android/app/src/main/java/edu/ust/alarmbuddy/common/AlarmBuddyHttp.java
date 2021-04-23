@@ -62,12 +62,14 @@ public class AlarmBuddyHttp {
 			public void onFailure(Call call, IOException e) {
 				call.cancel();
 				latch.countDown();
+				Log.e("Create User", "Failure " + e);
 			}
 
 			@Override
 			public void onResponse(Call call, Response response) throws IOException {
 				stringResponse[0] = response.body().string();
 				latch.countDown();
+				Log.i("Create User", "Response " + stringResponse);
 			}
 		});
 		try {
