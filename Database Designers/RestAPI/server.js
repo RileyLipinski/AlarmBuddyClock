@@ -330,7 +330,7 @@ app.post('/upload/:username', function (req, res, next) {
               const fileType = await FileType.fromStream(stream);
 
               // check if audio file is mp3
-              if (fileType.mime == "audio/mpeg" && fileType.ext == "mp3" && req.file.mimetype == "application/octet-stream"){
+              if (fileType.mime == "audio/mpeg" && fileType.ext == "mp3" && (req.file.mimetype == "application/octet-stream" || req.file.mimetype == "audio/mpeg")){
                 // insert sound sound name and sound description into the soundInfo table
                 connection.query("INSERT INTO alarmbuddy.soundInfo (soundName, soundDescription) VALUES (?, ?)", [soundName, soundDescription], function(error, result, field){
                   if(error) {
@@ -843,6 +843,8 @@ app.route('/deleteFriend/:username/:friend').post(function(req,res,next){
 
 // handler for checking if the rest API is online
 app.get('/status', (req, res) => res.send('Working!'));
+
+
 
 
 
