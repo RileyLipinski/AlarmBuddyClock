@@ -278,16 +278,19 @@ public class RecordAudioFragment extends Fragment {
 							Log.e("Upload Sound", "Could not retrieve username or token");
 						}
 
-						RequestBody fileContent = RequestBody.create(formattedAudioFile, MediaType.parse("audio/mpeg"));
+						RequestBody fileContent = RequestBody.create(new File(formattedAudioFile.getAbsolutePath()),
+								MediaType.parse("audio/mpeg"));
 
 						RequestBody body = new MultipartBody.Builder()
 								.setType(MultipartBody.FORM)
 								.addFormDataPart("file", formattedAudioFile.getName(), fileContent)
+								.addFormDataPart("soundDescription", "alarm sound")
 								.build();
 
 						//RequestBody body = RequestBody.create(data, QUERYSTRING);
 						Request request = new Request.Builder()
 								.url("https://alarmbuddy.wm.r.appspot.com/upload/" + username)
+								//.url("http://192.168.1.15:3000/upload/" + username)
 								.header("Authorization", token)
 								.post(body)
 								.build();

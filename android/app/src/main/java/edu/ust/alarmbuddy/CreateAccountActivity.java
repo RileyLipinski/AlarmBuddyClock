@@ -200,15 +200,56 @@ public class CreateAccountActivity extends AppCompatActivity {
 		return false;
 	}
 
-	private static boolean isValidUsername(String username) {
-		// TODO: check if username already taken
+	/* name constraints:
+	* length between 1-100 characters, inclusive
+	* can only contain uppercase and lowercase English letters, hyphens, apostrophes
+	*/
+	private static boolean isValidName(String name) {
+		String regex = "^[A-Za-z-']+$";
 
-		return !username.equals("");
+		return name.length() >= 1 && name.length() <= 100
+				&& name.matches(regex);
 	}
 
+	/* username constraints:
+	* length between 5-20 characters, inclusive
+	* can only contain uppercase and lowercase English letters, numbers, underscores
+	* must be unique
+	 */
+	private static boolean isValidUsername(String username) {
+		// TODO: check if username already taken
+		String regex = "^[A-Za-z0-9_]+$";
+
+		 return username.length() >= 5 && username.length() <= 20
+				&& username.matches(regex);
+	}
+
+	/* password constraints:
+	* length between 8-20 characters, inclusive
+	* can only contain uppercase and lowercase English letter, numbers,
+	*  and special characters but cannot contain <=>"&
+	* in ascii values, can contain 0x21-0x7E but cannot contain 0x3C, 0x3D, 0x3E,
+	*  0x22 and 0x26
+	* MUST contain at least one of each: uppercase letter, lowercase letter, number,
+	*  and special character
+	*/
 	private static boolean isValidPassword(String password) {
-		// TODO: add password constraints
-		return !password.equals("");
+		boolean isValid = true;
+
+		// check that password only contains valid characters
+		for (int i=0; i<password.length(); i++) {
+			int ascii = (int)password.charAt(i);
+			// out of range or is a forbidden character
+			if (ascii < 33 || ascii > 126
+					|| ascii == 60 || ascii == 61 || ascii == 62 || ascii == 34 || ascii == 38) {
+				isValid = false;
+			}
+		}
+
+		// check that password contains uppercase letter, lowercase letter, number, special character
+		String regex = "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!#$%'()*+,\\-./:;?`{|}~]])";
+
+		return isValid && password.matches(regex);
 	}
 
 	private static void highlightInvalidField(EditText field) {
