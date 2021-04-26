@@ -68,14 +68,7 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 
 	// TODO delete in production
 	public static void demoButton(Context context) {
-		mediaPlayer = MediaPlayer.create(context, R.raw.pre_alarm_noise);
-		mediaPlayer.start();
-		mediaPlayer.setOnCompletionListener(mediaPlayer -> {
-			mediaPlayer.release();
-			mediaPlayer = MediaPlayer.create(context, R.raw.alarm_buddy2);
-			mediaPlayer.start();
-			mediaPlayer.setOnCompletionListener(mediaPlayer1 -> releaseMediaPlayer());
-		});
+		makeDefaultNoise(context);
 	}
 
 	private static void releaseMediaPlayer() {
