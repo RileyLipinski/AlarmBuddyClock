@@ -241,13 +241,6 @@ public class RecordAudioFragment extends Fragment {
 	}
 
 	public void uploadSound(Context context, String sound_path) {
-		/*
-		try {
-			sound_path = "file:///android_asset/multiply.mp3"; //"file:///edu.ust.alarmbuddy/raw/multiply";
-		}
-		catch (Exception e) {
-			Log.e("Upload Sound", "sound path " + e);
-		}*/
 		if (FFmpeg.getInstance(context).isSupported()) {
 
 			OkHttpClient client = new OkHttpClient();
@@ -323,52 +316,10 @@ public class RecordAudioFragment extends Fragment {
 				Log.e("Convert from wav to mp3", "Exception: " + e);
 			}
 
-			//String mime = getMimeType(sound_path);
-
-			//Log.i("Upload Sound", sound_path + "  " + mime + formattedAudioFile.getName());
 			Log.i("Upload Sound", sound_path + "  " + formattedAudioFile.getAbsolutePath());
 
 		}
 
-/*
-		//execute the request and wait for a response
-		final String[] stringResponse = new String[1];
-		final CountDownLatch latch = new CountDownLatch(1);
-		client.newCall(request).enqueue(new Callback() {
-			@Override
-			public void onFailure(Call call, IOException e) {
-				call.cancel();
-				latch.countDown();
-				Log.i("call request", "onFailure");
-			}
-
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				stringResponse[0] = response.body().string();
-				latch.countDown();
-				Log.i("call request", "onResponse");
-			}
-		});
-		try {
-			latch.await();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-
-		Call call = client.newCall(request);
-		try {
-			Response response = call.execute();
-			Log.i("Upload Sound", response.toString());
-		}
-		catch(IOException e) {
-			Log.e("Execute Call", "IOException" + e);
-		}
-*/
-
-/*
-		return stringResponse[0] != null && stringResponse[0].substring(8, 12).equals("true");
-*/
 
 	}
 
