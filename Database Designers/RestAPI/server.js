@@ -778,7 +778,7 @@ app.route('/deleteSound/:username/:soundID').delete(function(req,res,next) {
             // check if user has access to the sound file based off results from above query
             if (!(JSON.stringify(results) == JSON.stringify([]))){
               // select the amount of people that own the sound file based off the soundID
-              connection.query("SELECT COUNT(soundID) AS numberOfOwners FROM alarmbuddy.soundOwnership WHERE soundID = ?", [req.params.soundName, req.params.soundID], function(error, results, field){
+              connection.query("SELECT COUNT(soundID) AS numberOfOwners FROM alarmbuddy.soundOwnership WHERE soundID = ?", [req.params.soundID], function(error, results, field){
                 if(error) {
                   // respond with error if query failed
                   res.status(500).send('ERROR: database query error');
@@ -786,7 +786,7 @@ app.route('/deleteSound/:username/:soundID').delete(function(req,res,next) {
                 // if more than one person has ownership to the sound file...
                 if (results[0].numberOfOwners > 1){
                   // delete the users access to the file in the soundOwnership table
-                  connection.query("DELETE FROM alarmbuddy.soundOwnership WHERE username = ? AND soundID = ?", [req.params.username, req.params.soundName, req.params.soundID], function(error, results, field){
+                  connection.query("DELETE FROM alarmbuddy.soundOwnership WHERE username = ? AND soundID = ?", [req.params.username, req.params.soundID], function(error, results, field){
                     if(error) {
                       // respond with error if delete failed
                       res.status(500).send('ERROR: Deleting failed');
@@ -899,6 +899,7 @@ app.route('/shareSound/:sender/:receiver/:soundID').post(function(req,res,next){
     });
   }
 });
+
 
 // - - - - - - - - - - - - - - - - - - - - - - - -END OF SOUND REALTED FUCNTION - - - - - - - - - - - - - - - - - -//
 
