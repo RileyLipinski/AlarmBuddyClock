@@ -62,7 +62,7 @@ public class RecordAudioFragment extends Fragment {
 		root = inflater.inflate(R.layout.fragment_record_audio, container, false);
 
 		// where to store recorded audio file
-		audioFile = new File(Environment.getExternalStorageDirectory(),
+		audioFile = new File(getContext().getExternalFilesDir(""),
 			"android_test.3gpp");
 
 		// set buttons
@@ -240,6 +240,12 @@ public class RecordAudioFragment extends Fragment {
 		recorder = null;
 	}
 
+	/**
+	 * Makes a call to the database to upload a selected sound file.
+	 *
+	 * @param context    Application context
+	 * @param sound_path Absolute path to the sound file
+	 */
 	public void uploadSound(Context context, String sound_path) {
 		if (FFmpeg.getInstance(context).isSupported()) {
 
@@ -247,7 +253,7 @@ public class RecordAudioFragment extends Fragment {
 			FFmpeg ffmpeg = FFmpeg.getInstance(context);
 
 
-			formattedAudioFile = new File(Environment.getExternalStorageDirectory(), "a.mp3");
+			formattedAudioFile = new File(context.getExternalFilesDir(""), "a.mp3");
 			try {
 				String[] cmd = new String[]{"-y", "-i", sound_path, formattedAudioFile.getAbsolutePath()};
 				ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
@@ -322,6 +328,13 @@ public class RecordAudioFragment extends Fragment {
 
 
 	}
+
+	/**
+	 * Determines the mimetype of a file.
+	 *
+	 * @param url Absolute path to file
+	 * @return Mimetype of the file
+	 */
 
 	public static String getMimeType(String url) {
 		String type = null;

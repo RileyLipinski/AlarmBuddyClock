@@ -1,6 +1,7 @@
 package edu.ust.alarmbuddy;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -34,7 +35,28 @@ public class LoginActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.login);
+
+		// for app link, is this necessary?
+		Intent appLinkIntent = getIntent();
+		String appLinkAction = appLinkIntent.getAction();
+		Uri appLinkData = appLinkIntent.getData();
+
 		LoginViewModel viewModel = ViewModelProviders.of(this).get(LoginViewModel.class);
+
+		String username = "";
+		String token = "";
+
+		try {
+			username = UserData.getString(getApplicationContext(), "username");
+			token = UserData.getString(getApplicationContext(), "token");
+			Log.i("UserInfo", "Username: " + username + "\nToken: " + token);
+		}
+		catch (GeneralSecurityException e) {
+			Log.e("Get Sounds", "Could not get username: " + e);
+		}
+		catch (IOException e) {
+			Log.e("Get Sounds", "Could not get username: " + e);
+		}
 
 		final Button loginButton = findViewById(R.id.loginButton);
 		final Button goToCreateAccountButton = findViewById(R.id.goToCreateAccountButton);
@@ -49,7 +71,6 @@ public class LoginActivity extends AppCompatActivity {
 				String stringUsername = username.getText().toString();
 				String stringPassword = password.getText().toString();
 
-				// if username and password match, "login" to homepage
 				try {
 					if (authenticateLogin(stringUsername, stringPassword)
 						&& loginAttempts < 4) {
@@ -134,6 +155,22 @@ public class LoginActivity extends AppCompatActivity {
 			return false;
 		}
 		return stringResponse[0] != null && stringResponse[0].substring(8, 12).equals("true");
+	}
+
+	@Override
+	protected void onDestroy() {
+		// TODO: does not clear info on force quitting app
+		// when app is destroyed, also destroy user info
+		// this only works when called from the same context that it was created in (LoginActivity)
+		try {
+			UserData.clearSharedPreferences(getApplicationContext());
+		}
+		catch (GeneralSecurityException e) {
+			Log.e("ClearSharedPreferences", e.toString());
+		}
+		catch (IOException e) {
+			Log.e("ClearSharedPreferences", e.toString());
+		}
 	}
 }
 

@@ -1,6 +1,10 @@
 package edu.ust.alarmbuddy.ui.home;
 
+import android.content.Intent;
+import android.media.MediaPlayer;
+import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,12 +17,15 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import edu.ust.alarmbuddy.LoginActivity;
 import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.common.UserData;
 import okhttp3.*;
 import okio.BufferedSink;
+import okio.Okio;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
@@ -41,6 +48,7 @@ public class HomeFragment extends Fragment {
 			}
 		});
 		*/
+
 		return root;
 	}
 
@@ -53,6 +61,7 @@ public class HomeFragment extends Fragment {
 		Button getSoundsButton = root.findViewById(R.id.getSoundsButton);
 		Button shareSoundButton = root.findViewById(R.id.shareSoundButton);
 		Button deleteSoundButton = root.findViewById(R.id.deleteSoundButton);
+		Button logoutButton = root.findViewById(R.id.logoutButton);
 		EditText soundID = root.findViewById(R.id.soundID);
 		EditText friendName = root.findViewById(R.id.friendName);
 		EditText deleteSoundID = root.findViewById(R.id.deleteSoundID);
@@ -63,6 +72,7 @@ public class HomeFragment extends Fragment {
 		try {
 			username = UserData.getString(getContext(), "username");
 			token = UserData.getString(getContext(), "token");
+			Log.i("UserInfo", "Username: " + username + "\nToken: " + token);
 		}
 		catch (GeneralSecurityException e) {
 			Log.e("Get Sounds", "Could not get username: " + e);
@@ -150,6 +160,25 @@ public class HomeFragment extends Fragment {
 				});
 
 			}
+		});
+
+		// logout -> destroy user info and return to login page
+		logoutButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				try {
+					UserData.clearSharedPreferences(getContext());
+				}
+				catch (GeneralSecurityException e) {
+					Log.e("ClearSharedPreferences", e.toString());
+				}
+				catch (IOException e) {
+					Log.e("ClearSharedPreferences", e.toString());
+				}
+				// move back to login screen
+				getActivity().startActivity(new Intent(getActivity(), LoginActivity.class));
+			}
+
+
 		});
 
 	}
