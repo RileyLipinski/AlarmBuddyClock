@@ -24,6 +24,7 @@ public class Alarm {
 	private boolean saturday;
 	private String name;
 	private long created;
+	private boolean scheduled;
 
 	/**
 	 * Object used to create an alarm
@@ -40,10 +41,9 @@ public class Alarm {
 	 * @param saturday true if alarm should recur on Saturdays
 	 * @param name unique name given to alarm by user
 	 * @param created time alarm is created
+	 * @param scheduled true if currently alarm service is currently scheduled
 	 */
-	public Alarm(int alarmId, int hour, int minute, boolean sunday, boolean monday, boolean tuesday,
-		boolean wednesday,
-		boolean thursday, boolean friday, boolean saturday, String name, long created) {
+	public Alarm(int alarmId, int hour, int minute, boolean sunday, boolean monday, boolean tuesday, boolean wednesday, boolean thursday, boolean friday, boolean saturday, String name, long created, boolean scheduled) {
 		this.alarmId = alarmId;
 		this.hour = hour;
 		this.minute = minute;

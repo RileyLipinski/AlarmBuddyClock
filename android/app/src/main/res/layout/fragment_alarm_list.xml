@@ -6,35 +6,27 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   tools:context=".ui.alarms.AlarmListFragment">
-
   <TextView
-    android:id="@+id/alarm_text"
+    android:id="@+id/fragment_alarm_list_alarms"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="8dp"
-    android:layout_marginTop="8dp"
-    android:layout_marginEnd="8dp"
+    android:text="My Alarms:"
     android:textAlignment="center"
-    android:textSize="20sp"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintBottom_toBottomOf="parent"
-    android:gravity="center_horizontal"/>
-  <Switch
-    android:text="on/off"
-    android:layout_width="wrap_content"
+    app:layout_constraintTop_toTopOf="parent"/>
+
+  <androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/fragment_alarm_list_recyclerView"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/alarmSwitch"
-    android:layout_marginLeft="2dp"
-    android:layout_marginStart="2dp"
-    app:layout_constraintStart_toEndOf="@+id/alarm_text"
-    app:layout_constraintTop_toTopOf="parent"
-    android:layout_marginTop="354dp"
-    app:layout_constraintEnd_toEndOf="parent"
-    android:layout_marginBottom="2dp"
-    app:layout_constraintBottom_toTopOf="@+id/alarm_text"
-    app:layout_constraintHorizontal_bias="1.0"
-    app:layout_constraintVertical_bias="1.0"
-    android:checked="true"/>
+    app:layout_constraintTop_toBottomOf="@id/fragment_alarm_list_alarms">
+  </androidx.recyclerview.widget.RecyclerView>
+
+  <Button
+    android:id="@+id/fragment_alarm_list_editAlarms"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:text="Edit Alarm Preferences"
+    app:layout_constraintBottom_toBottomOf="parent"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -22,45 +22,42 @@ public class AlarmActivity extends AppCompatActivity {
 
         //dismiss button clicked
         final Button dismissButton = findViewById(R.id.activity_alarm_dismiss);
-        dismissButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), AlarmService.class);
-                getApplicationContext().stopService(intent);
-                finish();
-            }
+        dismissButton.setOnClickListener(v -> {
+            //stop alarm service
+            Intent intent = new Intent(getApplicationContext(), AlarmService.class);
+            getApplicationContext().stopService(intent);
+            finish();
         });
 
         //snooze button clicked (play in 10 minutes)
         final Button snoozeButton = findViewById(R.id.activity_alarm_snooze);
-        snoozeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(System.currentTimeMillis());
-                calendar.add(Calendar.MINUTE, 10);
-
-                Alarm alarm = new Alarm(
-                        new Random().nextInt(Integer.MAX_VALUE),
-                        calendar.get(Calendar.HOUR_OF_DAY),
-                        calendar.get(Calendar.MINUTE),
-                        false,
-                        false,
-                        false,
-                        false,
-                        false,
-                        false,
-                        false,
-                        "SNOOZE",
-                        calendar.getTimeInMillis()
-                );
-
-                alarm.setAlarm(getApplicationContext());
-
-                Intent intent = new Intent(getApplicationContext(), AlarmService.class);
-                getApplicationContext().stopService(intent);
-                finish();
-            }
+        snoozeButton.setOnClickListener(v -> {
+            //get current time
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            calendar.add(Calendar.MINUTE, 10);
+            //create a new alarm for 10 minutes in future
+            Alarm alarm = new Alarm(
+                    new Random().nextInt(Integer.MAX_VALUE),
+                    calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE),
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    "SNOOZE",
+                    calendar.getTimeInMillis(),
+                    true
+            );
+            //set the new alarm that was created
+            alarm.setAlarm(getApplicationContext());
+            //stop previous alarm service
+            Intent intent = new Intent(getApplicationContext(), AlarmService.class);
+            getApplicationContext().stopService(intent);
+            finish();
         });
 
 
