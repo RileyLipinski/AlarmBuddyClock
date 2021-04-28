@@ -43,6 +43,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 
+//------ User's Information Section Start------
 
 // handler for getting user information
 app.route('/users/:username').get(function(req, res, next) {
@@ -90,7 +91,7 @@ app.post('/register', (req, res)=>{
   connection.query("SELECT username FROM alarmbuddy.users WHERE username = ?", chosenUsername, function(error, results, fields) {
       // respond with error if database query fails
       if (error){
-        res.status(500).send('ERROR: database query error.');
+        res.status(500).send('ERROR: Username already exists.');
       }
       // check if the results from teh database query are empty meaning it didn't find a matching username
       if (JSON.stringify(results) == JSON.stringify([])){
@@ -189,7 +190,7 @@ app.route('/friendsWith/:username').get(function(req, res, next) {
           );
         } else { 
           // extracted token username did not match provided username from request so send error 
-          res.status(401).send('ERROR: Access to provided user denied.')
+          res.status(401).send('ERROR: Username not found.')
         };
 
       });
@@ -228,6 +229,12 @@ app.post('/login', (req,res) => {
   }); 
 })
 
+//------- User's information end section ---------
+
+
+//-------- Sound Section Start -------
+
+
 // handler for downloading sound file from database
 app.route('/download/:username/:soundID').get(function(req,res,next) {
 
@@ -257,7 +264,7 @@ app.route('/download/:username/:soundID').get(function(req,res,next) {
             connection.query("SELECT soundName, soundFile FROM alarmbuddy.soundFile INNER JOIN alarmbuddy.soundInfo ON alarmbuddy.soundFile.soundID = alarmbuddy.soundInfo.soundID WHERE alarmbuddy.soundFile.soundID = ?", req.params.soundID, function(error, results, fields){
               if(error) {
                 // respond with error if insert failed
-                res.status(500).send('ERROR: database query error.');
+                res.status(500).send('ERROR: Insertion failed.');
               }
               // write the sound file to the tmp folder
               fs.writeFile('/tmp/' + results[0].soundName, results[0].soundFile, function (error) {
@@ -289,7 +296,6 @@ app.route('/download/:username/:soundID').get(function(req,res,next) {
   }
 });
 
-// handler for uploading sound file to database
 // handler for updloading sound file to database
 app.post('/upload/:username', function (req, res, next) {
   uploadSound(req, res, function (err) {
@@ -335,7 +341,7 @@ app.post('/upload/:username', function (req, res, next) {
                 connection.query("INSERT INTO alarmbuddy.soundInfo (soundName, soundDescription) VALUES (?, ?)", [soundName, soundDescription], function(error, result, field){
                   if(error) {
                     // respond with error if insert failed
-                    res.status(500).send('ERROR: database query error.');
+                    res.status(500).send('ERROR: Inserting Failed.');
                   }else{
                     
                     // assign soundID from above query to var
@@ -349,7 +355,7 @@ app.post('/upload/:username', function (req, res, next) {
                       if(error) {
                         console.log("here");
                         // respond with error if insert failed
-                        res.status(500).send('ERROR: database query error.');
+                        res.status(500).send('ERROR: Inserting Failed.');
                       }
                       
                       // delete the mp3 file from temp storage
@@ -363,7 +369,7 @@ app.post('/upload/:username', function (req, res, next) {
                       connection.query("INSERT INTO alarmbuddy.soundOwnership (username, soundID) VALUES ?", [ownershipEntry], function(error, result,field) {
                         if(error) {
                           // respond with error if insert failed
-                          res.status(500).send('ERROR: database query error.');
+                          res.status(500).send('ERROR: Inserting Failed.');
                         }
                         // respond with valid upload to database
                         res.status(201).send('database updated sucessfully');
@@ -374,7 +380,7 @@ app.post('/upload/:username', function (req, res, next) {
               } else {
                 // delete the file because it wasn't an mp3 file
                 fs.unlinkSync(req.file.path);
-                res.status(401).send('ERROR: file type not supported.')
+                res.status(401).send('ERROR: File type not supported.')
               }
             })();
           } else {
@@ -460,7 +466,7 @@ app.route('/deleteSound/:username/:soundID').delete(function(req,res,next) {
                   connection.query("DELETE FROM alarmbuddy.soundOwnership WHERE username = ? AND soundID = ?", [req.params.username, req.params.soundName, req.params.soundID], function(error, results, field){
                     if(error) {
                       // respond with error if insert failed
-                      res.status(500).send('ERROR: database query error.');
+                      res.status(500).send('ERROR: Alarm not deleted.');
                     }
                     // respond with delete successful
                     res.status(201).send('Alarm deleted successfully.');
@@ -480,7 +486,7 @@ app.route('/deleteSound/:username/:soundID').delete(function(req,res,next) {
               });
             } else {
               // respond with error that the user doesn't have access to sound file
-              res.status(500).send('ERROR: no access to audio file or file does not exist.');
+              res.status(500).send('ERROR: No access to audio file or file does not exist.');
             }
           });
         }
@@ -488,16 +494,262 @@ app.route('/deleteSound/:username/:soundID').delete(function(req,res,next) {
     }
 });
 
+// handler for sharing sounds after they have been uploaded to the database
+app.route('/shareSound/:sender/:receiver/:soundID').post(function(req,res,next){
+
+  // extract token from reqest header
+  var token = req.headers.authorization;
+  // check if token was provided in the request
+  if (!token){
+    res.status(401).send({ auth: false, message: 'No token provided.' });
+  } else {
+    // verify that token provided is a valid token
+    jwt.verify(token, config.secret, function(error, decoded) {
+      // respond with error that token could not be authenticated
+      if (error) {
+        res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+      }
+      // check if extracted username from token matches the username provided in the request
+      if (decoded.id == req.params.sender){
+        // query the soundOwnership table to see if user has access to the file they want to send
+        connection.query("SELECT * FROM alarmbuddy.soundOwnership WHERE username = ? AND soundID = ?", [req.params.sender, req.params.soundID], function(error, results, field){
+          if(error) {
+            // respond with error if insert failed
+            res.status(500).send('ERROR: database query error.');
+          }
+          // check if the query above responded with a row from the soundOwnership table or not
+          if (!(JSON.stringify(results) == JSON.stringify([]))){
+            // create a new entry in the soundOwnership table for the receiver of the sound being sent
+            connection.query("REPLACE INTO alarmbuddy.soundOwnership SET username = ?, soundID = ?", [req.params.receiver, req.params.soundID], function(error, result, field){
+              if(error) {
+                // respond with error if insert/replace failed
+                res.status(500).send('ERROR: Inserting/Replacement failed.');
+              } else {
+                // respomd with success that sound was shared successfully
+                res.status(201).send("Shared sound successfully.");
+              }
+            });
+          } else {
+            // respond with error since user doesn't have access to the file they are trying to send
+            res.status(500).send('ERROR: no access to audio file or file does not exist.');
+          }
+        });
+      } else {
+        // extracted token username did not match provided username from request so send error
+        res.status(401).send('ERROR: Access to provided user denied.');
+      }
+    });
+  }
+});
+
+//------End Sound Section -----
+
+//--------Start Section of Friend Request ------
+
+//handler for getting incoming friend requests
+app.route('/requests/:username').get(function(req,res,next){
+  //this gives the requests for the username provided
+  var token = req.headers.authorization;
+  if (!token){
+    res.status(401).send({ auth: false, message: 'No token provided.' });
+  }else{
+    jwt.verify(token, config.secret, function(error, decoded) {
+      if (error){
+        res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+      }
+      // check if extracted username from token matches the username provided in the request
+      if (decoded.id == req.params.username){
+        //do work here
+        connection.query('SELECT * FROM alarmbuddy.friendRequests WHERE recipientUsername = ?', req.params.username, function(error, results, fields) {
+          if (error){
+            // respond with error if database query failed
+            res.status(500).send('ERROR: database query error.');
+          }
+          res.json(results); 
+        });
+      }else { 
+          // extracted token username did not match provided username from request so send error
+          res.status(401).send('ERROR: Username does not match.');
+      }
+    });
+  }
+});
+
+// handler for sending friend requests
+app.route('/sendRequest/:sender/:receiver').post(function(req,res,next){
+  var token = req.headers.authorization;
+  if (!token){
+    res.status(401).send({ auth: false, message: 'No token provided.' });
+  }else{
+    jwt.verify(token, config.secret, function(error, decoded) {
+      if (error){
+        res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+      }
+      if (decoded.id == req.params.sender){
+        connection.query("REPLACE INTO alarmbuddy.friendRequests SET senderUsername = ?, recipientUsername = ?", [req.params.sender, req.params.receiver], function(error, results, fields) {
+          if (error){
+            // respond with error if database query failed
+            res.status(500).send('ERROR: Friend Request Failed.');
+          }
+          res.status(201).send('Friend request sent successfully.');
+        });
+      } else { 
+          // extracted token username did not match provided username from request so send error
+          res.status(401).send('ERROR: Access to provided user denied.');
+      }
+    });
+  }
+});
+
+//handler for accepting friend requests
+app.route('/acceptFriendRequest/:receiver/:sender').post(function(req,res,next){
+  var token = req.headers.authorization;
+  if (!token){
+    res.status(401).send({ auth: false, message: 'No token provided.' });
+  }else{
+    jwt.verify(token, config.secret, function(error, decoded) {
+      if (error){
+        res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+      }
+      if (decoded.id == req.params.receiver){
+        connection.query("SELECT * FROM alarmbuddy.friendRequests WHERE senderUsername = ? AND recipientUsername = ?", [req.params.sender, req.params.receiver], function(error, results, fields) {
+          if (error){
+            // respond with error if database query failed
+            res.status(500).send('ERROR: database query error.');
+          }
+          if (!(JSON.stringify(results) == JSON.stringify([]))){
+
+            var friendsEntry = [
+              [req.params.sender, req.params.receiver]
+            ]
+            connection.query("INSERT INTO alarmbuddy.friendsWith (username1, username2) VALUES ?", [friendsEntry], function(error, results, fields) {
+              if (error){
+                // respond with error if database query failed
+                res.status(500).send('ERROR: database query error.');
+              }
+              connection.query("DELETE FROM alarmbuddy.friendRequests WHERE senderUsername = ? AND recipientUsername = ?", [req.params.sender, req.params.receiver], function(error, results, fields) {
+                if (error){
+                  // respond with error if database query failed
+                  res.status(500).send('ERROR: database query error.');
+                }
+                res.status(201).send('Friend request accepted successfully.');
+              });
+            });
+          } else {
+            res.status(500).send('ERROR: Friend does not exist.');
+          }
+        });
+      } else { 
+        // extracted token username did not match provided username from request so send error
+        res.status(401).send('ERROR: Access to provided user denied.');
+    }
+    });
+  }
+});
+
+// handler for canceling a sent friend request
+// the sender cancels the request
+app.route('/cancelFriendRequest/:sender/:receiver').post(function(req,res,next){
+  var token = req.headers.authorization;
+  if (!token){
+    res.status(401).send({ auth: false, message: 'No token provided.' });
+  }else{
+    jwt.verify(token, config.secret, function(error, decoded) {
+      if (error){
+        res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+      }
+      if (decoded.id == req.params.sender){
+        connection.query("DELETE FROM alarmbuddy.friendRequests WHERE senderUsername = ? AND recipientUsername = ?", [req.params.sender, req.params.receiver], function(error, results, fields) {
+          if (error){
+            // respond with error if database query failed
+            res.status(500).send('ERROR: database query error.');
+          }
+          if (results.affectedRows == 0){
+            res.status(500).send('ERROR: Friend request does not exist.');
+          } else {
+            res.status(201).send('Request canceled successfully');
+          }
+        });
+      } else {
+        res.status(500).send('ERROR: Friend request does not exist.');
+      }
+    });
+  }
+});
+
+//handler for denying a friend request
+// the receiver cancels the request
+app.route('/denyFriendRequest/:receiver/:sender').post(function(req,res,next){
+  var token = req.headers.authorization;
+  if (!token){
+    res.status(401).send({ auth: false, message: 'No token provided.' });
+  }else{
+    jwt.verify(token, config.secret, function(error, decoded) {
+      if (error){
+        res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+      }
+      if (decoded.id == req.params.receiver){
+        connection.query("DELETE FROM alarmbuddy.friendRequests WHERE senderUsername = ? AND recipientUsername = ?", [req.params.sender, req.params.receiver], function(error, results, fields) {
+          if (error){
+            // respond with error if database query failed
+            res.status(500).send('ERROR: database query error.');
+          }
+          if (results.affectedRows == 0){
+            res.status(500).send('ERROR: Friend request does not exist.');
+          } else {
+            res.status(201).send('Friend request denied successfully');
+          }
+        });
+      } else {
+        res.status(500).send('ERROR: Friend request does not exist.');
+      }
+    });
+  }
+});
+
+
+//handler for deleting a friend from friends list
+app.route('/deleteFriend/:username/:friend').post(function(req,res,next){
+  var token = req.headers.authorization;
+  if (!token){
+    res.status(401).send({ auth: false, message: 'No token provided.' });
+  }else{
+    jwt.verify(token, config.secret, function(error, decoded) {
+      if (error){
+        res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+      }
+      if (decoded.id == req.params.username){
+        connection.query("DELETE FROM alarmbuddy.friendsWith WHERE (username1 = ? AND username2 = ?) OR (username2 = ? AND username1 = ?)", [req.params.username, req.params.friend, req.params.friend, req.params.username], function(error, results, fields) {
+          if (error){
+            // respond with error if database query failed
+            res.status(500).send('ERROR: database query error.');
+          }
+          if (results.affectedRows == 0){
+            res.status(500).send('ERROR: Friend not removed - try again.');
+          } else {
+            res.status(201).send('Friend Removed successfully.');
+          }
+        });
+      } else {
+        res.status(500).send('ERROR: Friend does not exist.');
+      }
+    });
+  }
+});
+
+//--------- End of Friend Request Section ----------
+
+//------ Start of Profile Picture Section ------------
 
 // handler for updloading profile picture to the database
 app.post('/setProfilePicture/:username', function (req, res, next) {
   uploadImage(req, res, function (err) {
     if (err instanceof multer.MulterError) {
       // respond with error if file size to large -> size defined above
-      res.status(401).send('ERROR: file to large.');
+      res.status(401).send('ERROR: File to large.');
     } else if (err) {
       // respond with error if file failed to upload
-      res.status(401).send('ERROR: file upload error.')
+      res.status(401).send('ERROR: File upload error.')
     } else {
       // extract token from reqest header
       var token = req.headers.authorization;
@@ -531,12 +783,12 @@ app.post('/setProfilePicture/:username', function (req, res, next) {
               connection.query("REPLACE INTO alarmbuddy.profilePictures SET username = ?, profile_Photo = ?, image_Type = ?", [username, image, imageType], function(error, result, field){
                 if(error) {
                   // respond with error if insert failed
-                  res.status(500).send('ERROR: database query error.');
+                  res.status(500).send('ERROR: Inserting Picture Failed .');
                 }
                 // delete the file from temporary storage
                 fs.unlinkSync(req.file.path);
                 // respond with profile pricture upload success
-                res.status(201).send('profile picture successfully uploaded.');
+                res.status(201).send('Profile picture successfully uploaded.');
               });
             } else {
               // delete the file because it wasn't a png/jpeg file
@@ -553,7 +805,7 @@ app.post('/setProfilePicture/:username', function (req, res, next) {
   });
 });
 
-
+//handler for getting the profile picture
 app.route('/getProfilePicture/:username').get(function(req,res,next){
   var token = req.headers.authorization;
   if (!token){
@@ -571,18 +823,17 @@ app.route('/getProfilePicture/:username').get(function(req,res,next){
             res.status(500).send('ERROR: database query error.');
           }
           // write the sound file to the tmp folder
-
           var pathToImage = "/tmp/" + req.params.username + "_profilePhoto." + results[0].image_Type;
           fs.writeFile(pathToImage, results[0].profile_Photo, function (error) {
             if (error){
               // respond with error if writing to file failed
-              res.status(500).send('ERROR: write to file error.');
+              res.status(500).send('ERROR: Write to file.');
             }
             // respond with written file
             res.sendFile(pathToImage, (error) => {
               if (error){
                 // respond with error if sending file failed
-                res.status(500).send('ERROR: could not send file.');
+                res.status(500).send('ERROR: File Not Sent.');
               }
               // delete the sound file from the temp folder
               fs.unlinkSync(pathToImage);
@@ -597,254 +848,11 @@ app.route('/getProfilePicture/:username').get(function(req,res,next){
   }
 });
 
-
-
-// handler for sharing sounds after they have been uploaded to the database
-app.route('/shareSound/:sender/:receiver/:soundID').post(function(req,res,next){
-
-  // extract token from reqest header
-  var token = req.headers.authorization;
-  // check if token was provided in the request
-  if (!token){
-    res.status(401).send({ auth: false, message: 'No token provided.' });
-  } else {
-    // verify that token provided is a valid token
-    jwt.verify(token, config.secret, function(error, decoded) {
-      // respond with error that token could not be authenticated
-      if (error) {
-        res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-      }
-      // check if extracted username from token matches the username provided in the request
-      if (decoded.id == req.params.sender){
-        // query the soundOwnership table to see if user has access to the file they want to send
-        connection.query("SELECT * FROM alarmbuddy.soundOwnership WHERE username = ? AND soundID = ?", [req.params.sender, req.params.soundID], function(error, results, field){
-          if(error) {
-            // respond with error if insert failed
-            res.status(500).send('ERROR: database query error.');
-          }
-          // check if the query above responded with a row from the soundOwnership table or not
-          if (!(JSON.stringify(results) == JSON.stringify([]))){
-            // create a new entry in the soundOwnership table for the receiver of the sound being sent
-            connection.query("REPLACE INTO alarmbuddy.soundOwnership SET username = ?, soundID = ?", [req.params.receiver, req.params.soundID], function(error, result, field){
-              if(error) {
-                // respond with error if insert/replace failed
-                res.status(500).send('ERROR: database query error.');
-              } else {
-                // respomd with success that sound was shared successfully
-                res.status(201).send("Shared sound successfully.");
-              }
-            });
-          } else {
-            // respond with error since user doesn't have access to the file they are trying to send
-            res.status(500).send('ERROR: no access to audio file or file does not exist.');
-          }
-        });
-      } else {
-        // extracted token username did not match provided username from request so send error
-        res.status(401).send('ERROR: Access to provided user denied.');
-      }
-    });
-  }
-});
-
-//handler for getting incoming friend requests
-app.route('/requests/:username').get(function(req,res,next){
-  //this gives the requests for the username provided
-  var token = req.headers.authorization;
-  if (!token){
-    res.status(401).send({ auth: false, message: 'No token provided.' });
-  }else{
-    jwt.verify(token, config.secret, function(error, decoded) {
-      if (error){
-        res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-      }
-      // check if extracted username from token matches the username provided in the request
-      if (decoded.id == req.params.username){
-        //do work here
-        connection.query('SELECT * FROM alarmbuddy.friendRequests WHERE recipientUsername = ?', req.params.username, function(error, results, fields) {
-          if (error){
-            // respond with error if database query failed
-            res.status(500).send('ERROR: database query error.');
-          }
-          res.json(results); 
-        });
-      }else { 
-          // extracted token username did not match provided username from request so send error
-          res.status(401).send('ERROR: Access to provided user denied.');
-      }
-    });
-  }
-});
-
-
-// handler for sending friend requests
-app.route('/sendRequest/:sender/:receiver').post(function(req,res,next){
-  var token = req.headers.authorization;
-  if (!token){
-    res.status(401).send({ auth: false, message: 'No token provided.' });
-  }else{
-    jwt.verify(token, config.secret, function(error, decoded) {
-      if (error){
-        res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-      }
-      if (decoded.id == req.params.sender){
-        connection.query("REPLACE INTO alarmbuddy.friendRequests SET senderUsername = ?, recipientUsername = ?", [req.params.sender, req.params.receiver], function(error, results, fields) {
-          if (error){
-            // respond with error if database query failed
-            res.status(500).send('ERROR: database query error.');
-          }
-          res.status(201).send('friend request sent successfully.');
-        });
-      } else { 
-          // extracted token username did not match provided username from request so send error
-          res.status(401).send('ERROR: Access to provided user denied.');
-      }
-    });
-  }
-});
-
-
-app.route('/acceptFriendRequest/:receiver/:sender').post(function(req,res,next){
-  var token = req.headers.authorization;
-  if (!token){
-    res.status(401).send({ auth: false, message: 'No token provided.' });
-  }else{
-    jwt.verify(token, config.secret, function(error, decoded) {
-      if (error){
-        res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-      }
-      if (decoded.id == req.params.receiver){
-        connection.query("SELECT * FROM alarmbuddy.friendRequests WHERE senderUsername = ? AND recipientUsername = ?", [req.params.sender, req.params.receiver], function(error, results, fields) {
-          if (error){
-            // respond with error if database query failed
-            res.status(500).send('ERROR: database query error.');
-          }
-          if (!(JSON.stringify(results) == JSON.stringify([]))){
-
-            var friendsEntry = [
-              [req.params.sender, req.params.receiver]
-            ]
-            connection.query("INSERT INTO alarmbuddy.friendsWith (username1, username2) VALUES ?", [friendsEntry], function(error, results, fields) {
-              if (error){
-                // respond with error if database query failed
-                res.status(500).send('ERROR: database query error.');
-              }
-              connection.query("DELETE FROM alarmbuddy.friendRequests WHERE senderUsername = ? AND recipientUsername = ?", [req.params.sender, req.params.receiver], function(error, results, fields) {
-                if (error){
-                  // respond with error if database query failed
-                  res.status(500).send('ERROR: database query error.');
-                }
-                res.status(201).send('friend request accepted successfully.');
-              });
-            });
-          } else {
-            res.status(500).send('ERROR: friend request does not exist.');
-          }
-        });
-      } else { 
-        // extracted token username did not match provided username from request so send error
-        res.status(401).send('ERROR: Access to provided user denied.');
-    }
-    });
-  }
-});
-
-
-// handler for canceling a sent friend request
-// the sender cancels the request
-app.route('/cancelFriendRequest/:sender/:receiver').post(function(req,res,next){
-  var token = req.headers.authorization;
-  if (!token){
-    res.status(401).send({ auth: false, message: 'No token provided.' });
-  }else{
-    jwt.verify(token, config.secret, function(error, decoded) {
-      if (error){
-        res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-      }
-      if (decoded.id == req.params.sender){
-        connection.query("DELETE FROM alarmbuddy.friendRequests WHERE senderUsername = ? AND recipientUsername = ?", [req.params.sender, req.params.receiver], function(error, results, fields) {
-          if (error){
-            // respond with error if database query failed
-            res.status(500).send('ERROR: database query error.');
-          }
-          if (results.affectedRows == 0){
-            res.status(500).send('ERROR: friend request does not exist.');
-          } else {
-            res.status(201).send('request canceled successfully');
-          }
-        });
-      } else {
-        res.status(500).send('ERROR: friend request does not exist.');
-      }
-    });
-  }
-});
-
-//handler for denying a friend request
-// the receiver cancels the request
-app.route('/denyFriendRequest/:receiver/:sender').post(function(req,res,next){
-  var token = req.headers.authorization;
-  if (!token){
-    res.status(401).send({ auth: false, message: 'No token provided.' });
-  }else{
-    jwt.verify(token, config.secret, function(error, decoded) {
-      if (error){
-        res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-      }
-      if (decoded.id == req.params.receiver){
-        connection.query("DELETE FROM alarmbuddy.friendRequests WHERE senderUsername = ? AND recipientUsername = ?", [req.params.sender, req.params.receiver], function(error, results, fields) {
-          if (error){
-            // respond with error if database query failed
-            res.status(500).send('ERROR: database query error.');
-          }
-          if (results.affectedRows == 0){
-            res.status(500).send('ERROR: friend request does not exist.');
-          } else {
-            res.status(201).send('friend request denied successfully');
-          }
-        });
-      } else {
-        res.status(500).send('ERROR: friend request does not exist.');
-      }
-    });
-  }
-});
-
-
-//handler for deleting a friend from friends list
-app.route('/deleteFriend/:username/:friend').post(function(req,res,next){
-  var token = req.headers.authorization;
-  if (!token){
-    res.status(401).send({ auth: false, message: 'No token provided.' });
-  }else{
-    jwt.verify(token, config.secret, function(error, decoded) {
-      if (error){
-        res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-      }
-      if (decoded.id == req.params.username){
-        connection.query("DELETE FROM alarmbuddy.friendsWith WHERE (username1 = ? AND username2 = ?) OR (username2 = ? AND username1 = ?)", [req.params.username, req.params.friend, req.params.friend, req.params.username], function(error, results, fields) {
-          if (error){
-            // respond with error if database query failed
-            res.status(500).send('ERROR: database query error.');
-          }
-          if (results.affectedRows == 0){
-            res.status(500).send('ERROR: friend request does not exist.');
-          } else {
-            res.status(201).send('removed friend successfully.');
-          }
-        });
-      } else {
-        res.status(500).send('ERROR: friend request does not exist.');
-      }
-    });
-  }
-});
+//-------End of Profile Picture Section ----------
 
 
 // handler for checking if the rest API is online
 app.get('/status', (req, res) => res.send('Working!'));
-
-
 
 
 
