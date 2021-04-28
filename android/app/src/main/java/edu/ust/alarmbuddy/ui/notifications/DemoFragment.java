@@ -51,25 +51,26 @@ public class DemoFragment extends Fragment {
 	}
 
 	public void demoButton() {
-		Toast.makeText(getContext(),"Demo alarm sequence initiated",Toast.LENGTH_SHORT).show();
+		Toast.makeText(getContext(), "Demo alarm sequence initiated", Toast.LENGTH_SHORT).show();
 
 		Intent intent = new Intent(getContext(), AlarmFetchReceiver.class);
 		intent.replaceExtras(new Bundle());
-		intent.putExtra("wakeupTime",System.currentTimeMillis() + 10000L);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(),0,intent,0);
-		AlarmPublisher.getAlarmManager(getContext()).setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,1,pendingIntent);
+		intent.putExtra("wakeupTime", System.currentTimeMillis() + 10000L);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), 0, intent, 0);
+		AlarmPublisher.getAlarmManager(getContext())
+			.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, 1, pendingIntent);
 	}
 
 	public void doLogout() {
 		try {
 			UserData.clearSharedPreferences(getContext());
-			Intent logoutIntent = new Intent(getContext(),LoginActivity.class);
+			Intent logoutIntent = new Intent(getContext(), LoginActivity.class);
 			Bundle bundle = new Bundle();
-			bundle.putString("event","logout");
+			bundle.putString("event", "logout");
 			logoutIntent.replaceExtras(bundle);
 			startActivity(logoutIntent);
 		} catch (GeneralSecurityException | IOException e) {
-			Toast.makeText(getContext(),"LOGOUT FAILED",Toast.LENGTH_SHORT).show();
+			Toast.makeText(getContext(), "LOGOUT FAILED", Toast.LENGTH_SHORT).show();
 			e.printStackTrace();
 		}
 	}

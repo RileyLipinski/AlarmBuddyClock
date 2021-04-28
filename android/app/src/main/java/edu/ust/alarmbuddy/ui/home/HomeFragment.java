@@ -7,20 +7,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.common.UserData;
-import okhttp3.*;
-import okio.BufferedSink;
-import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 
 public class HomeFragment extends Fragment {
 
@@ -46,7 +47,8 @@ public class HomeFragment extends Fragment {
 
 	// TODO: everything in here is just for the db testing session, delete later
 	@Override
-	public void onActivityCreated(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+	public void onActivityCreated(
+		@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		OkHttpClient client = new OkHttpClient();
 
@@ -63,11 +65,9 @@ public class HomeFragment extends Fragment {
 		try {
 			username = UserData.getString(getContext(), "username");
 			token = UserData.getString(getContext(), "token");
-		}
-		catch (GeneralSecurityException e) {
+		} catch (GeneralSecurityException e) {
 			Log.e("Get Sounds", "Could not get username: " + e);
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			Log.e("Get Sounds", "Could not get username: " + e);
 		}
 
@@ -77,10 +77,10 @@ public class HomeFragment extends Fragment {
 			public void onClick(View v) {
 				// get list of sounds, display on screen and print to log
 				Request request = new Request.Builder()
-						.url("https://alarmbuddy.wm.r.appspot.com/sounds/" + finalUsername)
-						.header("Authorization", finalToken)
-						.get()
-						.build();
+					.url("https://alarmbuddy.wm.r.appspot.com/sounds/" + finalUsername)
+					.header("Authorization", finalToken)
+					.get()
+					.build();
 
 				client.newCall(request).enqueue(new Callback() {
 					@Override
@@ -89,8 +89,9 @@ public class HomeFragment extends Fragment {
 					}
 
 					@Override
-					public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-						Log.i("Sound List", response.toString() + " / " +response.body().string());
+					public void onResponse(@NotNull Call call, @NotNull Response response)
+						throws IOException {
+						Log.i("Sound List", response.toString() + " / " + response.body().string());
 
 					}
 				});
@@ -105,11 +106,11 @@ public class HomeFragment extends Fragment {
 				String sound = soundID.getText().toString();
 
 				Request request = new Request.Builder()
-						.url("https://alarmbuddy.wm.r.appspot.com/shareSound/" + finalUsername
-							+ "/" + friend + "/" + sound)
-						.header("Authorization", finalToken)
-						.post(RequestBody.create(null, ""))
-						.build();
+					.url("https://alarmbuddy.wm.r.appspot.com/shareSound/" + finalUsername
+						+ "/" + friend + "/" + sound)
+					.header("Authorization", finalToken)
+					.post(RequestBody.create(null, ""))
+					.build();
 
 				client.newCall(request).enqueue(new Callback() {
 					@Override
@@ -118,8 +119,10 @@ public class HomeFragment extends Fragment {
 					}
 
 					@Override
-					public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-						Log.i("Share sound", response.toString() + " / " +response.body().string());
+					public void onResponse(@NotNull Call call, @NotNull Response response)
+						throws IOException {
+						Log.i("Share sound",
+							response.toString() + " / " + response.body().string());
 					}
 				});
 
@@ -131,11 +134,11 @@ public class HomeFragment extends Fragment {
 				String sound = deleteSoundID.getText().toString();
 
 				Request request = new Request.Builder()
-						.url("https://alarmbuddy.wm.r.appspot.com/deleteSound/" + finalUsername
-								+ "/" + sound)
-						.header("Authorization", finalToken)
-						.delete()
-						.build();
+					.url("https://alarmbuddy.wm.r.appspot.com/deleteSound/" + finalUsername
+						+ "/" + sound)
+					.header("Authorization", finalToken)
+					.delete()
+					.build();
 
 				client.newCall(request).enqueue(new Callback() {
 					@Override
@@ -144,8 +147,10 @@ public class HomeFragment extends Fragment {
 					}
 
 					@Override
-					public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-						Log.i("Delete sound", response.toString() + " / " +response.body().string());
+					public void onResponse(@NotNull Call call, @NotNull Response response)
+						throws IOException {
+						Log.i("Delete sound",
+							response.toString() + " / " + response.body().string());
 					}
 				});
 

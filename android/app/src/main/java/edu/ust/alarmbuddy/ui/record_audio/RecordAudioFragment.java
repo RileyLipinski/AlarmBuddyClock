@@ -3,7 +3,6 @@ package edu.ust.alarmbuddy.ui.record_audio;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
@@ -20,17 +19,20 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import edu.ust.alarmbuddy.R;
-import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import edu.ust.alarmbuddy.common.UserData;
+import java.io.File;
+import java.io.IOException;
 import nl.bravobit.ffmpeg.ExecuteBinaryResponseHandler;
 import nl.bravobit.ffmpeg.FFmpeg;
-import okhttp3.*;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 public class RecordAudioFragment extends Fragment {
 
@@ -123,7 +125,6 @@ public class RecordAudioFragment extends Fragment {
 
 		return root;
 	}
-
 
 
 	@Override
@@ -246,10 +247,10 @@ public class RecordAudioFragment extends Fragment {
 			OkHttpClient client = new OkHttpClient();
 			FFmpeg ffmpeg = FFmpeg.getInstance(context);
 
-
 			formattedAudioFile = new File(Environment.getExternalStorageDirectory(), "a.mp3");
 			try {
-				String[] cmd = new String[]{"-y", "-i", sound_path, formattedAudioFile.getAbsolutePath()};
+				String[] cmd = new String[]{"-y", "-i", sound_path,
+					formattedAudioFile.getAbsolutePath()};
 				ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
 					@Override
 					public void onFailure(String message) {
@@ -271,29 +272,30 @@ public class RecordAudioFragment extends Fragment {
 							Log.e("Upload Sound", "Could not retrieve username or token");
 						}
 
-						RequestBody fileContent = RequestBody.create(new File(formattedAudioFile.getAbsolutePath()),
+						RequestBody fileContent = RequestBody
+							.create(new File(formattedAudioFile.getAbsolutePath()),
 								MediaType.parse("audio/mpeg"));
 
 						RequestBody body = new MultipartBody.Builder()
-								.setType(MultipartBody.FORM)
-								.addFormDataPart("file", formattedAudioFile.getName(), fileContent)
-								.addFormDataPart("soundDescription", "alarm sound")
-								.build();
+							.setType(MultipartBody.FORM)
+							.addFormDataPart("file", formattedAudioFile.getName(), fileContent)
+							.addFormDataPart("soundDescription", "alarm sound")
+							.build();
 
 						//RequestBody body = RequestBody.create(data, QUERYSTRING);
 						Request request = new Request.Builder()
-								.url("https://alarmbuddy.wm.r.appspot.com/upload/" + username)
-								//.url("http://192.168.1.15:3000/upload/" + username)
-								.header("Authorization", token)
-								.post(body)
-								.build();
+							.url("https://alarmbuddy.wm.r.appspot.com/upload/" + username)
+							//.url("http://192.168.1.15:3000/upload/" + username)
+							.header("Authorization", token)
+							.post(body)
+							.build();
 
 						Log.i("Upload Sound", request.toString());
 						try {
-							Log.i("Upload Sound", fileContent.toString() + " " + fileContent.contentLength()
+							Log.i("Upload Sound",
+								fileContent.toString() + " " + fileContent.contentLength()
 									+ " " + fileContent.contentType());
-						}
-						catch (IOException e) {
+						} catch (IOException e) {
 							Log.e("upload", "contentLength " + e);
 						}
 
@@ -304,8 +306,10 @@ public class RecordAudioFragment extends Fragment {
 							}
 
 							@Override
-							public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-								Log.i("Response", response.toString() + " / " +response.body().string());
+							public void onResponse(@NotNull Call call, @NotNull Response response)
+								throws IOException {
+								Log.i("Response",
+									response.toString() + " / " + response.body().string());
 							}
 						});
 					}

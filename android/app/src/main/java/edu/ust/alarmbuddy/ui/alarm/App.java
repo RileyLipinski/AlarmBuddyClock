@@ -4,7 +4,6 @@ import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.os.Build;
-import androidx.annotation.RequiresApi;
 
 public class App extends Application {
 
@@ -17,11 +16,11 @@ public class App extends Application {
 	}
 
 	public void createNotificationChannel() {
-		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			NotificationChannel notificationChannel = new NotificationChannel(
-					CHANNEL_ID,
-					"Alarm Service Channel",
-					NotificationManager.IMPORTANCE_DEFAULT
+				CHANNEL_ID,
+				"Alarm Service Channel",
+				NotificationManager.IMPORTANCE_DEFAULT
 			);
 
 			NotificationManager notificationManager = getSystemService(NotificationManager.class);

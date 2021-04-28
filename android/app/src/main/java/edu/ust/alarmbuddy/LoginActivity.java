@@ -81,7 +81,7 @@ public class LoginActivity extends AppCompatActivity {
 	@Override
 	public void onStart() {
 		String event = getIntent().getStringExtra("event");
-		if(event != null) {
+		if (event != null) {
 			if ("logout".equals(event)) {
 				Toast.makeText(getApplicationContext(), "Successfully logged out.",
 					Toast.LENGTH_SHORT).show();

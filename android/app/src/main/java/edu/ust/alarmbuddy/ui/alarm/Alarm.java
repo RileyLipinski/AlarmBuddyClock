@@ -1,9 +1,6 @@
 package edu.ust.alarmbuddy.ui.alarm;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.widget.Toast;
 import androidx.annotation.RequiresApi;
@@ -113,7 +110,7 @@ public class Alarm {
 		calendar.set(Calendar.HOUR_OF_DAY, hour);
 
 		String dayOfWeek = "day";
-		if(calendar.get(Calendar.DAY_OF_WEEK) == 1) {
+		if (calendar.get(Calendar.DAY_OF_WEEK) == 1) {
 			dayOfWeek = "Sunday";
 		} else if (calendar.get(Calendar.DAY_OF_WEEK) == 2) {
 			dayOfWeek = "Monday";
@@ -134,7 +131,7 @@ public class Alarm {
 		Toast toast = Toast.makeText(context, alarmConfirmation, Toast.LENGTH_LONG);
 		toast.show();
 
-		AlarmPublisher.publishAlarm(context,calendar.getTimeInMillis());
+		AlarmPublisher.publishAlarm(context, calendar.getTimeInMillis());
 	}
 
 }
