@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
 import com.google.gson.JsonParser;
@@ -76,6 +77,18 @@ public class LoginActivity extends AppCompatActivity {
 
 	}
 
+	@Override
+	public void onStart() {
+		String event = getIntent().getStringExtra("event");
+		if(event != null) {
+			if ("logout".equals(event)) {
+				Toast.makeText(getApplicationContext(), "Successfully logged out.",
+					Toast.LENGTH_SHORT).show();
+			}
+		}
+		super.onStart();
+	}
+
 	private void loginToHome() {
 		startActivity(new Intent(this, MainActivity.class));
 	}
@@ -136,9 +149,3 @@ public class LoginActivity extends AppCompatActivity {
 		return stringResponse[0] != null && stringResponse[0].substring(8, 12).equals("true");
 	}
 }
-
-
-
-
-
-

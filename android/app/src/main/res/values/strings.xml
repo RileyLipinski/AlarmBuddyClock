@@ -99,4 +99,5 @@
   <string name="dialog_failed_login">"Incorrect username or password"</string>
   <string name="fire">"Try Again"</string>
   <string name="cancel">"Forgot My Password"</string>
+  <string name="demo_button_text">DEMO</string>
 </resources>

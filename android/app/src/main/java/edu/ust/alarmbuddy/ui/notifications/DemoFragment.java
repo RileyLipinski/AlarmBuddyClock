@@ -1,18 +1,23 @@
 package edu.ust.alarmbuddy.ui.notifications;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import edu.ust.alarmbuddy.LoginActivity;
 import edu.ust.alarmbuddy.R;
-import edu.ust.alarmbuddy.ui.alarm.AlarmNoisemaker;
+import edu.ust.alarmbuddy.common.UserData;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 public class DemoFragment extends Fragment {
 
@@ -38,6 +43,20 @@ public class DemoFragment extends Fragment {
 	}
 
 	public void demoButton() {
-		startActivity(new Intent(getContext(),AlexaActivity.class));
+		doLogout();
+	}
+
+	public void doLogout() {
+		try {
+			UserData.clearSharedPreferences(getContext());
+			Intent logoutIntent = new Intent(getContext(),LoginActivity.class);
+			Bundle bundle = new Bundle();
+			bundle.putString("event","logout");
+			logoutIntent.replaceExtras(bundle);
+			startActivity(logoutIntent);
+		} catch (GeneralSecurityException | IOException e) {
+			Toast.makeText(getContext(),"LOGOUT FAILED",Toast.LENGTH_SHORT).show();
+			e.printStackTrace();
+		}
 	}
 }
