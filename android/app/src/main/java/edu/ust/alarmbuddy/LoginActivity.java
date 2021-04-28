@@ -41,6 +41,7 @@ public class LoginActivity extends AppCompatActivity {
 		final Button goToCreateAccountButton = findViewById(R.id.goToCreateAccountButton);
 
 		loginButton.setOnClickListener(new View.OnClickListener() {
+			//TODO does not currently check whether user is actually logged in
 			public void onClick(View v) {
 				// get username/password from input
 				TextView username = findViewById(R.id.textUsername);

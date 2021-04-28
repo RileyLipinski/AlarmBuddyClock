@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import edu.ust.alarmbuddy.common.UserData;
 import java.io.File;
@@ -109,10 +110,7 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 					"Scheduling alarm. Default: " + useDefaultNoise);
 
 				Intent outputIntent = new Intent(context, AlarmNoisemaker.class);
-				if (outputIntent.getExtras() != null && outputIntent.getExtras()
-					.containsKey("useDefaultNoise")) {
-					outputIntent.removeExtra("useDefaultNoise");
-				}
+				intent.replaceExtras(new Bundle());
 				outputIntent.putExtra("useDefaultNoise", useDefaultNoise);
 
 				PendingIntent pendingIntent = PendingIntent

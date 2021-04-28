@@ -1,5 +1,7 @@
 package edu.ust.alarmbuddy.ui.notifications;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,6 +18,8 @@ import androidx.lifecycle.ViewModelProviders;
 import edu.ust.alarmbuddy.LoginActivity;
 import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.common.UserData;
+import edu.ust.alarmbuddy.ui.alarm.AlarmFetchReceiver;
+import edu.ust.alarmbuddy.ui.alarm.AlarmPublisher;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
@@ -35,6 +39,10 @@ public class DemoFragment extends Fragment {
 				textView.setText(s);
 			}
 		});
+		final Button logoutButton = root.findViewById(R.id.logout_button);
+		logoutButton.setOnClickListener(view -> {
+			doLogout();
+		});
 		final Button demoButton = root.findViewById(R.id.demo_button);
 		demoButton.setOnClickListener(view -> {
 			demoButton();
@@ -43,7 +51,13 @@ public class DemoFragment extends Fragment {
 	}
 
 	public void demoButton() {
-		doLogout();
+		Toast.makeText(getContext(),"Demo alarm sequence initiated",Toast.LENGTH_SHORT).show();
+
+		Intent intent = new Intent(getContext(), AlarmFetchReceiver.class);
+		intent.replaceExtras(new Bundle());
+		intent.putExtra("wakeupTime",System.currentTimeMillis() + 10000L);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(),0,intent,0);
+		AlarmPublisher.getAlarmManager(getContext()).setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,1,pendingIntent);
 	}
 
 	public void doLogout() {
