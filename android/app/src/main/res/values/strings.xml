@@ -2,7 +2,7 @@
   <string name="app_name">Android</string>
   <string name="title_home">Home</string>
   <string name="title_alarm">Alarm</string>
-  <string name="title_notifications">Notifications</string>
+  <string name="title_demo">Demo</string>
   <string name="title_record_audio">Record Audio</string>
   <string name="title_friends">Friends</string>
   <string name="large_text">
