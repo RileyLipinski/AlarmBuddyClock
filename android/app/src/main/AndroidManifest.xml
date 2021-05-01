@@ -21,8 +21,9 @@
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
     android:theme="@style/AppTheme">
-    <receiver android:name=".ui.alarm.AlarmFetchReceiver"/>
-    <receiver android:name=".ui.alarm.AlarmNoisemaker"/>
+    <receiver android:name=".worker.alarm.AlarmFetchReceiver"/>
+    <receiver android:name=".worker.alarm.AlarmNoisemaker"/>
+    <receiver android:name=".worker.notification.NotificationFetchReceiver"/>
 
     <activity android:name=".ui.friends.SendRequest"/>
     <activity
@@ -45,7 +46,7 @@
     <activity android:name=".AlarmActivity"/>
     <activity android:name=".CreateAccountActivity"/>
 
-    <service android:name=".ui.alarm.AlarmService"/>
+    <service android:name=".worker.alarm.AlarmService"/>
   </application>
 
 </manifest>

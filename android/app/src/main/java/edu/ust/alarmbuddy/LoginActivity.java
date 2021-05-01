@@ -14,6 +14,7 @@ import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import edu.ust.alarmbuddy.common.UserData;
 import edu.ust.alarmbuddy.ui.login.FailedLoginDialogFragment;
 import edu.ust.alarmbuddy.ui.login.LoginViewModel;
+import edu.ust.alarmbuddy.worker.notification.NotificationFetchReceiver;
 import java.io.IOException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
@@ -24,7 +25,6 @@ import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -40,30 +40,27 @@ public class LoginActivity extends AppCompatActivity {
 		final Button loginButton = findViewById(R.id.loginButton);
 		final Button goToCreateAccountButton = findViewById(R.id.goToCreateAccountButton);
 
-		loginButton.setOnClickListener(new View.OnClickListener() {
-			//TODO does not currently check whether user is actually logged in
-			public void onClick(View v) {
-				// get username/password from input
-				TextView username = findViewById(R.id.textUsername);
-				TextView password = findViewById(R.id.textPassword);
+		loginButton.setOnClickListener(v -> {
+			// get username/password from input
+			TextView username = findViewById(R.id.textUsername);
+			TextView password = findViewById(R.id.textPassword);
 
-				// convert TextView to strings for comparison
-				String stringUsername = username.getText().toString();
-				String stringPassword = password.getText().toString();
+			// convert TextView to strings for comparison
+			String stringUsername = username.getText().toString();
+			String stringPassword = password.getText().toString();
 
-				// if username and password match, "login" to homepage
-				try {
-					if (authenticateLogin(stringUsername, stringPassword)
-						&& loginAttempts < 4) {
-						loginToHome();
-					} else {
-						loginAttempts++;
-						FailedLoginDialogFragment dialog = new FailedLoginDialogFragment();
-						dialog.show(getSupportFragmentManager(), "TAG");
-					}
-				} catch (Exception e) {
-					Log.d("TAG", e.toString());
+			// if username and password match, "login" to homepage
+			try {
+				if (authenticateLogin(stringUsername, stringPassword)
+					&& loginAttempts < 4) {
+					loginToHome();
+				} else {
+					loginAttempts++;
+					FailedLoginDialogFragment dialog = new FailedLoginDialogFragment();
+					dialog.show(getSupportFragmentManager(), "TAG");
 				}
+			} catch (Exception e) {
+				Log.d("TAG", e.toString());
 			}
 		});
 
@@ -91,6 +88,8 @@ public class LoginActivity extends AppCompatActivity {
 	}
 
 	private void loginToHome() {
+		Log.i(LoginActivity.class.getName(), "Notification fetch activated");
+		NotificationFetchReceiver.triggerSelf(getApplicationContext());
 		startActivity(new Intent(this, MainActivity.class));
 	}
 
