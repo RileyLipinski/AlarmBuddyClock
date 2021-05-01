@@ -141,6 +141,9 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 			int maxIdSeen = UserData.getInt(context, "maxIdSeen", Integer.MIN_VALUE);
 			int maxIdInResponse = Integer.MIN_VALUE;
 
+			if (json.size() == 0) {
+				return false;
+			}
 			for (JsonElement x : json) {
 				maxIdInResponse = Math
 					.max(maxIdInResponse, x.getAsJsonObject().get("soundID").getAsInt());
