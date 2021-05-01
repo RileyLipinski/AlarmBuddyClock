@@ -18,7 +18,7 @@ import androidx.lifecycle.ViewModelProviders;
 import edu.ust.alarmbuddy.LoginActivity;
 import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.common.UserData;
-import edu.ust.alarmbuddy.ui.alarm.AlarmFetchReceiver;
+import edu.ust.alarmbuddy.worker.alarm.AlarmFetchReceiver;
 import edu.ust.alarmbuddy.ui.alarm.AlarmPublisher;
 import java.io.IOException;
 import java.security.GeneralSecurityException;

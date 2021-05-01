@@ -6,7 +6,7 @@ import android.widget.Button;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import edu.ust.alarmbuddy.ui.alarm.Alarm;
-import edu.ust.alarmbuddy.ui.alarm.AlarmService;
+import edu.ust.alarmbuddy.worker.alarm.AlarmService;
 import java.util.Calendar;
 import java.util.Random;
 

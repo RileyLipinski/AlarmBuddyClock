@@ -1,4 +1,4 @@
-package edu.ust.alarmbuddy.ui.alarm;
+package edu.ust.alarmbuddy.worker.alarm;
 
 import static edu.ust.alarmbuddy.ui.alarm.App.CHANNEL_ID;
 
@@ -34,7 +34,7 @@ public class AlarmService extends Service {
 		Intent alarmIntent = new Intent(this, AlarmActivity.class);
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, alarmIntent, 0);
 
-		// create a MediaPlayer that plays the pre-alarm noise, then starts looping the actual alarm sound
+		// play the pre-alarm noise, then start looping the actual alarm sound
 		mediaPlayer = MediaPlayer.create(this, R.raw.pre_alarm_noise);
 		mediaPlayer.setOnCompletionListener(x -> {
 			mediaPlayer.release();

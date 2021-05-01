@@ -1,4 +1,4 @@
-package edu.ust.alarmbuddy.ui.alarm;
+package edu.ust.alarmbuddy.worker.alarm;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import edu.ust.alarmbuddy.common.UserData;
+import edu.ust.alarmbuddy.ui.alarm.AlarmPublisher;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
