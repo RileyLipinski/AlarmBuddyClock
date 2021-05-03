@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  tools:context=".ui.alarms.AlarmListFragment">
+  <TextView
+    android:id="@+id/fragment_alarm_list_alarms"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="My Alarms:"
+    android:textAlignment="center"
+    app:layout_constraintTop_toTopOf="parent"/>
+
+  <androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/fragment_alarm_list_recyclerView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:layout_constraintTop_toBottomOf="@id/fragment_alarm_list_alarms">
+  </androidx.recyclerview.widget.RecyclerView>
+
+  <Button
+    android:id="@+id/fragment_alarm_list_editAlarms"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:text="Edit Alarm Preferences"
+    app:layout_constraintBottom_toBottomOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

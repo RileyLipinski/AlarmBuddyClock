@@ -1,19 +1,26 @@
 package edu.ust.alarmbuddy.ui.alarms;
 
+import android.app.Application;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import edu.ust.alarmbuddy.ui.alarm.Alarm;
 
-public class AlarmListViewModel extends ViewModel {
+import java.util.List;
 
-	private MutableLiveData<String> mText;
+public class AlarmListViewModel extends AndroidViewModel {
 
-	public AlarmListViewModel() {
-		mText = new MutableLiveData<>();
-		mText.setValue("Alarm #1");
+	private AlarmList alarmList;
+	private LiveData<List<Alarm>> currentAlarms;
+
+	public AlarmListViewModel(@NonNull Application application) {
+		super(application);
+
 	}
 
-	public LiveData<String> getText() {
-		return mText;
-	}
+    public LiveData<List<Alarm>> getCurrentAlarms() {
+		return currentAlarms;
+    }
 }

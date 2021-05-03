@@ -2,6 +2,7 @@ package edu.ust.alarmbuddy.ui.alarm;
 
 import android.content.Context;
 import android.os.Build;
+import android.util.Log;
 import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import java.util.Calendar;
@@ -20,10 +21,26 @@ public class Alarm {
 	private boolean saturday;
 	private String name;
 	private long created;
+	private boolean scheduled;
 
-	public Alarm(int alarmId, int hour, int minute, boolean sunday, boolean monday, boolean tuesday,
-		boolean wednesday,
-		boolean thursday, boolean friday, boolean saturday, String name, long created) {
+	/**
+	 * Object used to create an alarm
+	 *
+	 * @param alarmId id used to identify alarm
+	 * @param hour hour alarm is set for
+	 * @param minute minute alarm is set for
+	 * @param sunday true if alarm should recur on Sundays
+	 * @param monday true if alarm should recur on Mondays
+	 * @param tuesday true if alarm should recur on Tuesdays
+	 * @param wednesday true if alarm should recur on Wednesdays
+	 * @param thursday true if alarm should recur on Thursdays
+	 * @param friday true if alarm should recur on Fridays
+	 * @param saturday true if alarm should recur on Saturdays
+	 * @param name unique name given to alarm by user
+	 * @param created time alarm is created
+	 * @param scheduled true if currently alarm service is currently scheduled
+	 */
+	public Alarm(int alarmId, int hour, int minute, boolean sunday, boolean monday, boolean tuesday, boolean wednesday, boolean thursday, boolean friday, boolean saturday, String name, long created, boolean scheduled) {
 		this.alarmId = alarmId;
 		this.hour = hour;
 		this.minute = minute;
@@ -94,6 +111,11 @@ public class Alarm {
 		this.created = created;
 	}
 
+	/**
+	 * Method used to set an alarm
+	 *
+	 * @param context context of alarm being set
+	 */
 	@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 	public void setAlarm(Context context) {
 //		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -126,12 +148,28 @@ public class Alarm {
 			dayOfWeek = "Saturday";
 		}
 
-		String alarmConfirmation = String
+		String toastCreateAlarm = String
 			.format("Alarm (%s) set for %s at %02d:%02d", name, dayOfWeek, hour, minute);
-		Toast toast = Toast.makeText(context, alarmConfirmation, Toast.LENGTH_LONG);
+		Toast toast = Toast.makeText(context, toastCreateAlarm, Toast.LENGTH_LONG);
 		toast.show();
 
 		AlarmPublisher.publishAlarm(context, calendar.getTimeInMillis());
 	}
 
+	/**
+	 * Method used to delete alarm
+	 *
+	 * @param context context of alarm being deleted
+	 */
+	public void deleteAlarm(Context context) {
+		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+		Intent intent = new Intent(context, AlarmNoisemaker.class);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, alarmId, intent, 0);
+		alarmManager.cancel(pendingIntent);
+
+		String toastDeleteAlarm = String.format("Alarm (%s) deleted for %02d:%02d", name, hour, minute);
+		Toast toast = Toast.makeText(context, toastDeleteAlarm, Toast.LENGTH_LONG);
+		toast.show();
+		Log.i("deleted", toastDeleteAlarm);
+	}
 }

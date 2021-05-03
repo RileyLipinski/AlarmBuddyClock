@@ -39,7 +39,7 @@ public class AlarmFragment extends Fragment {
 			final TextView alarmName = root.findViewById(R.id.fragment_alarm_alarmName);
 			Alarm alarm = new Alarm(alarmID, timePicker.getHour(), timePicker.getMinute(), false,
 				false, false, false, false, false, false, alarmName.getText().toString(),
-				System.currentTimeMillis());
+					System.currentTimeMillis(), true);
 //            alarmViewModel.insert(alarm);
 
 			alarm.setAlarm(getContext());
