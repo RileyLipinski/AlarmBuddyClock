@@ -3,7 +3,6 @@ package edu.ust.alarmbuddy;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,6 +24,7 @@ import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -67,11 +67,7 @@ public class LoginActivity extends AppCompatActivity {
 		//final Button forgotPasswordButton = findViewById(R.id.loginButton)
 		// TODO: forgot password action
 
-		goToCreateAccountButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				moveToCreateAccount();
-			}
-		});
+		goToCreateAccountButton.setOnClickListener(v -> moveToCreateAccount());
 
 	}
 
@@ -89,7 +85,7 @@ public class LoginActivity extends AppCompatActivity {
 
 	private void loginToHome() {
 		Log.i(LoginActivity.class.getName(), "Notification fetch activated");
-		NotificationFetchReceiver.triggerSelf(getApplicationContext());
+		NotificationFetchReceiver.trigger(getApplicationContext());
 		startActivity(new Intent(this, MainActivity.class));
 	}
 
@@ -114,13 +110,13 @@ public class LoginActivity extends AppCompatActivity {
 		final CountDownLatch latch = new CountDownLatch(1);
 		AlarmBuddyHttp.client.newCall(request).enqueue(new Callback() {
 			@Override
-			public void onFailure(Call call, IOException e) {
+			public void onFailure(@NotNull Call call, @NotNull IOException e) {
 				call.cancel();
 				latch.countDown();
 			}
 
 			@Override
-			public void onResponse(Call call, Response response) throws IOException {
+			public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
 				stringResponse[0] = response.body().string();
 				latch.countDown();
 			}
