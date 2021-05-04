@@ -188,8 +188,6 @@ app.post('/login', (req,res) => {
   }); 
 });
 
-// - - - - - - - - - - - - - - - - - - - - - END OF USER RELATED FUNCTION - - - - - - - - - - - - - - - - - - - - - - - - -//
-
 // - - - - - - - - - - - - - - - - - - - - - - - USER PROFILE PHOTOS - - - - - - - - - - - - - - - - - - - - - - - //
 
 // handler for updloading profile picture to the database
@@ -311,9 +309,6 @@ app.route('/getProfilePicture/:username').get(function(req,res,next){
   }
 });
 
-// - - - - - - - - - - - - - - - - - - - - - - - - END OF USER PROFILE PHOTOS - - - - - - - - - - - - - - - - - - //
-
-
 // - - - - - - - - - - - - - - - - - - - - - - - FRIEND RELATED FUNCTIONS - - - - - - - - - - - - - - - - - - - - - - - //
 
 // handler for sending friend requests
@@ -339,7 +334,7 @@ app.route('/sendRequest/:sender/:receiver').post(function(req,res,next){
             res.status(500).send('ERROR: database query error');
           }
           // respond with success that friend request was sent successfully
-          res.status(201).send('Friend request sent successfully');
+          res.status(201).send('friend request sent successfully');
         });
       } else { 
           // extracted token username did not match provided username from request so send error
@@ -387,7 +382,7 @@ app.route('/acceptFriendRequest/:receiver/:sender').post(function(req,res,next){
               connection.query("DELETE FROM alarmbuddy.friendRequests WHERE senderUsername = ? AND recipientUsername = ?", [req.params.sender, req.params.receiver], function(error, results, fields) {
                 if (error){
                   // respond with error if database query failed
-                  res.status(500).send('ERROR: Delete failed');
+                  res.status(500).send('ERROR: database query error');
                 }
                 // respond with friend request accepted successfully
                 res.status(201).send('friend request accepted successfully');
@@ -431,10 +426,10 @@ app.route('/cancelFriendRequest/:sender/:receiver').post(function(req,res,next){
           // check if any row was actually deleted from the delete query above
           if (results.affectedRows == 0){
             // respond with error that the friend request does not exist
-            res.status(404).send('ERROR: Friend Request does not exist');
+            res.status(404).send('ERROR: friend request does not exist');
           } else {
             // respond with request canceled successfully
-            res.status(201).send('Request canceled successfully');
+            res.status(201).send('request canceled successfully');
           }
         });
       } else {
@@ -471,10 +466,10 @@ app.route('/denyFriendRequest/:receiver/:sender').post(function(req,res,next){
           // check if any row was actually deleted from the delete query above
           if (results.affectedRows == 0){
             // respond with error that the friend request does not exist
-            res.status(404).send('ERROR: Friend request does not exist');
+            res.status(404).send('ERROR: friend request does not exist');
           } else {
             // respond with request canceled successfully
-            res.status(201).send('Request denied successfully');
+            res.status(201).send('friend request denied successfully');
           }
         });
       } else {
@@ -519,7 +514,7 @@ app.route('/requests/:username').get(function(req,res,next){
 });
 
 // handler for deleting a friend from friends list
-app.route('/deleteFriend/:username/:friend').post(function(req,res,next){
+app.route('/deleteFriend/:username/:friend').delete(function(req,res,next){
   // extract token from reqest header
   var token = req.headers.authorization;
   // check if token was provided in the request
@@ -535,7 +530,7 @@ app.route('/deleteFriend/:username/:friend').post(function(req,res,next){
       // check if extracted username from token matches the username provided in the request
       if (decoded.id == req.params.username){
         // delete the row from the friendsWith table where the two usernames provided in the request match up
-        connection.query("DELETE FROM alarmbuddy.friendsWith WHERE (username1 = ? AND username2 = ?) OR (username2 = ? AND username1 = ?)", [req.params.username, req.params.friend, req.params.friend, req.params.username], function(error, results, fields) {
+        connection.query("DELETE FROM alarmbuddy.friendsWith WHERE (username2 = ? AND username1 = ?) OR (username1 = ? AND username2 = ?)", [req.params.username, req.params.friend, req.params.username, req.params.friend], function(error, results, fields) {
           if (error){
             // respond with error if database delete failed
             res.status(500).send('ERROR: database query error');
@@ -543,10 +538,10 @@ app.route('/deleteFriend/:username/:friend').post(function(req,res,next){
           // check if any row was actually deleted from the delete query above
           if (results.affectedRows == 0){
             // respond with error that the friend request does not exist
-            res.status(404).send('ERROR: friend request does not exist');
+            res.status(404).send('ERROR: no friendship with user.');
           } else {
             // respond with request canceled successfully
-            res.status(201).send('Friend Removed successfully');
+            res.status(201).send('removed friend successfully');
           }
         });
       } else {
@@ -590,8 +585,6 @@ app.route('/friendsWith/:username').get(function(req, res, next) {
       });
     }
 });
-
-// - - - - - - - - - - - - - - - - - - - - - - END OF FREIND RELATED FUNCTION - - - - - - - - - - - - - - - - - - - -//
 
 // - - - - - - - - - - - - - - - - - - - - - - - SOUND RELATED FUNCTIONS - - - - - - - - - - - - - - - - - - - - - - - //
 
@@ -661,13 +654,13 @@ app.post('/upload/:username', function (req, res, next) {
                       fs.unlinkSync(req.file.path);
                       // create ownership entry using the username and soundID
                       var ownershipEntry = [
-                        [username, soundID]
+                        [username, soundID, username]
                       ]
                       // insert ownership entry into soundOwnership table
-                      connection.query("INSERT INTO alarmbuddy.soundOwnership (username, soundID) VALUES ?", [ownershipEntry], function(error, result,field) {
+                      connection.query("INSERT INTO alarmbuddy.soundOwnership (username, soundID, sharedBy) VALUES ?", [ownershipEntry], function(error, result,field) {
                         if(error) {
                           // respond with error if insert failed
-                          res.status(500).send('ERROR: Inserting failed');
+                          res.status(500).send('ERROR: database query error');
                         }
                         // respond with valid upload to database
                         res.status(201).send('database updated sucessfully');
@@ -678,7 +671,7 @@ app.post('/upload/:username', function (req, res, next) {
               } else {
                 // delete the file from uploads folder because it wasn't identified as an mp3 file
                 fs.unlinkSync(req.file.path);
-                res.status(415).send('ERROR: File type not supported');
+                res.status(415).send('ERROR: file type not supported');
               }
             })();
           } else {
@@ -726,13 +719,13 @@ app.route('/download/:username/:soundID').get(function(req,res,next) {
               fs.writeFile('/tmp/' + results[0].soundName, results[0].soundFile, function (error) {
                 if (error){
                   // respond with error if writing to file failed
-                  res.status(500).send('ERROR: Write to file');
+                  res.status(500).send('ERROR: write to file error');
                 }
                 // respond with written file
                 res.sendFile('/tmp/' + results[0].soundName, (error) => {
                   if (error){
                     // respond with error if sending file failed
-                    res.status(500).send('ERROR: File not sent');
+                    res.status(500).send('ERROR: could not send file');
                   }
                   // delete the sound file from the temp folder
                   // no longer needed in tmp storage once the user recieves the file
@@ -742,7 +735,7 @@ app.route('/download/:username/:soundID').get(function(req,res,next) {
             });
           } else {
             // respond with error if user does not have access to sound file or if the sound file doesn't exist in the database 
-            res.status(404).send('ERROR: No access to audio file or file does not exist');
+            res.status(404).send('ERROR: no access to audio file or file does not exist');
           }
         });
       } else { 
@@ -778,7 +771,7 @@ app.route('/deleteSound/:username/:soundID').delete(function(req,res,next) {
             // check if user has access to the sound file based off results from above query
             if (!(JSON.stringify(results) == JSON.stringify([]))){
               // select the amount of people that own the sound file based off the soundID
-              connection.query("SELECT COUNT(soundID) AS numberOfOwners FROM alarmbuddy.soundOwnership WHERE soundID = ?", [req.params.soundID], function(error, results, field){
+              connection.query("SELECT COUNT(soundID) AS numberOfOwners FROM alarmbuddy.soundOwnership WHERE soundID = ?", [req.params.soundName, req.params.soundID], function(error, results, field){
                 if(error) {
                   // respond with error if query failed
                   res.status(500).send('ERROR: database query error');
@@ -786,13 +779,13 @@ app.route('/deleteSound/:username/:soundID').delete(function(req,res,next) {
                 // if more than one person has ownership to the sound file...
                 if (results[0].numberOfOwners > 1){
                   // delete the users access to the file in the soundOwnership table
-                  connection.query("DELETE FROM alarmbuddy.soundOwnership WHERE username = ? AND soundID = ?", [req.params.username, req.params.soundID], function(error, results, field){
+                  connection.query("DELETE FROM alarmbuddy.soundOwnership WHERE username = ? AND soundID = ?", [req.params.username, req.params.soundName, req.params.soundID], function(error, results, field){
                     if(error) {
                       // respond with error if delete failed
-                      res.status(500).send('ERROR: Deleting failed');
+                      res.status(500).send('ERROR: database query error');
                     }
                     // respond with delete successful
-                    res.status(201).send('Sound deleted successfully');
+                    res.status(201).send('sound deleted successfully');
                   });
                 } else {
                   // there is only 1 owner of the sound file
@@ -800,16 +793,16 @@ app.route('/deleteSound/:username/:soundID').delete(function(req,res,next) {
                   connection.query("DELETE FROM alarmbuddy.soundInfo WHERE soundID = ?", req.params.soundID, function(error, results, field){
                     if(error) {
                       // respond with error if delete failed
-                      res.status(500).send('ERROR: Deleting faileld');
+                      res.status(500).send('ERROR: database query error');
                     }
                     // respond with delete successful
-                    res.status(201).send('Sound Deleted successfully');
+                    res.status(201).send('sound deleted successfully');
                   });
                 }
               });
             } else {
               // respond with error that the user doesn't have access to sound file
-              res.status(500).send('ERROR: No access to audio file or file does not exist');
+              res.status(500).send('ERROR: no access to audio file or file does not exist');
             }
           });
         } else {
@@ -877,14 +870,26 @@ app.route('/shareSound/:sender/:receiver/:soundID').post(function(req,res,next){
           }
           // check if the query above responded with a row from the soundOwnership table
           if (!(JSON.stringify(results) == JSON.stringify([]))){
-            // create a new entry in the soundOwnership table for the receiver of the sound being shared
-            connection.query("REPLACE INTO alarmbuddy.soundOwnership SET username = ?, soundID = ?", [req.params.receiver, req.params.soundID], function(error, result, field){
+            connection.query("SELECT * FROM alarmbuddy.soundOwnership WHERE username = ? AND soundID = ?", [req.params.receiver, req.params.soundID], function(error, results, field){
               if(error) {
-                // respond with error if insert/replace failed
+                // respond with error if query failed
                 res.status(500).send('ERROR: database query error');
+              }
+              // check that query above responded with nothing since we want to make sure the receiver doesn't already have access
+              if (JSON.stringify(results) == JSON.stringify([])){
+                // create a new entry in the soundOwnership table for the receiver of the sound being shared
+                connection.query("REPLACE INTO alarmbuddy.soundOwnership SET username = ?, soundID = ?, sharedBy = ?", [req.params.receiver, req.params.soundID, req.params.sender], function(error, result, field){
+                  if(error) {
+                    // respond with error if insert/replace failed
+                    res.status(500).send('ERROR: database query error');
+                  } else {
+                    // respond with success that sound was shared successfully
+                    res.status(201).send("Shared sound successfully");
+                  }
+                });
               } else {
-                // respond with success that sound was shared successfully
-                res.status(201).send("Shared sound successfully");
+                // respond with error that user already owns the sound
+                res.status(409).send('ERROR: user already owns the sound');
               }
             });
           } else {
@@ -900,11 +905,9 @@ app.route('/shareSound/:sender/:receiver/:soundID').post(function(req,res,next){
   }
 });
 
-
-// - - - - - - - - - - - - - - - - - - - - - - - -END OF SOUND REALTED FUCNTION - - - - - - - - - - - - - - - - - -//
-
 // handler for checking if the rest API is online
 app.get('/status', (req, res) => res.send('working!'));
+
 
 
 //Port 8080 for Google App Engine
