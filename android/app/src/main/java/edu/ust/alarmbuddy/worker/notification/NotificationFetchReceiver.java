@@ -1,18 +1,24 @@
 package edu.ust.alarmbuddy.worker.notification;
 
+import static edu.ust.alarmbuddy.ui.alarm.App.CHANNEL_ID;
+
 import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.common.UserData;
 import edu.ust.alarmbuddy.ui.alarm.AlarmPublisher;
+import edu.ust.alarmbuddy.ui.soundlist.SoundListActivity;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.CountDownLatch;
@@ -25,7 +31,9 @@ import org.jetbrains.annotations.NotNull;
 
 public class NotificationFetchReceiver extends BroadcastReceiver {
 
-	public static final long INTERVAL = 10 * 1000;
+
+	/** The amount of time (millseconds) between polls for new sounds */
+	public static final long INTERVAL = 60 * 1000;
 
 	/**
 	 * Upon receiving an Intent, polls the database for new sounds and takes the appropriate action
@@ -39,26 +47,26 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 		if (response == null) {
 			Log.e(NotificationFetchReceiver.class.getName(),
 				"Could not get a response from database, retrying fetch");
-			triggerSelf(context);
+			trigger(context);
 		} else {
 			switch (response.code()) {
-				case 200: // check if new sounds exist and notify the user if so
+				case 200: // check if new sounds exist and notify the user if needed
 					Log.i(NotificationFetchReceiver.class.getName(),
 						"Good response, checking for new sounds");
 					if (checkNotify(context, response)) {
 						newSoundNotification(context);
 					}
-					triggerSelf(context);
+					trigger(context);
 					break;
 				case 401: // user is no longer authenticated, stop polling
 					Log.i(NotificationFetchReceiver.class.getName(),
 						"User is logged out, not retrying");
 					break;
 				default:
-					Log.i(NotificationFetchReceiver.class.getName(), String
+					Log.w(NotificationFetchReceiver.class.getName(), String
 						.format("Response code %d not explicitly handled, retrying",
 							response.code()));
-					triggerSelf(context);
+					trigger(context);
 			}
 		}
 	}
@@ -69,7 +77,7 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 	 *
 	 * @param context Application context
 	 */
-	public static void triggerSelf(Context context) {
+	public static void trigger(Context context) {
 		AlarmPublisher.getAlarmManager(context).set(AlarmManager.ELAPSED_REALTIME_WAKEUP, INTERVAL,
 			PendingIntent
 				.getBroadcast(context, 0, new Intent(context, NotificationFetchReceiver.class), 0));
@@ -89,15 +97,19 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 		try {
 			String token = UserData.getString(context, "token");
 			String username = UserData.getString(context, "username");
-			if (token == null) {
-				// credentials are not stored in SharedPreferences, probably due to user logout
-				// force API to return 401
-				token = "";
-				username = "username";
-			}
+			//TODO uncomment in prod
+//			if (token == null) {
+//				// force API to return 401 if user has no credentials
+//				token = "";
+//				username = "username";
+//			}
+			token = (token == null) ? "n" : "y";
+
+			String url = "http://10.0.2.2:8080/sounds-list/" + token; // TODO change to prod URL
+			Log.i(NotificationFetchReceiver.class.getName(), "Polling url " + url);
 
 			Request request = new Request.Builder()
-				.url("https://alarmbuddy.wm.r.appspot.com/sounds/" + username)
+				.url(url)
 				.header("Authorization", token)
 				.get()
 				.build();
@@ -106,6 +118,7 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 			new OkHttpClient().newCall(request).enqueue(new Callback() {
 				@Override
 				public void onFailure(@NotNull Call call, @NotNull IOException e) {
+					Log.e(NotificationFetchReceiver.class.getName(), "Failed request to " + url);
 					call.cancel();
 					result[0] = null;
 					latch.countDown();
@@ -141,6 +154,9 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 			int maxIdSeen = UserData.getInt(context, "maxIdSeen", Integer.MIN_VALUE);
 			int maxIdInResponse = Integer.MIN_VALUE;
 
+			if (json.size() == 0) {
+				return false;
+			}
 			for (JsonElement x : json) {
 				maxIdInResponse = Math
 					.max(maxIdInResponse, x.getAsJsonObject().get("soundID").getAsInt());
@@ -160,7 +176,17 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 	}
 
 	private static void newSoundNotification(Context context) {
-		//TODO send an actual notification here
-		Toast.makeText(context, "NEW SOUNDS", Toast.LENGTH_SHORT).show();
+		Intent intent = new Intent(context, SoundListActivity.class);
+		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+		Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
+			.setContentTitle("You received a sound!")
+			.setContentText("RING RING RING")
+			.setSmallIcon(R.drawable.ic_baseline_access_alarm_24)
+			.setContentIntent(pendingIntent)
+			.build();
+
+		NotificationManager mNotificationManager = (NotificationManager) context
+			.getSystemService(Context.NOTIFICATION_SERVICE);
+		mNotificationManager.notify(0, notification);
 	}
 }
