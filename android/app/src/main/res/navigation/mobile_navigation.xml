@@ -7,9 +7,9 @@
 
   <fragment
     android:id="@+id/navigation_home"
-    android:name="edu.ust.alarmbuddy.ui.home.HomeFragment"
+    android:name="edu.ust.alarmbuddy.ui.alarms.AlarmListFragment"
     android:label="@string/title_home"
-    tools:layout="@layout/fragment_home"/>
+    tools:layout="@layout/fragment_alarm_list"/>
 
   <fragment
     android:id="@+id/navigation_alarm"
@@ -19,9 +19,9 @@
 
   <fragment
     android:id="@+id/navigation_notifications"
-    android:name="edu.ust.alarmbuddy.ui.notifications.NotificationsFragment"
-    android:label="@string/title_notifications"
-    tools:layout="@layout/fragment_notifications"/>
+    android:name="edu.ust.alarmbuddy.ui.notifications.DemoFragment"
+    android:label="@string/title_demo"
+    tools:layout="@layout/fragment_demo"/>
   <fragment
     android:id="@+id/navigation_record_audio"
     android:name="edu.ust.alarmbuddy.ui.record_audio.RecordAudioFragment"

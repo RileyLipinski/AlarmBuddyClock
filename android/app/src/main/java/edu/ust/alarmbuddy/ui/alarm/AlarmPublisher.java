@@ -5,6 +5,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import edu.ust.alarmbuddy.worker.alarm.AlarmFetchReceiver;
+import edu.ust.alarmbuddy.worker.alarm.AlarmNoisemaker;
 import java.util.Calendar;
 
 public class AlarmPublisher {
@@ -23,14 +25,14 @@ public class AlarmPublisher {
 	 */
 	public static void publishAlarm(Context context, int hours, int minutes) {
 		long wakeupTime = wakeupTime(hours, minutes, System.currentTimeMillis());
-		publishAlarm(context,wakeupTime);
+		publishAlarm(context, wakeupTime);
 	}
 
 	/**
 	 * Receives a request to schedule an alarm and sets up a listener to either fetch an alarm from
 	 * the API or play a default alarm.
 	 *
-	 * @param context The application context
+	 * @param context    The application context
 	 * @param wakeupTime The system time in millis when the alarm should sound
 	 */
 	public static void publishAlarm(Context context, long wakeupTime) {

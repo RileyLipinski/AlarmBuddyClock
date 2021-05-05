@@ -14,17 +14,19 @@
     android:required="false"/>
 
   <application
-          android:name=".ui.alarm.App"
+    android:name=".ui.alarm.App"
     android:allowBackup="true"
     android:icon="@mipmap/alarmbuddy_cropped"
     android:label="@string/app_name"
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
     android:theme="@style/AppTheme">
-    <receiver android:name=".ui.alarm.AlarmFetchReceiver"/>
-    <receiver android:name=".ui.alarm.AlarmNoisemaker"/>
+    <receiver android:name=".worker.alarm.AlarmFetchReceiver"/>
+    <receiver android:name=".worker.alarm.AlarmNoisemaker"/>
+    <receiver android:name=".worker.notification.NotificationFetchReceiver"/>
 
     <activity android:name=".ui.friends.SendRequest"/>
+    <activity android:name=".ui.friends.FriendRequests"/>
     <activity
       android:name="edu.ust.alarmbuddy.MainActivity"
       android:label="@string/app_name">
@@ -45,7 +47,7 @@
     <activity android:name=".AlarmActivity"/>
     <activity android:name=".CreateAccountActivity"/>
 
-    <service android:name=".ui.alarm.AlarmService"/>
+    <service android:name=".worker.alarm.AlarmService"/>
   </application>
 
 </manifest>

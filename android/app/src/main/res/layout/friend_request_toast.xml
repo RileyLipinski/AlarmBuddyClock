@@ -4,14 +4,12 @@
   android:orientation="horizontal"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
-  android:background="?attr/actionModeSplitBackground"
   android:id="@+id/toast_root">
 
   <TextView
     android:id="@+id/toast_text"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="Friend Request Sent"
     android:textColor="@android:color/black"
     android:textSize="20sp"/>
 

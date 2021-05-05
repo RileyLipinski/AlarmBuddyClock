@@ -1,4 +1,4 @@
-package edu.ust.alarmbuddy.ui.alarm;
+package edu.ust.alarmbuddy.worker.alarm;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

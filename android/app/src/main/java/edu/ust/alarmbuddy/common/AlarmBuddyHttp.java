@@ -1,18 +1,17 @@
 package edu.ust.alarmbuddy.common;
 
-import android.content.Context;
 import android.os.Build;
 import android.util.Log;
-import android.webkit.MimeTypeMap;
 import androidx.annotation.RequiresApi;
-
-import java.io.*;
+import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
-
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import edu.ust.alarmbuddy.R;
-import okhttp3.*;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * Tutorial: https://www.journaldev.com/13629/okhttp-android-example-tutorial

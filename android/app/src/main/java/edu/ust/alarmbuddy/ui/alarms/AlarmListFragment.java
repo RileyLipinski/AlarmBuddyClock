@@ -11,26 +11,43 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
+import edu.ust.alarmbuddy.ui.alarm.Alarm;
 
-public class AlarmListFragment extends Fragment {
+import java.util.List;
 
-	private AlarmListViewModel alarmsViewModel;
+public class AlarmListFragment extends Fragment implements OnToggleAlarmListener{
 
-	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-		Bundle savedInstanceState) {
-		alarmsViewModel = ViewModelProviders.of(this).get(AlarmListViewModel.class);
-		View root = inflater.inflate(R.layout.fragment_alarms, container, false);
-		final TextView textView = root.findViewById(R.id.alarm_text);
-		final Switch alarmSwitch = root.findViewById(R.id.alarmSwitch);
-		alarmsViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-			@Override
-			public void onChanged(@Nullable String s) {
-				if (alarmSwitch.isChecked()) {
-					textView.setText(s);
-				}
-			}
-		});
-		return root;
+	private AlarmListRecyclerViewAdapter alarmListRecyclerViewAdapter;
+	private AlarmListViewModel alarmListViewModel;
+	private RecyclerView recyclerView;
+
+	@Override
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		alarmListRecyclerViewAdapter = new AlarmListRecyclerViewAdapter(this);
+		//alarmListViewModel = ViewModelProviders.of(this).get(AlarmListViewModel.class);
+		//alarmListViewModel.getCurrentAlarms().observe(this, new Observer<List<Alarm>>() {
+
+	}
+
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+		@Nullable Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.fragment_alarm_list, container,false);
+
+		recyclerView = view.findViewById(R.id.fragment_alarm_list_recyclerView);
+		recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+		recyclerView.setAdapter(alarmListRecyclerViewAdapter);
+
+		return view;
+	}
+
+	@Override
+	public void onToggle(Alarm alarm) {
+
 	}
 }
