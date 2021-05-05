@@ -2,15 +2,12 @@ package edu.ust.alarmbuddy.ui.friends;
 
 import android.app.Activity;
 import android.content.Context;
-import android.view.LayoutInflater;
+import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import android.os.Bundle;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
@@ -33,6 +30,10 @@ public class FriendRequests extends AppCompatActivity {
 
 
     public FriendRequests() {
+        mRecyclerView = null;
+        mAdapter = null;
+        mLayoutManager = new LinearLayoutManager(this);
+        mProfileList = null;
     }
 
     @Override
@@ -48,7 +49,7 @@ public class FriendRequests extends AppCompatActivity {
         ArrayList<Profile> profileList = new ArrayList<>();
 
         mRecyclerView = findViewById(R.id.inboxRecyclerView);
-        try {
+        try{
             flag = populateArray();
         }catch (InterruptedException e) {
             flag=0;
@@ -59,8 +60,8 @@ public class FriendRequests extends AppCompatActivity {
             TextView text = findViewById(R.id.inboxText);
             text.setText("Your inbox is empty");
         }
-        mLayoutManager = new LinearLayoutManager(this);
-        mAdapter = new ProfileAdapter(profileList);
+        mAdapter = new ProfileAdapter(getMProfileList());
+        mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
     }
 
@@ -119,7 +120,6 @@ public class FriendRequests extends AppCompatActivity {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                nameList.add("Failure");
                 countDownLatch.countDown();
             }
 
@@ -140,9 +140,6 @@ public class FriendRequests extends AppCompatActivity {
                     for (int i = 1; i < result.size(); i += 2) {
                         nameList.add(result.get(i));
                     }
-
-                } else {
-                    nameList.add("ElseResponse");
                 }
                 countDownLatch.countDown();
             }

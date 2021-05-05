@@ -37,6 +37,7 @@ public class SendRequest extends AppCompatActivity {
 
 	private Button button;
 	private EditText entry;
+	private int flag;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -88,21 +89,23 @@ public class SendRequest extends AppCompatActivity {
 
 		client.newCall(request).enqueue(new Callback() {
 			@Override
-			public void onFailure(@NotNull Call call, @NotNull IOException e) {
-				showToast("Request could not be sent");
-			}
+			public void onFailure(@NotNull Call call, @NotNull IOException e) {}
 
 			@Override
 			public void onResponse(@NotNull Call call, @NotNull Response response)
 					throws IOException {
 				if (response.isSuccessful()) {
-					showToast("Request sent");
-
-				} else {
-					showToast("Request could not be sent");
+					flag=1;
 				}
 			}
 		});
+
+		if (flag == 1){
+			showToast("Request sent");
+		}
+		else{
+			showToast("Request could not be sent");
+		}
 	}
 
 	private void showToast(String input) {

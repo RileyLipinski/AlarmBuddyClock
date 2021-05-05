@@ -26,6 +26,7 @@
     <receiver android:name=".worker.notification.NotificationFetchReceiver"/>
 
     <activity android:name=".ui.friends.SendRequest"/>
+    <activity android:name=".ui.friends.FriendRequests"/>
     <activity
       android:name="edu.ust.alarmbuddy.MainActivity"
       android:label="@string/app_name">
