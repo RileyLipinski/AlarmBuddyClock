@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
+import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import edu.ust.alarmbuddy.common.UserData;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -54,7 +55,7 @@ public class FriendsFragment extends Fragment {
 		mlayoutManager = new LinearLayoutManager(getContext());
 		mProfileList = null;
 		sendButton = null;
-		inButton= null;
+		inButton = null;
 	}
 
 	private int populateArray() throws InterruptedException {
@@ -64,8 +65,8 @@ public class FriendsFragment extends Fragment {
 
 		getRequest(nameList, getActivity().getApplicationContext());
 
-		if (nameList.size()==0) {
-			flag=0;
+		if (nameList.size() == 0) {
+			flag = 0;
 		}
 
 		//sorts the list of names alphabetically before using them to create Profile objects
@@ -87,15 +88,16 @@ public class FriendsFragment extends Fragment {
 
 		String token = "";
 		try {
-			token = UserData.getString(context, "token");
+			token = UserData.getStringNotNull(context, "token");
 		} catch (GeneralSecurityException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
 		String username = "";
 		try {
-			username = UserData.getString(context, "username");
+			username = UserData.getStringNotNull(context, "username");
 		} catch (GeneralSecurityException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -103,7 +105,7 @@ public class FriendsFragment extends Fragment {
 		}
 
 		Request request = new Request.Builder()
-			.url("https://alarmbuddy-312620.uc.r.appspot.com/FriendsWith/" + username)
+			.url(AlarmBuddyHttp.API_URL + "/FriendsWith/" + username)
 			.header("Authorization", token)
 			.build();
 
@@ -155,15 +157,16 @@ public class FriendsFragment extends Fragment {
 
 		setHasOptionsMenu(true);
 		try {
-			flag=buildRecyclerView(v);
+			flag = buildRecyclerView(v);
 		} catch (InterruptedException e) {
 			flag = 0;
 			e.printStackTrace();
 		}
-			if(flag == 0){
-				TextView text = v.findViewById(R.id.text_friends);
-				text.setText("You don't currently have any AlarmBuddy friends. Press the send friend request button to begin adding friends.");
-			}
+		if (flag == 0) {
+			TextView text = v.findViewById(R.id.text_friends);
+			text.setText(
+				"You don't currently have any AlarmBuddy friends. Press the send friend request button to begin adding friends.");
+		}
 		return v;
 	}
 
@@ -190,9 +193,9 @@ public class FriendsFragment extends Fragment {
 	}
 
 	private void openInbox() {
-	    Intent intent = new Intent(getActivity(), FriendRequests.class);
-	    startActivity(intent);
-    }
+		Intent intent = new Intent(getActivity(), FriendRequests.class);
+		startActivity(intent);
+	}
 
 	private int buildRecyclerView(View v) throws InterruptedException {
 		int flag;

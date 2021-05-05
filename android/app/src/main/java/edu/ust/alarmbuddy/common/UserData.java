@@ -85,6 +85,26 @@ public class UserData {
 	}
 
 	/**
+	 * Fetches the value from the preferences file specified by the parameter key as a String. If
+	 * the key does not have an associated value, returns an empty String.
+	 *
+	 * @param context Application context used to generate MasterKey and decrypt SharedPreferences
+	 *                file
+	 * @param key     Key used to fetch data from the preferences file
+	 *
+	 * @return The preferences value associated with the parameter key, or an empty String if the
+	 * key does not have an associated value.
+	 *
+	 * @throws GeneralSecurityException when the MasterKey cannot successfully decrypt the
+	 *                                  preferences file
+	 * @throws IOException              when the preferences file cannot be read
+	 */
+	public static String getStringNotNull(Context context, String key)
+		throws GeneralSecurityException, IOException {
+		return getSharedPreferences(context).getString(key, "");
+	}
+
+	/**
 	 * Fetches the value from the preferences file specified by the parameter key as an int. If the
 	 * key is not stored, returns the parameter default value.
 	 *

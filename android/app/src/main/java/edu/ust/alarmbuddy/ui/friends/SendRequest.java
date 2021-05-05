@@ -2,6 +2,7 @@ package edu.ust.alarmbuddy.ui.friends;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -14,16 +15,18 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import edu.ust.alarmbuddy.R;
+import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import edu.ust.alarmbuddy.common.UserData;
-import okhttp3.*;
-import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 
 /***
  * @author Keghan Halloran
@@ -37,7 +40,6 @@ public class SendRequest extends AppCompatActivity {
 
 	private Button button;
 	private EditText entry;
-	private int flag;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -82,35 +84,52 @@ public class SendRequest extends AppCompatActivity {
 			e.printStackTrace();
 		}
 
+		String url =
+			AlarmBuddyHttp.API_URL + "/sendRequest/" + username + "/" + entry.getText().toString()
+				.trim();
+		Log.i(SendRequest.class.getName(), "URL: " + url);
+
 		Request request = new Request.Builder()
-				.url("https://alarmbuddy-312620.uc.r.appspot.com/sendRequest/" + username + "/" + entry.getText().toString())
-				.header("Authorization", token)
-				.build();
+			.post(RequestBody.create("", MediaType.parse("text/plain")))
+			.url(url)
+			.header("Authorization", token)
+			.build();
 
 		client.newCall(request).enqueue(new Callback() {
 			@Override
-			public void onFailure(@NotNull Call call, @NotNull IOException e) {}
+			public void onFailure(@NotNull Call call, @NotNull IOException e) {
+				showToast("Request could not be sent");
+			}
 
 			@Override
 			public void onResponse(@NotNull Call call, @NotNull Response response)
-					throws IOException {
+				throws IOException {
+				Log.i(SendRequest.class.getName(), "Code: " + response.code());
+				Log.i(SendRequest.class.getName(), "Message: " + response.body().string());
 				if (response.isSuccessful()) {
-					flag=1;
+					showToast("Request sent successfully"); //TODO this toast is throwing an error:
+					//2021-05-05 16:39:10.868 30946-30985/edu.ust.alarmbuddy E/AndroidRuntime: FATAL EXCEPTION: OkHttp Dispatcher
+					//    Process: edu.ust.alarmbuddy, PID: 30946
+					//    java.lang.RuntimeException: Can't toast on a thread that has not called Looper.prepare()
+					//        at android.widget.Toast$TN.<init>(Toast.java:390)
+					//        at android.widget.Toast.<init>(Toast.java:114)
+					//        at android.widget.Toast.<init>(Toast.java:105)
+					//        at edu.ust.alarmbuddy.ui.friends.SendRequest.showToast(SendRequest.java:124)
+					//        at edu.ust.alarmbuddy.ui.friends.SendRequest.access$000(SendRequest.java:41)
+					//        at edu.ust.alarmbuddy.ui.friends.SendRequest$1.onResponse(SendRequest.java:111)
+					//        at okhttp3.internal.connection.RealCall$AsyncCall.run(RealCall.kt:519)
+					//        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1162)
+					//        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:636)
+					//        at java.lang.Thread.run(Thread.java:764)
 				}
 			}
 		});
-
-		if (flag == 1){
-			showToast("Request sent");
-		}
-		else{
-			showToast("Request could not be sent");
-		}
 	}
 
 	private void showToast(String input) {
 		LayoutInflater inflater = getLayoutInflater();
-		View layout = inflater.inflate(R.layout.friend_request_toast, findViewById(R.id.toast_root));
+		View layout = inflater
+			.inflate(R.layout.friend_request_toast, findViewById(R.id.toast_root));
 
 		TextView text = layout.findViewById(R.id.toast_text);
 		text.setText(input);
