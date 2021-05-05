@@ -4,9 +4,8 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
-import edu.ust.alarmbuddy.ui.alarm.Alarm;
+import edu.ust.alarmbuddy.ui.alarms.database.Alarm;
+import edu.ust.alarmbuddy.ui.alarms.database.AlarmList;
 
 import java.util.List;
 

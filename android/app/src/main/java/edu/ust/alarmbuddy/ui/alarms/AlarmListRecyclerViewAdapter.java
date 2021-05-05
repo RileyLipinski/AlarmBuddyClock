@@ -3,11 +3,10 @@ package edu.ust.alarmbuddy.ui.alarms;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
-import edu.ust.alarmbuddy.ui.alarm.Alarm;
+import edu.ust.alarmbuddy.ui.alarms.database.Alarm;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

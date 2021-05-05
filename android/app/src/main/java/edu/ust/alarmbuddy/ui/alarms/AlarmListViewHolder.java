@@ -1,12 +1,10 @@
 package edu.ust.alarmbuddy.ui.alarms;
 
-import android.os.Build;
 import android.view.View;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import edu.ust.alarmbuddy.ui.alarm.Alarm;
-import org.jetbrains.annotations.NotNull;
+import edu.ust.alarmbuddy.ui.alarms.database.Alarm;
 
 import edu.ust.alarmbuddy.R;
 
