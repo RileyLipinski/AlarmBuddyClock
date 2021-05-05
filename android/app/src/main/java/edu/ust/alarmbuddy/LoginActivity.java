@@ -15,7 +15,6 @@ import edu.ust.alarmbuddy.ui.login.FailedLoginDialogFragment;
 import edu.ust.alarmbuddy.ui.login.LoginViewModel;
 import edu.ust.alarmbuddy.worker.notification.NotificationFetchReceiver;
 import java.io.IOException;
-import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.CountDownLatch;
 import okhttp3.Call;
@@ -97,7 +96,7 @@ public class LoginActivity extends AppCompatActivity {
 		throws IOException {
 		//build the request
 		String data = "username=" + username + "&password=" + password;
-		URL url = new URL("https://alarmbuddy.wm.r.appspot.com/login");
+		String url = AlarmBuddyHttp.API_URL + "/login";
 		RequestBody body = RequestBody.create(data, MediaType
 			.parse("application/x-www-form-urlencoded"));
 		Request request = new Request.Builder()
@@ -116,7 +115,8 @@ public class LoginActivity extends AppCompatActivity {
 			}
 
 			@Override
-			public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+			public void onResponse(@NotNull Call call, @NotNull Response response)
+				throws IOException {
 				stringResponse[0] = response.body().string();
 				latch.countDown();
 			}
