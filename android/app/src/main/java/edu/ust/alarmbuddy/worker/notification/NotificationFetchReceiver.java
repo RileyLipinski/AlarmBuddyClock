@@ -15,10 +15,10 @@ import androidx.core.app.NotificationCompat;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import edu.ust.alarmbuddy.AlarmActivity;
 import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.common.UserData;
 import edu.ust.alarmbuddy.ui.alarm.AlarmPublisher;
+import edu.ust.alarmbuddy.ui.soundlist.SoundListActivity;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.CountDownLatch;
@@ -97,14 +97,19 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 		try {
 			String token = UserData.getString(context, "token");
 			String username = UserData.getString(context, "username");
-			if (token == null) {
-				// force API to return 401 if user has no credentials
-				token = "";
-				username = "username";
-			}
+			//TODO uncomment in prod
+//			if (token == null) {
+//				// force API to return 401 if user has no credentials
+//				token = "";
+//				username = "username";
+//			}
+			token = (token == null) ? "n" : "y";
+
+			String url = "http://10.0.2.2:8080/sounds-list/" + token; // TODO change to prod URL
+			Log.i(NotificationFetchReceiver.class.getName(), "Polling url " + url);
 
 			Request request = new Request.Builder()
-				.url("https://alarmbuddy.wm.r.appspot.com/sounds/" + username)
+				.url(url)
 				.header("Authorization", token)
 				.get()
 				.build();
@@ -113,6 +118,7 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 			new OkHttpClient().newCall(request).enqueue(new Callback() {
 				@Override
 				public void onFailure(@NotNull Call call, @NotNull IOException e) {
+					Log.e(NotificationFetchReceiver.class.getName(), "Failed request to " + url);
 					call.cancel();
 					result[0] = null;
 					latch.countDown();
@@ -170,9 +176,8 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 	}
 
 	private static void newSoundNotification(Context context) {
-		//TODO switch this to a different activity?
-		Intent alarmIntent = new Intent(context, AlarmActivity.class);
-		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, alarmIntent, 0);
+		Intent intent = new Intent(context, SoundListActivity.class);
+		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
 		Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
 			.setContentTitle("You received a sound!")
 			.setContentText("RING RING RING")
@@ -180,7 +185,8 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 			.setContentIntent(pendingIntent)
 			.build();
 
-		NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+		NotificationManager mNotificationManager = (NotificationManager) context
+			.getSystemService(Context.NOTIFICATION_SERVICE);
 		mNotificationManager.notify(0, notification);
 	}
 }
