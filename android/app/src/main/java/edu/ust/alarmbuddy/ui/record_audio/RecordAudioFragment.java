@@ -18,6 +18,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
@@ -47,6 +49,7 @@ public class RecordAudioFragment extends Fragment {
 	private Button recordButton = null;
 	private Button playButton = null;
 	private Button uploadSoundButton = null;
+	private Button sendButton = null;
 
 	private MediaRecorder recorder = null;
 	private MediaPlayer player = null;
@@ -69,6 +72,7 @@ public class RecordAudioFragment extends Fragment {
 		recordButton = root.findViewById(R.id.recordButton);
 		playButton = root.findViewById(R.id.playButton);
 		uploadSoundButton = root.findViewById(R.id.uploadButton);
+		sendButton = root.findViewById(R.id.GoToSelectFriendsButton);
 
 		recordButton.setText("Start recording");
 		playButton.setText("Play sound");
@@ -77,8 +81,15 @@ public class RecordAudioFragment extends Fragment {
 		requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO,
 			Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
 
+		return root;
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+
 		// set listeners for record, play, and upload
-		View.OnClickListener recordClicker = new View.OnClickListener() {
+		recordButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				// only starts recording if mic can be used
 				if (micPermission == true) {
@@ -92,10 +103,9 @@ public class RecordAudioFragment extends Fragment {
 					mStartRecording = !mStartRecording;
 				}
 			}
-		};
-		recordButton.setOnClickListener(recordClicker);
+		});
 
-		View.OnClickListener playClicker = new View.OnClickListener() {
+		playButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				// check if there is a recorded file to play
 				if (audioFile.exists()) {
@@ -109,28 +119,26 @@ public class RecordAudioFragment extends Fragment {
 					mStartPlaying = !mStartPlaying;
 				}
 			}
-		};
-		playButton.setOnClickListener(playClicker);
+		});
 
-		View.OnClickListener uploadClicker = new View.OnClickListener() {
+
+		uploadSoundButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				if (audioFile.exists()) {
 					uploadSound(getContext(), audioFile.getAbsolutePath());
 				}
 			}
-		};
-		uploadSoundButton.setOnClickListener(uploadClicker);
+		});
 
-		return root;
-	}
+		sendButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				FragmentManager fm = getFragmentManager();
+				FragmentTransaction ft = fm.beginTransaction();
+				ft.replace(R.id.nav_host_fragment, new SelectFriendsFragment());
+				ft.commit();
+			}
+		});
 
-
-
-	@Override
-	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		mViewModel = ViewModelProviders.of(this).get(RecordAudioViewModel.class);
-		// TODO: Use the ViewModel
 	}
 
 	public static RecordAudioFragment newInstance() {
