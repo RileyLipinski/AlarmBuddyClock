@@ -1,4 +1,4 @@
-package edu.ust.alarmbuddy.ui.notifications;
+package edu.ust.alarmbuddy.ui.demo;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
