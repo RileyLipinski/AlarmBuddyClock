@@ -1,4 +1,4 @@
-package edu.ust.alarmbuddy.ui.alarm;
+package edu.ust.alarmbuddy.ui.alarms.database;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -7,13 +7,19 @@ import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import edu.ust.alarmbuddy.ui.alarm.AlarmPublisher;
 import edu.ust.alarmbuddy.worker.alarm.AlarmNoisemaker;
 
 import java.util.Calendar;
 
+@Entity(tableName = "alarms")
 public class Alarm {
-
+	@PrimaryKey
+	@NonNull
 	private int alarmId;
 	private int hour;
 	private int minute;
@@ -26,6 +32,11 @@ public class Alarm {
 	private boolean saturday;
 	private String name;
 	private long created;
+
+	public boolean isScheduled() {
+		return scheduled;
+	}
+
 	private boolean scheduled;
 
 	/**

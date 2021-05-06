@@ -25,7 +25,11 @@
                         android:layout_height="wrap_content"
                         android:text="00:00"
                         android:textSize="36sp"/>
-
+            <Switch
+                    android:id="@+id/alarm_list_alarm_started"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"/>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>
