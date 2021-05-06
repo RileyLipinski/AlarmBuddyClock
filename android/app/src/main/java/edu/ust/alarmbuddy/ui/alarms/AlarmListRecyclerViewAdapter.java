@@ -50,7 +50,7 @@ public class AlarmListRecyclerViewAdapter extends RecyclerView.Adapter<AlarmList
     @Override
     public void onViewRecycled(@NonNull AlarmListViewHolder holder) {
         super.onViewRecycled(holder);
-        //holder.alarmsStarted.setOnCheckedChangeListener(null);
+        holder.alarmStarted.setOnCheckedChangeListener(null);
     }
 
     public void setAlarms(List<Alarm> alarmList) {

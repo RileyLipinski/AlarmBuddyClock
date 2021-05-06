@@ -32,6 +32,11 @@ public class Alarm {
 	private boolean saturday;
 	private String name;
 	private long created;
+
+	public boolean isScheduled() {
+		return scheduled;
+	}
+
 	private boolean scheduled;
 
 	/**

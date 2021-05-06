@@ -17,6 +17,13 @@ public class AlarmListViewModel extends AndroidViewModel {
 	public AlarmListViewModel(@NonNull Application application) {
 		super(application);
 
+		alarmList = new AlarmList(application);
+		currentAlarms = alarmList.getCurrentAlarmList();
+
+	}
+
+	public void update(Alarm alarm) {
+		alarmList.update(alarm);
 	}
 
     public LiveData<List<Alarm>> getCurrentAlarms() {
