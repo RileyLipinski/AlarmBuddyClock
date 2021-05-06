@@ -9,6 +9,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -16,9 +17,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import edu.ust.alarmbuddy.R;
+import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import edu.ust.alarmbuddy.common.UserData;
 import edu.ust.alarmbuddy.ui.alarm.AlarmPublisher;
-import edu.ust.alarmbuddy.ui.soundlist.SoundListActivity;
+import edu.ust.alarmbuddy.SoundListActivity;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.CountDownLatch;
@@ -53,10 +55,17 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 				case 200: // check if new sounds exist and notify the user if needed
 					Log.i(NotificationFetchReceiver.class.getName(),
 						"Good response, checking for new sounds");
-					if (checkNotify(context, response)) {
-						newSoundNotification(context);
+					String json = "";
+					try {
+						json = response.body().string();
+					} catch (IOException e) { //TODO update this later
+						e.printStackTrace();
 					}
-					trigger(context);
+					if (checkNotify(context, json)) {
+						newSoundNotification(context,json);
+					}
+					// TODO allow repeated polling in prod
+//					trigger(context);
 					break;
 				case 401: // user is no longer authenticated, stop polling
 					Log.i(NotificationFetchReceiver.class.getName(),
@@ -98,14 +107,15 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 			String token = UserData.getString(context, "token");
 			String username = UserData.getString(context, "username");
 			//TODO uncomment in prod
-//			if (token == null) {
-//				// force API to return 401 if user has no credentials
-//				token = "";
-//				username = "username";
-//			}
-			token = (token == null) ? "n" : "y";
+			if (token == null) {
+				// force API to return 401 if user has no credentials
+				token = "";
+				username = "username";
+			}
+//			token = (token == null) ? "n" : "y";
 
-			String url = "http://10.0.2.2:8080/sounds-list/" + token; // TODO change to prod URL
+//			String url = "http://10.0.2.2:8080/sounds-list/" + token; // TODO change to prod URL
+			String url = AlarmBuddyHttp.API_URL + "/sounds/" + username;
 			Log.i(NotificationFetchReceiver.class.getName(), "Polling url " + url);
 
 			Request request = new Request.Builder()
@@ -146,9 +156,12 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 	 *
 	 * @return whether the user must be notified of new sounds
 	 */
-	private static boolean checkNotify(Context context, @NonNull Response response) {
+	private static boolean checkNotify(Context context, @NonNull String response) {
+		if(response.length() == 0) {
+			return false;
+		}
 		try {
-			JsonArray json = JsonParser.parseString(response.body().string())
+			JsonArray json = JsonParser.parseString(response)
 				.getAsJsonArray();
 
 			int maxIdSeen = UserData.getInt(context, "maxIdSeen", Integer.MIN_VALUE);
@@ -175,8 +188,12 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 		return false;
 	}
 
-	private static void newSoundNotification(Context context) {
+	private static void newSoundNotification(Context context, String json) {
 		Intent intent = new Intent(context, SoundListActivity.class);
+		Bundle extras = new Bundle(1);
+		extras.putString("json",json);
+		intent.replaceExtras(extras);
+
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
 		Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
 			.setContentTitle("You received a sound!")

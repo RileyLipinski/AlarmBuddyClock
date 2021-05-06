@@ -46,7 +46,7 @@
 
     <activity android:name=".AlarmActivity"/>
     <activity android:name=".CreateAccountActivity"/>
-    <activity android:name=".ui.soundlist.SoundListActivity"/>
+    <activity android:name=".SoundListActivity"/>
 
     <service android:name=".worker.alarm.AlarmService"/>
   </application>
