@@ -19,7 +19,7 @@
 
   <fragment
     android:id="@+id/navigation_notifications"
-    android:name="edu.ust.alarmbuddy.ui.notifications.DemoFragment"
+    android:name="edu.ust.alarmbuddy.ui.demo.DemoFragment"
     android:label="@string/title_demo"
     tools:layout="@layout/fragment_demo"/>
   <fragment
