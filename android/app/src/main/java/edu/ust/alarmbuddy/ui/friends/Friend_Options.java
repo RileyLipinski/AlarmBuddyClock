@@ -63,22 +63,9 @@ public class Friend_Options extends AppCompatActivity {
         OkHttpClient client = new OkHttpClient();
         flag = 0;
 
-        String token = "";
-        try {
-            token = UserData.getString(this, "token");
-        } catch (GeneralSecurityException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        String username = "";
-        try {
-            username = UserData.getString(this, "username");
-        } catch (GeneralSecurityException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String token = token = UserData.getStringNotNull(this, "token");
+        String username = username = UserData.getStringNotNull(this, "username");
+
         String action = "";
         if (command.compareTo("remove")==0){
             action = "deleteFriend";
