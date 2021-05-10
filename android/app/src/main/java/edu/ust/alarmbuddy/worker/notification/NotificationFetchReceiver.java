@@ -146,7 +146,7 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 			});
 			latch.await();
 			return result[0];
-		} catch (GeneralSecurityException | IOException | InterruptedException e) {
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 			return null;
 		}

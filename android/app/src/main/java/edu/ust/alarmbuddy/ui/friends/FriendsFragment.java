@@ -86,23 +86,9 @@ public class FriendsFragment extends Fragment {
 		//generates a get request from the database for a users friends list
 		OkHttpClient client = new OkHttpClient();
 
-		String token = "";
-		try {
-			token = UserData.getStringNotNull(context, "token");
-		} catch (GeneralSecurityException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		String token = UserData.getStringNotNull(context, "token");
 
-		String username = "";
-		try {
-			username = UserData.getStringNotNull(context, "username");
-		} catch (GeneralSecurityException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		String username = UserData.getStringNotNull(context, "username");
 
 		Request request = new Request.Builder()
 			.url(AlarmBuddyHttp.API_URL + "/FriendsWith/" + username)

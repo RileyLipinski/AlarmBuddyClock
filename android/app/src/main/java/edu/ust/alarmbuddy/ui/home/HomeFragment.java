@@ -14,7 +14,6 @@ import androidx.lifecycle.ViewModelProviders;
 import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.common.UserData;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -59,20 +58,9 @@ public class HomeFragment extends Fragment {
 		EditText friendName = root.findViewById(R.id.friendName);
 		EditText deleteSoundID = root.findViewById(R.id.deleteSoundID);
 
-		String username = "";
-		String token = "";
+		String finalUsername = UserData.getStringNotNull(getContext(), "username");
+		String finalToken = UserData.getStringNotNull(getContext(), "token");
 
-		try {
-			username = UserData.getString(getContext(), "username");
-			token = UserData.getString(getContext(), "token");
-		} catch (GeneralSecurityException e) {
-			Log.e("Get Sounds", "Could not get username: " + e);
-		} catch (IOException e) {
-			Log.e("Get Sounds", "Could not get username: " + e);
-		}
-
-		String finalUsername = username;
-		String finalToken = token;
 		getSoundsButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				// get list of sounds, display on screen and print to log
