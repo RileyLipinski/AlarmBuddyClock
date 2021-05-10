@@ -60,7 +60,7 @@ public class FriendRequests extends AppCompatActivity {
             TextView text = findViewById(R.id.inboxText);
             text.setText("Your inbox is empty");
         }
-        mAdapter = new ProfileAdapter(getMProfileList());
+        mAdapter = new ProfileAdapter(getMProfileList(),1);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
     }
@@ -120,6 +120,7 @@ public class FriendRequests extends AppCompatActivity {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                call.cancel();
                 countDownLatch.countDown();
             }
 

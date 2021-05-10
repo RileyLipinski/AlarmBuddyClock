@@ -32,6 +32,7 @@ import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
 
+
 /***
  * @author Keghan Halloran
  * This is the Fragment responsible for a users friends list. it does the following:
@@ -73,6 +74,7 @@ public class FriendsFragment extends Fragment {
 		nameList.sort(String::compareToIgnoreCase);
 
 		//uses the sorted names to create Profile objects
+		int i =0;
 		for (String s : nameList) {
 			profileList.add(new Profile(R.drawable.ic_baseline_account_box, s, "details"));
 		}
@@ -114,6 +116,7 @@ public class FriendsFragment extends Fragment {
 		client.newCall(request).enqueue(new Callback() {
 			@Override
 			public void onFailure(@NotNull Call call, @NotNull IOException e) {
+				call.cancel();
 				countDownLatch.countDown();
 			}
 
@@ -197,11 +200,12 @@ public class FriendsFragment extends Fragment {
 		startActivity(intent);
 	}
 
+
 	private int buildRecyclerView(View v) throws InterruptedException {
 		int flag;
 		mRecyclerView = v.findViewById(R.id.recyclerView);
 		flag = populateArray();
-		mAdapter = new ProfileAdapter(getMProfileList());
+		mAdapter = new ProfileAdapter(getMProfileList(),0);
 		mRecyclerView.setLayoutManager(mlayoutManager);
 		mRecyclerView.setAdapter(mAdapter);
 		return flag;
