@@ -1,29 +1,44 @@
 # Alexa Pi script.
 # 4/12/2021
 
+import sounddevice as sd
+from scipy.io.wavfile import write
+import json
 import logging
 import os
 import time
 import datetime
 import requests
 from ask_sdk_core.utils import is_intent_name, get_slot_value
-#from threading import Timer
 import sched
 import time
 from flask import Flask
 from flask_ask import Ask, request, session, question, statement
 from playsound import playsound
 import threading
+import pprint
+from pydub import AudioSegment
+import os
 
+token = ''
 
 # Flask-Ask set up
 app = Flask(__name__)
 ask = Ask(app, "/")
 logging.getLogger('flask_ask').setLevel(logging.DEBUG)
 
+with open('config.json', 'r') as f:
+    config = json.load(f)
 
+scheduler = sched.scheduler(time.time, time.sleep)
 @ask.launch
 def launch():
+    global token
+    login_url = config['base_url'] + "/login"
+    login_data = config['alarmbuddy_account']
+    x = requests.post(login_url, data = login_data)
+    token = x.json()['token']
+    print(token)
     speech_text = 'Welcome to Alarm Buddy. Would you like to create an alarm? Or you can ask for help.'
     return question(speech_text).reprompt(speech_text).simple_card(speech_text)
 
@@ -68,7 +83,7 @@ def CreateAlarmIntent(day, timeofday):
             speak_output = "Sorry, you cannot create an alarm for the past."
             return question(speak_output).reprompt(speak_output).simple_card('CreateAlarm_PastError', speak_output)
 
-        scheduler = sched.scheduler(time.time, time.sleep)
+
         th = threading.Thread(target=scheduler.run)
         scheduler_e = scheduler.enterabs(t, 1, play_alarm, ([th]))
         speak_output = "You have created an alarm that will go off on " + day + " at " + timeofday  + "."
@@ -76,13 +91,52 @@ def CreateAlarmIntent(day, timeofday):
         th.start()
         return question(speak_output).reprompt(speak_output).simple_card('CreateAlarm', speak_output)
 
-def play_alarm(thread):
+
+@ask.intent('AlarmBuddy_Record')
+def RecordAlarmIntent():
+    speak_output = "Okay. After I say, start, speak into the microphone... start."
+    th = threading.Thread(target=scheduler.run)
+    scheduler_e = scheduler.enter(8, 1, record_audio, ([th, 89]))
+    th.start()
+    return statement(speak_output).simple_card('Record', speak_output)
+
+def play_alarm(thread, sound_id):
     # Function that is called at the time specified by the Create Alarm Intent
     print("in play alarm")
-    response = requests.get('https://alarmbuddy.wm.r.appspot.com/download/johnny/erokia.wav', headers={'Authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImpvaG5ueSIsImlhdCI6MTYxODE5MDQyNCwiZXhwIjoxNjE4Mjc2ODI0fQ.8aDiyi_SSNgUQuy4IRnOGX2BBZz8IiySPPeE9tN5Qu8'})
+    download_url = config['base_url'] + '/download/' + config['alarmbuddy_account']['username'] + '/' + sound_id
+    response = requests.get(download_url, headers={'Authorization': token})
     #print(response.json())
-    open('erokia.wav', 'wb').write(response.content)
-    playsound('/home/pi/ngrok/alexa/erokia.wav')
+    open('downloadedsound.mp3', 'wb').write(response.content)
+    sound_path = os.getcwd() + '/downloadedsound.mp3'
+    playsound(sound_path)
+
+def record_audio(thread):
+    print('in record_audio')
+    fs = 16000  # Sample rate
+    seconds = 20  # Duration of recording
+    print(sd.query_devices())
+
+    mydevice = 2
+
+    myrecording = sd.rec(int(seconds * fs), samplerate=fs, channels=2, device=mydevice)
+    sd.wait()  # Wait until recording is finished
+    write('output.wav', fs, myrecording)  # Save as WAV file 
+
+
+    print('start conversion')
+    sound = AudioSegment.from_wav('output.wav')
+
+    sound.export('output.mp3', format='mp3')
+    upload_file('output.mp3')
+
+def upload_file(filename):
+    upload_url = config['base_url'] + '/upload/' + config['alarmbuddy_account']['username']
+    upload_header = {'authorization': token}
+    file_data = {'file': (filename, open(filename, 'rb'), 'audio/mpeg')}
+    info_data = {'soundDescription': 'Amazon Team Alexa MP3 Upload'}
+    u = requests.post(upload_url, headers=upload_header, files=file_data, data=info_data)
+    print(u)
+    print(u.content)
 
 
 @ask.intent('AMAZON.HelpIntent')
