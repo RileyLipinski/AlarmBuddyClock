@@ -71,22 +71,8 @@ public class SendRequest extends AppCompatActivity {
 		OkHttpClient client = new OkHttpClient();
 		flag = 0;
 
-		String token = "";
-		try {
-			token = UserData.getString(this, "token");
-		} catch (GeneralSecurityException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		String username = "";
-		try {
-			username = UserData.getString(this, "username");
-		} catch (GeneralSecurityException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		String token = UserData.getStringNotNull(this, "token");
+		String username = UserData.getString(this, "username");
 
 		String url =
 			AlarmBuddyHttp.API_URL + "/sendRequest/" + username + "/" + entry.getText().toString()

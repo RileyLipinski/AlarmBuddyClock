@@ -43,14 +43,15 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
-        <activity android:name=".AlarmActivity"/>
-        <activity android:name=".CreateAccountActivity"/>
-        <activity android:name=".ui.soundlist.SoundListActivity"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity>
 
-        <service android:name=".worker.alarm.AlarmService"/>
-    </application>
+    <activity android:name=".AlarmActivity"/>
+    <activity android:name=".CreateAccountActivity"/>
+    <activity android:name=".SoundListActivity"/>
+
+    <service android:name=".worker.alarm.AlarmService"/>
+  </application>
 
 </manifest>
