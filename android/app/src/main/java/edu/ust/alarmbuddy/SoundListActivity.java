@@ -1,6 +1,7 @@
 package edu.ust.alarmbuddy;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -8,37 +9,45 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import edu.ust.alarmbuddy.ui.soundlist.SoundListAdapter;
-
 import java.util.ArrayList;
 
 public class SoundListActivity extends Activity {
 
-	private RecyclerView recyclerView;
-	private ArrayList<String> soundList;
-	private RecyclerView.LayoutManager layoutManager;
-	private SoundListAdapter soundListAdapter;
-	private JsonArray json;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_sound_list);
 
-		String jsonString = getIntent().getStringExtra("json");
-		this.json = JsonParser.parseString(jsonString).getAsJsonArray();
+		listSounds(getIntent().getStringExtra("json"));
+		setupButton();
+	}
 
-		layoutManager = new LinearLayoutManager(getApplicationContext());
+	private void listSounds(String jsonString) {
+		JsonArray json = JsonParser.parseString(jsonString).getAsJsonArray();
 
-		recyclerView = findViewById(R.id.soundList);
-		soundList = new ArrayList<>(json.size());
+		RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+		RecyclerView recyclerView = findViewById(R.id.soundList);
+		ArrayList<String> soundList = new ArrayList<>(json.size());
 		int i = 0;
-		//TODO check against last seen to avoid marking new sounds
-		//TODO add extra metadata (who from, etc.)
-		for(JsonElement x : json) {
-			soundList.add("NEW SOUND " + x.getAsJsonObject().get("soundID").getAsInt());
+
+		for (JsonElement x : json) {
+			String title = x.getAsJsonObject().get("soundName").getAsString();
+			String sender = x.getAsJsonObject().get("sharedBy").getAsString();
+			if(sender.equals("")) {
+				sender = "LEGACY";
+			}
+			String newSound = ++i + ": \"" + title + "\" from " + sender;
+
+			soundList.add(newSound);
 		}
-		soundListAdapter = new SoundListAdapter(soundList);
+		SoundListAdapter soundListAdapter = new SoundListAdapter(soundList);
 
 		recyclerView.setLayoutManager(layoutManager);
 		recyclerView.setAdapter(soundListAdapter);
+	}
+
+	private void setupButton() {
+		findViewById(R.id.soundListBackButton)
+			.setOnClickListener(view -> startActivity(new Intent(this, MainActivity.class)));
 	}
 }
