@@ -261,7 +261,7 @@ app.post('/setProfilePicture/:username', function (req, res, next) {
 });
 
 // handler for getting a users profile picture
-app.route('/getProfilePicture/:username').get(function(req,res,next){
+app.route('/getProfilePicture/:username/:usernamepfp').get(function(req,res,next){
   // extract token from reqest header
   var token = req.headers.authorization;
   // check if token was provided in the request
@@ -276,30 +276,39 @@ app.route('/getProfilePicture/:username').get(function(req,res,next){
       }
       // check if extracted username from token matches the username provided in the request
       if (decoded.id == req.params.username){
-        // select the profile photo of the user from the profilePictures table
-        connection.query("SELECT profile_Photo, image_Type FROM alarmbuddy.profilePictures WHERE username = ?", [req.params.username], function(error, results, field){
-          if(error) {
-            // respond with error if query failed
+        connection.query("SELECT * FROM alarmbuddy.userBlockList WHERE blockedBy = ? AND blocked = ?", [req.params.usernamepfp, req.params.username], function(error, results, fields){
+          if (error){
             res.status(500).send('ERROR: database query error');
           }
-          // assign the path to the image to a variable
-          var pathToImage = "/tmp/" + req.params.username + "_profilePhoto." + results[0].image_Type;
-          // write the sound file to the tmp folder
-          fs.writeFile(pathToImage, results[0].profile_Photo, function (error) {
-            if (error){
-              // respond with error if writing to file failed
-              res.status(500).send('ERROR: write to file error');
-            }
-            // respond with written file
-            res.sendFile(pathToImage, (error) => {
-              if (error){
-                // respond with error if sending file failed
-                res.status(500).send('ERROR: could not send file');
+          if ((JSON.stringify(results) == JSON.stringify([]))){
+            // select the profile photo of the user from the profilePictures table
+            connection.query("SELECT profile_Photo, image_Type FROM alarmbuddy.profilePictures WHERE username = ?", [req.params.usernamepfp], function(error, results, field){
+              if(error) {
+                // respond with error if query failed
+                res.status(500).send('ERROR: database query error');
               }
-              // delete the sound file from the temp folder
-              fs.unlinkSync(pathToImage);
+              // assign the path to the image to a variable
+              var pathToImage = "/tmp/" + req.params.username + "_profilePhoto." + results[0].image_Type;
+              // write the sound file to the tmp folder
+              fs.writeFile(pathToImage, results[0].profile_Photo, function (error) {
+                if (error){
+                  // respond with error if writing to file failed
+                  res.status(500).send('ERROR: write to file error');
+                }
+                // respond with written file
+                res.sendFile(pathToImage, (error) => {
+                  if (error){
+                    // respond with error if sending file failed
+                    res.status(500).send('ERROR: could not send file');
+                  }
+                  // delete the sound file from the temp folder
+                  fs.unlinkSync(pathToImage);
+                });
+              });
             });
-          });
+          } else {
+            res.status(403).send('ERROR: cannot get users pfp becasue user has blocked you');
+          }
         });
       } else { 
         // extracted token username did not match provided username from request so send error
@@ -327,14 +336,23 @@ app.route('/sendRequest/:sender/:receiver').post(function(req,res,next){
       }
       // check if extracted username from token matches the sender username provided in the request
       if (decoded.id == req.params.sender){
-        // replace/insert into friendRequests table the sender and reciever usernames provided in the request
-        connection.query("REPLACE INTO alarmbuddy.friendRequests SET senderUsername = ?, recipientUsername = ?", [req.params.sender, req.params.receiver], function(error, results, fields) {
+        connection.query("SELECT * FROM alarmbuddy.userBlockList WHERE blockedBy = ? AND blocked = ?", [req.params.receiver, req.params.sender], function(error, results, fields){
           if (error){
-            // respond with error if database query failed
             res.status(500).send('ERROR: database query error');
           }
-          // respond with success that friend request was sent successfully
-          res.status(201).send('friend request sent successfully');
+          if ((JSON.stringify(results) == JSON.stringify([]))){
+            // replace/insert into friendRequests table the sender and reciever usernames provided in the request
+            connection.query("REPLACE INTO alarmbuddy.friendRequests SET senderUsername = ?, recipientUsername = ?", [req.params.sender, req.params.receiver], function(error, results, fields) {
+              if (error){
+                // respond with error if database query failed
+                res.status(500).send('ERROR: database query error');
+              }
+              // respond with success that friend request was sent successfully
+              res.status(201).send('friend request sent successfully');
+            });
+          } else {
+            res.status(403).send('ERROR: cannot send user a friend request because user has blocked you');
+          }
         });
       } else { 
           // extracted token username did not match provided username from request so send error
@@ -360,37 +378,46 @@ app.route('/acceptFriendRequest/:receiver/:sender').post(function(req,res,next){
       }
       // check if extracted username from token matches the receiver username provided in the request
       if (decoded.id == req.params.receiver){
-        // look for the row in the friend requests table with the sender and recipient to verify the friend request exists
-        connection.query("SELECT * FROM alarmbuddy.friendRequests WHERE senderUsername = ? AND recipientUsername = ?", [req.params.sender, req.params.receiver], function(error, results, fields) {
+        connection.query("SELECT * FROM alarmbuddy.userBlockList WHERE blockedBy = ? AND blocked = ?", [req.params.receiver, req.params.sender], function(error, results, fields){
           if (error){
-            // respond with error if database query failed
             res.status(500).send('ERROR: database query error');
           }
-          // check if the query above responded with a row from the friendRequests table
-          if (!(JSON.stringify(results) == JSON.stringify([]))){
-            // create friends entry variable
-            var friendsEntry = [
-              [req.params.sender, req.params.receiver]
-            ]
-            // insert into the friends with table the reciever and sender username into the friendsWith table
-            connection.query("INSERT INTO alarmbuddy.friendsWith (username1, username2) VALUES ?", [friendsEntry], function(error, results, fields) {
+          if ((JSON.stringify(results) == JSON.stringify([]))){
+            // look for the row in the friend requests table with the sender and recipient to verify the friend request exists
+            connection.query("SELECT * FROM alarmbuddy.friendRequests WHERE senderUsername = ? AND recipientUsername = ?", [req.params.sender, req.params.receiver], function(error, results, fields) {
               if (error){
                 // respond with error if database query failed
                 res.status(500).send('ERROR: database query error');
               }
-              // delete the requests from the friend requests table because the request has been successfully accepted
-              connection.query("DELETE FROM alarmbuddy.friendRequests WHERE senderUsername = ? AND recipientUsername = ?", [req.params.sender, req.params.receiver], function(error, results, fields) {
-                if (error){
-                  // respond with error if database query failed
-                  res.status(500).send('ERROR: database query error');
-                }
-                // respond with friend request accepted successfully
-                res.status(201).send('friend request accepted successfully');
-              });
+              // check if the query above responded with a row from the friendRequests table
+              if (!(JSON.stringify(results) == JSON.stringify([]))){
+                // create friends entry variable
+                var friendsEntry = [
+                  [req.params.sender, req.params.receiver]
+                ]
+                // insert into the friends with table the reciever and sender username into the friendsWith table
+                connection.query("INSERT INTO alarmbuddy.friendsWith (username1, username2) VALUES ?", [friendsEntry], function(error, results, fields) {
+                  if (error){
+                    // respond with error if database query failed
+                    res.status(500).send('ERROR: database query error');
+                  }
+                  // delete the requests from the friend requests table because the request has been successfully accepted
+                  connection.query("DELETE FROM alarmbuddy.friendRequests WHERE senderUsername = ? AND recipientUsername = ?", [req.params.sender, req.params.receiver], function(error, results, fields) {
+                    if (error){
+                      // respond with error if database query failed
+                      res.status(500).send('ERROR: database query error');
+                    }
+                    // respond with friend request accepted successfully
+                    res.status(201).send('friend request accepted successfully');
+                  });
+                });
+              } else {
+                // respond with error if the friend request could not be found in the database
+                res.status(404).send('ERROR: friend request does not exist');
+              }
             });
           } else {
-            // respond with error if the friend request could not be found in the database
-            res.status(404).send('ERROR: friend request does not exist');
+            res.status(403).send('ERROR: cannot accept friend request because you have the user blocked');
           }
         });
       } else { 
@@ -581,6 +608,80 @@ app.route('/friendsWith/:username').get(function(req, res, next) {
         } else { 
           // extracted token username did not match provided username from request so send error 
           res.status(403).send('ERROR: access to provided user denied')
+        };
+      });
+    }
+});
+
+// handler for blocking a user
+app.route('/blockUser/:username/:userToBlock').post(function(req, res, next) {
+  // extract token from reqest header
+  var token = req.headers.authorization;
+    // check if token was provided in the request
+    if (!token){
+      res.status(401).send({ auth: false, message: 'no token provided' });
+    } else {
+      // verify that token provided is a valid token
+      jwt.verify(token, config.secret, function(error, decoded) {
+        // respond with error that token could not be authenticated
+        if (error) {
+          res.status(500).send({ auth: false, message: 'failed to authenticate token' });
+        }
+        // check if extracted username from token matches the username provided in the request
+        if (decoded.id == req.params.username){
+          // insert/replace into userBlockList table a row with the blockedBy username and blocked username
+          connection.query("REPLACE INTO alarmbuddy.userBlockList SET blockedBy = ?, blocked = ?", [req.params.username, req.params.userToBlock], function(error, results, fields) {
+              if (error){
+                // respond with error if insert/replace fails
+                res.status(500).send('ERROR: database query error');
+              }
+              // respond with success that user was blocked
+              res.status(201).send('successfully blocked user');
+            }
+          );
+        } else { 
+          // extracted token username did not match provided username from request so send error 
+          res.status(403).send('ERROR: access to provided user denied')
+        };
+      });
+    }
+});
+
+// hanlder for unblocking a user
+app.route('/unblockUser/:username/:userToUnblock').post(function(req, res, next) {
+  // extract token from reqest header
+  var token = req.headers.authorization;
+    // check if token was provided in the request
+    if (!token){
+      res.status(401).send({ auth: false, message: 'no token provided' });
+    } else {
+      // verify that token provided is a valid token
+      jwt.verify(token, config.secret, function(error, decoded) {
+        // respond with error that token could not be authenticated
+        if (error) {
+          res.status(500).send({ auth: false, message: 'failed to authenticate token' });
+        }
+        // check if extracted username from token matches the username provided in the request
+        if (decoded.id == req.params.username){
+          // delete row from userBlockList table where blockedBy username and blocked username match fields provided in the request
+          connection.query("DELETE FROM alarmbuddy.userBlockList WHERE blockedBy = ? AND blocked = ?", [req.params.username, req.params.userToUnblock], function(error, results, fields) {
+              if (error){
+                // respond wih error if delete fails
+                res.status(500).send('ERROR: database query error');
+              }
+              // if no row can be found and deleted...
+              if (results.affectedRows == 0){
+                // respond with error that user not blocked
+                res.status(500).send('ERROR: user not blocked');
+              } else {
+                // respond with success that user was successfully unblocked
+                res.status(201).send('successfully unblocked user');
+              }
+            }
+          );
+        } else {
+          // extracted token username did not match provided username from request so send error
+          res.status(403).send('ERROR: access to provided user denied');
         };
       });
     }
@@ -862,39 +963,48 @@ app.route('/shareSound/:sender/:receiver/:soundID').post(function(req,res,next){
       }
       // check if extracted username from token matches the username provided in the request
       if (decoded.id == req.params.sender){
-        // query the soundOwnership table to see if user has access to the file they want to share with another user
-        connection.query("SELECT * FROM alarmbuddy.soundOwnership WHERE username = ? AND soundID = ?", [req.params.sender, req.params.soundID], function(error, results, field){
-          if(error) {
-            // respond with error if query failed
+        connection.query("SELECT * FROM alarmbuddy.userBlockList WHERE blockedBy = ? AND blocked = ?", [req.params.receiver, req.params.sender], function(error, results, fields){
+          if (error){
             res.status(500).send('ERROR: database query error');
           }
-          // check if the query above responded with a row from the soundOwnership table
-          if (!(JSON.stringify(results) == JSON.stringify([]))){
-            connection.query("SELECT * FROM alarmbuddy.soundOwnership WHERE username = ? AND soundID = ?", [req.params.receiver, req.params.soundID], function(error, results, field){
+          if ((JSON.stringify(results) == JSON.stringify([]))){
+            // query the soundOwnership table to see if user has access to the file they want to share with another user
+            connection.query("SELECT * FROM alarmbuddy.soundOwnership WHERE username = ? AND soundID = ?", [req.params.sender, req.params.soundID], function(error, results, field){
               if(error) {
                 // respond with error if query failed
                 res.status(500).send('ERROR: database query error');
               }
-              // check that query above responded with nothing since we want to make sure the receiver doesn't already have access
-              if (JSON.stringify(results) == JSON.stringify([])){
-                // create a new entry in the soundOwnership table for the receiver of the sound being shared
-                connection.query("REPLACE INTO alarmbuddy.soundOwnership SET username = ?, soundID = ?, sharedBy = ?", [req.params.receiver, req.params.soundID, req.params.sender], function(error, result, field){
+              // check if the query above responded with a row from the soundOwnership table
+              if (!(JSON.stringify(results) == JSON.stringify([]))){
+                connection.query("SELECT * FROM alarmbuddy.soundOwnership WHERE username = ? AND soundID = ?", [req.params.receiver, req.params.soundID], function(error, results, field){
                   if(error) {
-                    // respond with error if insert/replace failed
+                    // respond with error if query failed
                     res.status(500).send('ERROR: database query error');
+                  }
+                  // check that query above responded with nothing since we want to make sure the receiver doesn't already have access
+                  if (JSON.stringify(results) == JSON.stringify([])){
+                    // create a new entry in the soundOwnership table for the receiver of the sound being shared
+                    connection.query("REPLACE INTO alarmbuddy.soundOwnership SET username = ?, soundID = ?, sharedBy = ?", [req.params.receiver, req.params.soundID, req.params.sender], function(error, result, field){
+                      if(error) {
+                        // respond with error if insert/replace failed
+                        res.status(500).send('ERROR: database query error');
+                      } else {
+                        // respond with success that sound was shared successfully
+                        res.status(201).send("Shared sound successfully");
+                      }
+                    });
                   } else {
-                    // respond with success that sound was shared successfully
-                    res.status(201).send("Shared sound successfully");
+                    // respond with error that user already owns the sound
+                    res.status(409).send('ERROR: user already owns the sound');
                   }
                 });
               } else {
-                // respond with error that user already owns the sound
-                res.status(409).send('ERROR: user already owns the sound');
+                // respond with error since user doesn't have access to the file they are trying to send
+                res.status(404).send('ERROR: no access to audio file or file does not exist');
               }
             });
           } else {
-            // respond with error since user doesn't have access to the file they are trying to send
-            res.status(404).send('ERROR: no access to audio file or file does not exist');
+            res.status(403).send('ERROR: cannot share sound with user because user has blocked you');
           }
         });
       } else {
@@ -908,9 +1018,7 @@ app.route('/shareSound/:sender/:receiver/:soundID').post(function(req,res,next){
 // handler for checking if the rest API is online
 app.get('/status', (req, res) => res.send('working!'));
 
-
-
-//Port 8080 for Google App Engine
-//port 3000 i guess if youre doing local host 
-app.set('port', process.env.PORT || 8080);
-app.listen(8080);
+  //Port 8080 for Google App Engine
+  //port 3000 i guess if youre doing local host 
+  app.set('port', process.env.PORT || 8080);
+  app.listen(8080);
