@@ -165,27 +165,33 @@ app.post('/login', (req,res) => {
   var submittedUsername = req.body.username;
   // assign password field from request to variable
   var passwordUnhashed = req.body.password;
-  // select the password from the database that corresponds to the username provided in the request
-  connection.query("SELECT password FROM alarmbuddy.users WHERE username = ?", [submittedUsername], function(error, result, field){
-    if (error){
-      // respond with error if query fails
-      res.status(500).send('ERROR: database query error');
-    }
-    // compare password provided from request with the password stored in the database for user provided in request
-    var passwordIsValid = bcrypt.compareSync(passwordUnhashed, result[0].password);
-    // if password doesn't match...
-    if (!passwordIsValid){
-      // respond with false authentication
-      res.status(401).send({ auth: false, token: null });
-    } else {
-      // generate the users token
-      var token = jwt.sign({ id: submittedUsername }, config.secret, {
-        expiresIn: 86400 // expires in 24 hours
-      });
-      // respond with the user generated token
-      res.status(200).send({ auth: true, token: token });
-    }
-  }); 
+  // check that username and password provided in the request
+  if (req.body.username == null || req.body.password == null) {
+    // respond with an error that some required user information was missing in request
+    res.status(400).send('ERROR: missing information for registration');
+  } else {
+    // select the password from the database that corresponds to the username provided in the request
+    connection.query("SELECT password FROM alarmbuddy.users WHERE username = ?", [submittedUsername], function(error, result, field){
+      if (error){
+        // respond with error if query fails
+        res.status(500).send('ERROR: database query error');
+      }
+      // compare password provided from request with the password stored in the database for user provided in request
+      var passwordIsValid = bcrypt.compareSync(passwordUnhashed, result[0].password);
+      // if password doesn't match...
+      if (!passwordIsValid){
+        // respond with false authentication
+        res.status(401).send({ auth: false, token: null });
+      } else {
+        // generate the users token
+        var token = jwt.sign({ id: submittedUsername }, config.secret, {
+          expiresIn: 86400 // expires in 24 hours
+        });
+        // respond with the user generated token
+        res.status(200).send({ auth: true, token: token });
+      }
+    });
+  } 
 });
 
 // - - - - - - - - - - - - - - - - - - - - - - - USER PROFILE PHOTOS - - - - - - - - - - - - - - - - - - - - - - - //
