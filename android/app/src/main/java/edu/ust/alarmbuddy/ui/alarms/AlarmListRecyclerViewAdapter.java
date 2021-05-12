@@ -28,13 +28,13 @@ public class AlarmListRecyclerViewAdapter extends RecyclerView.Adapter<AlarmList
     public AlarmListViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.alarm_list,
                 parent, false);
-        return new AlarmListViewHolder(itemView);
+        return new AlarmListViewHolder(itemView, listener);
     }
 
     @Override
     public void onBindViewHolder(@NonNull AlarmListViewHolder holder, int position) {
         Alarm alarm = alarmList.get(position);
-        holder.bind(alarm, listener);
+        holder.bind(alarm);
     }
 
     /**

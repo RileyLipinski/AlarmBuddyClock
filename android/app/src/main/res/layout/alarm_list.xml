@@ -25,7 +25,7 @@
                         android:layout_height="wrap_content"
                         android:text="00:00"
                         android:textSize="36sp"/>
-            <Switch
+                <Switch
                     android:id="@+id/alarm_list_alarm_started"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

@@ -21,7 +21,7 @@ public abstract class AlarmListDatabase extends RoomDatabase {
             synchronized (AlarmListDatabase.class) {
                 if(INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
-                            AlarmListDatabase.class, "alarms").build();
+                            AlarmListDatabase.class, "alarmList_database").build();
                 }
             }
         }

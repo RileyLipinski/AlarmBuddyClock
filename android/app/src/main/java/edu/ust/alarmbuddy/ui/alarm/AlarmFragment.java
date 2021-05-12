@@ -42,7 +42,7 @@ public class AlarmFragment extends Fragment {
 			Alarm alarm = new Alarm(alarmID, timePicker.getHour(), timePicker.getMinute(), false,
 				false, false, false, false, false, false, alarmName.getText().toString(),
 					System.currentTimeMillis(), true);
-//            alarmViewModel.insert(alarm);
+            alarmViewModel.insert(alarm);
 
 			alarm.setAlarm(getContext());
 		});

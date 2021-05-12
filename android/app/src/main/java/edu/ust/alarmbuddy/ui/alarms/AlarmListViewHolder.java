@@ -17,7 +17,7 @@ public class AlarmListViewHolder extends RecyclerView.ViewHolder {
     private TextView alarmName;
     private OnToggleAlarmListener listener;
 
-    public AlarmListViewHolder(@NonNull View itemView) {
+    public AlarmListViewHolder(@NonNull View itemView, OnToggleAlarmListener listener) {
         super(itemView);
 
         alarmStarted = itemView.findViewById(R.id.alarm_list_alarm_started);
@@ -25,7 +25,7 @@ public class AlarmListViewHolder extends RecyclerView.ViewHolder {
 
     }
 
-    public void bind(Alarm alarm, OnToggleAlarmListener listener) {
+    public void bind(Alarm alarm) {
         String alarmString = String.format("%02d:%02d", alarm.getHour(), alarm.getMinute());
 
         alarmTime.setText(alarmString);
