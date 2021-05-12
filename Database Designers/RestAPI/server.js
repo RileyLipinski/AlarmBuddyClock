@@ -194,6 +194,40 @@ app.post('/login', (req,res) => {
   } 
 });
 
+// handler for deleting a user account
+app.delete('/deleteAccount/:username', (req,res) => {
+  // extract token from reqest header
+  var token = req.headers.authorization;
+  // check if token was provided in the request
+  if (!token){
+    res.status(401).send({ auth: false, message: 'no token provided' });
+  } else {
+    // verify that token provided is a valid token
+    jwt.verify(token, config.secret, function(error, decoded) {
+      // respond with error that token could not be authenticated
+      if (error) {
+        res.status(500).send({ auth: false, message: 'failed to authenticate token' });
+      }
+      // check if extracted username from token matches the username provided in the request
+      if (decoded.id == req.params.username){
+        // delete user in users table where username matches request username
+        // cascade deletes everything about the user in the database
+        connection.query("DELETE FROM alarmbuddy.users WHERE username = ?", [req.params.username], function(error, result, field){
+          if (error){
+            // respond with error if query fails
+            res.status(500).send('ERROR: database query error');
+          }
+          // send response that user has been deleted
+          res.status(201).send('successfully deleted user');
+        });
+      } else {
+        // extracted token username did not match provided username from request so respond with error
+        res.status(403).send('ERROR: access to provided user denied');
+      }
+    });
+  }
+});
+
 // - - - - - - - - - - - - - - - - - - - - - - - USER PROFILE PHOTOS - - - - - - - - - - - - - - - - - - - - - - - //
 
 // handler for updloading profile picture to the database
