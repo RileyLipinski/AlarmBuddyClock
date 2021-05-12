@@ -124,9 +124,13 @@ public class UserData {
 	 *                                  preferences file
 	 * @throws IOException              when the preferences file cannot be read
 	 */
-	public static int getInt(Context context, String key, int defaultValue)
-		throws GeneralSecurityException, IOException {
-		return getSharedPreferences(context).getInt(key, defaultValue);
+	public static int getInt(Context context, String key, int defaultValue) {
+		try {
+			return getSharedPreferences(context).getInt(key, defaultValue);
+		} catch (GeneralSecurityException | IOException e) {
+			e.printStackTrace();
+			return defaultValue;
+		}
 	}
 
 	/**
