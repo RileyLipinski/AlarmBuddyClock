@@ -19,6 +19,8 @@ import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import edu.ust.alarmbuddy.common.UserData;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.concurrent.CountDownLatch;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -40,6 +42,7 @@ public class SendRequest extends AppCompatActivity {
 
 	private Button button;
 	private EditText entry;
+	private int flag;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,23 +69,10 @@ public class SendRequest extends AppCompatActivity {
 
 	private void send() throws InterruptedException {
 		OkHttpClient client = new OkHttpClient();
+		flag = 0;
 
-		String token = "";
-		try {
-			token = UserData.getString(this, "token");
-		} catch (GeneralSecurityException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		String username = "";
-		try {
-			username = UserData.getString(this, "username");
-		} catch (GeneralSecurityException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		String token = UserData.getStringNotNull(this, "token");
+		String username = UserData.getString(this, "username");
 
 		String url =
 			AlarmBuddyHttp.API_URL + "/sendRequest/" + username + "/" + entry.getText().toString()
@@ -94,12 +84,10 @@ public class SendRequest extends AppCompatActivity {
 			.url(url)
 			.header("Authorization", token)
 			.build();
-
+		CountDownLatch countDownLatch = new CountDownLatch(1);
 		client.newCall(request).enqueue(new Callback() {
 			@Override
-			public void onFailure(@NotNull Call call, @NotNull IOException e) {
-				showToast("Request could not be sent");
-			}
+			public void onFailure(@NotNull Call call, @NotNull IOException e) {countDownLatch.countDown();}
 
 			@Override
 			public void onResponse(@NotNull Call call, @NotNull Response response)
@@ -107,23 +95,19 @@ public class SendRequest extends AppCompatActivity {
 				Log.i(SendRequest.class.getName(), "Code: " + response.code());
 				Log.i(SendRequest.class.getName(), "Message: " + response.body().string());
 				if (response.isSuccessful()) {
-					showToast("Request sent successfully"); //TODO this toast is throwing an error:
-					//2021-05-05 16:39:10.868 30946-30985/edu.ust.alarmbuddy E/AndroidRuntime: FATAL EXCEPTION: OkHttp Dispatcher
-					//    Process: edu.ust.alarmbuddy, PID: 30946
-					//    java.lang.RuntimeException: Can't toast on a thread that has not called Looper.prepare()
-					//        at android.widget.Toast$TN.<init>(Toast.java:390)
-					//        at android.widget.Toast.<init>(Toast.java:114)
-					//        at android.widget.Toast.<init>(Toast.java:105)
-					//        at edu.ust.alarmbuddy.ui.friends.SendRequest.showToast(SendRequest.java:124)
-					//        at edu.ust.alarmbuddy.ui.friends.SendRequest.access$000(SendRequest.java:41)
-					//        at edu.ust.alarmbuddy.ui.friends.SendRequest$1.onResponse(SendRequest.java:111)
-					//        at okhttp3.internal.connection.RealCall$AsyncCall.run(RealCall.kt:519)
-					//        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1162)
-					//        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:636)
-					//        at java.lang.Thread.run(Thread.java:764)
+					flag=1;
+					countDownLatch.countDown();
 				}
 			}
 		});
+		countDownLatch.await();
+
+		if(flag == 1){
+			showToast("Request sent");
+		}else{
+			showToast("Request could not be sent");
+		}
+		flag =0;
 	}
 
 	private void showToast(String input) {

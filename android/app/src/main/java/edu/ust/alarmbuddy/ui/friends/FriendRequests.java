@@ -11,16 +11,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
+import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import edu.ust.alarmbuddy.common.UserData;
-import okhttp3.*;
-import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 
 public class FriendRequests extends AppCompatActivity {
     private RecyclerView mRecyclerView;
@@ -60,7 +63,7 @@ public class FriendRequests extends AppCompatActivity {
             TextView text = findViewById(R.id.inboxText);
             text.setText("Your inbox is empty");
         }
-        mAdapter = new ProfileAdapter(getMProfileList());
+        mAdapter = new ProfileAdapter(getMProfileList(),1);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
     }
@@ -93,25 +96,11 @@ public class FriendRequests extends AppCompatActivity {
         //generates a get request from the database for a users friends list
         OkHttpClient client = new OkHttpClient();
 
-        String token = "";
-        try {
-            token = UserData.getString(context, "token");
-        } catch (GeneralSecurityException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        String username = "";
-        try {
-            username = UserData.getString(context, "username");
-        } catch (GeneralSecurityException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String token = UserData.getStringNotNull(context, "token");
+        String username = UserData.getStringNotNull(context, "username");
 
         Request request = new Request.Builder()
-                .url("https://alarmbuddy-312620.uc.r.appspot.com/requests/" + username)
+                .url(AlarmBuddyHttp.API_URL + "/requests/" + username)
                 .header("Authorization", token)
                 .build();
 
@@ -120,6 +109,7 @@ public class FriendRequests extends AppCompatActivity {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                call.cancel();
                 countDownLatch.countDown();
             }
 

@@ -1,11 +1,11 @@
 <resources>
-  <string name="app_name">Android</string>
-  <string name="title_home">Home</string>
-  <string name="title_alarm">Alarm</string>
-  <string name="title_demo">Demo</string>
-  <string name="title_record_audio">Record Audio</string>
-  <string name="title_friends">Friends</string>
-  <string name="large_text">
+    <string name="app_name">Android</string>
+    <string name="title_home">Home</string>
+    <string name="title_alarm">Alarm</string>
+    <string name="title_demo">Demo</string>
+    <string name="title_record_audio">Record Audio</string>
+    <string name="title_friends">Friends</string>
+    <string name="large_text">
         "Material is the metaphor.\n\n"
 
         "A material metaphor is the unifying theory of a rationalized space and a system of motion."
@@ -94,9 +94,9 @@
         "For example, position the FAB to one side of stream of a cards so the FAB won’t interfere "
         "when a user tries to pick up one of cards.\n\n"
     </string>
-  <!-- TODO: Remove or change this placeholder text -->
-  <string name="hello_blank_fragment">Hello blank fragment</string>
-  <string name="dialog_failed_login">"Incorrect username or password"</string>
-  <string name="fire">"Try Again"</string>
-  <string name="cancel">"Forgot My Password"</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="dialog_failed_login">"Incorrect username or password"</string>
+    <string name="fire">"Try Again"</string>
+    <string name="cancel">"Forgot My Password"</string>
 </resources>
