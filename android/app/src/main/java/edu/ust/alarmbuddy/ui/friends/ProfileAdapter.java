@@ -1,5 +1,7 @@
 package edu.ust.alarmbuddy.ui.friends;
 
+import android.app.Application;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,10 +9,16 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+
+import edu.ust.alarmbuddy.common.UserData;
 import org.jetbrains.annotations.NotNull;
 
 /***
@@ -23,6 +31,7 @@ public class ProfileAdapter extends
 
 	private final ArrayList<Profile> mProfileList;
 	private final ArrayList<Profile> mProfileListFull;
+	private int flag = 1;
 
 	/***
 	 * @author Keghan Halloran
@@ -33,19 +42,47 @@ public class ProfileAdapter extends
 		private ImageView mImageView;
 		private TextView mTextView1;
 		private TextView mTextView2;
+		private View view;
+		private Profile currentProfile;
+		private int flag;
 
-		public ProfileViewHolder(@NonNull @NotNull View itemView) {
+		public ProfileViewHolder(@NonNull @NotNull View itemView, int num) {
 			super(itemView);
+			view = itemView;
+			flag = num;
+			view.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Click(flag);
+				}
+			});
 			mImageView = itemView.findViewById(R.id.imageView);
 			mTextView1 = itemView.findViewById(R.id.textView);
 			mTextView2 = itemView.findViewById(R.id.textView2);
+			currentProfile = null;
+
+		}
+
+		public void Click(int flag){
+
+			if (flag==0){
+				Intent intent = new Intent(itemView.getContext(), Friend_Options.class);
+				intent.putExtra("name", mTextView1.getText().toString());
+				itemView.getContext().startActivity(intent);
+			}
+			else{
+				Intent intent = new Intent(itemView.getContext(), Request_Options.class);
+				intent.putExtra("name", mTextView1.getText().toString());
+				itemView.getContext().startActivity(intent);
+			}
 
 		}
 	}
 
-	public ProfileAdapter(ArrayList<Profile> profileList) {
+	public ProfileAdapter(ArrayList<Profile> profileList, int num) {
 		mProfileList = profileList;
 		mProfileListFull = new ArrayList<>(profileList);
+		flag = num;
 	}
 
 	@NonNull
@@ -54,16 +91,17 @@ public class ProfileAdapter extends
 	public ProfileViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
 		View v = LayoutInflater.from(parent.getContext())
 			.inflate(R.layout.friend_list, parent, false);
-		return new ProfileViewHolder(v);
+		return new ProfileViewHolder(v,flag);
 	}
 
 	@Override
 	public void onBindViewHolder(@NonNull @NotNull ProfileViewHolder holder, int position) {
-		Profile currentItem = mProfileList.get(position);
+		holder.currentProfile = mProfileList.get(position);
 
-		holder.mImageView.setImageResource(currentItem.getImageResource());
-		holder.mTextView1.setText(currentItem.getText1());
-		holder.mTextView2.setText(currentItem.getText2());
+
+		holder.mImageView.setImageResource(holder.currentProfile.getImageResource());
+		holder.mTextView1.setText(holder.currentProfile.getText1());
+		holder.mTextView2.setText(holder.currentProfile.getText2());
 
 	}
 
@@ -106,5 +144,4 @@ public class ProfileAdapter extends
 			notifyDataSetChanged();
 		}
 	};
-
 }

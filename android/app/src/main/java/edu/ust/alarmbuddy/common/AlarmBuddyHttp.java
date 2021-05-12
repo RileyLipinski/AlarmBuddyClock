@@ -24,9 +24,9 @@ public class AlarmBuddyHttp {
 //    private static final String PASS = ";pR$-fM]s4-F?2V%";
 
 	public static final String LOCAL_SERVER_URL = "http://10.0.2.2:8080";
+	public static final String API_URL = "https://alarmbuddy-312620.uc.r.appspot.com";
 
 	public static final OkHttpClient client = new OkHttpClient();
-	private static final String AB_RESTAPI = "https://alarmbuddy.wm.r.appspot.com/";
 	public static final MediaType QUERYSTRING = MediaType
 		.parse("application/x-www-form-urlencoded");
 

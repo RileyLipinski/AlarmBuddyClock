@@ -11,6 +11,8 @@ import androidx.security.crypto.MasterKey.KeyScheme;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Set;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * This class acts as a wrapper around the preferences file stored on the Android device. This
@@ -73,15 +75,36 @@ public class UserData {
 	 * @param key     Key used to fetch data from the preferences file
 	 *
 	 * @return The preferences value associated with the parameter key, or null if the key does not
-	 * have an associated value.
-	 *
-	 * @throws GeneralSecurityException when the MasterKey cannot successfully decrypt the
-	 *                                  preferences file
-	 * @throws IOException              when the preferences file cannot be read
 	 */
-	public static String getString(Context context, String key)
-		throws GeneralSecurityException, IOException {
-		return getSharedPreferences(context).getString(key, null);
+	@Nullable
+	public static String getString(Context context, String key) {
+		try {
+			return getSharedPreferences(context).getString(key, null);
+		} catch (GeneralSecurityException | IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	/**
+	 * Fetches the value from the preferences file specified by the parameter key as a String. If
+	 * the key does not have an associated value, returns an empty String.
+	 *
+	 * @param context Application context used to generate MasterKey and decrypt SharedPreferences
+	 *                file
+	 * @param key     Key used to fetch data from the preferences file
+	 *
+	 * @return The preferences value associated with the parameter key, or an empty String if the
+	 * key does not have an associated value.
+	 */
+	@NotNull
+	public static String getStringNotNull(Context context, String key) {
+		try {
+			return getSharedPreferences(context).getString(key, "");
+		} catch (GeneralSecurityException | IOException e) {
+			e.printStackTrace();
+			return "";
+		}
 	}
 
 	/**
