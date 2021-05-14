@@ -8,9 +8,11 @@ import android.util.Log;
 import edu.ust.alarmbuddy.worker.alarm.AlarmFetchReceiver;
 import edu.ust.alarmbuddy.worker.alarm.AlarmNoisemaker;
 import java.util.Calendar;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class AlarmPublisher {
 
+	private static final AtomicInteger counter = new AtomicInteger(0);
 	public static String CLASS = AlarmPublisher.class.getName();
 	public static int TWO_MINUTES = 2 * 60 * 1000;
 	public static int TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
@@ -44,18 +46,14 @@ public class AlarmPublisher {
 			// set default alarm because there is not time to guarantee a successful fetch
 			Log.i(CLASS, "Setting default alarm");
 			intent = new Intent(context, AlarmNoisemaker.class);
-			if (intent.getExtras() != null && intent.getExtras()
-				.containsKey("useDefaultNoise")) {
-				intent.removeExtra("useDefaultNoise");
-			}
 			intent.putExtra("useDefaultNoise", true);
-			pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+			pendingIntent = PendingIntent.getBroadcast(context, counter.getAndIncrement(), intent, 0);
 			alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeupTime, pendingIntent);
 		} else {
 			Log.i(CLASS, "Scheduling alarm fetch");
 			intent = new Intent(context, AlarmFetchReceiver.class);
 			intent.putExtra("wakeupTime", wakeupTime);
-			pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+			pendingIntent = PendingIntent.getBroadcast(context, counter.getAndIncrement(), intent, 0);
 			alarmManager
 				.setExact(AlarmManager.RTC_WAKEUP, wakeupTime - TWO_MINUTES, pendingIntent);
 		}

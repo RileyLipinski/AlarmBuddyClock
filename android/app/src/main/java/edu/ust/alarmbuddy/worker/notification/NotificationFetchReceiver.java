@@ -24,6 +24,7 @@ import edu.ust.alarmbuddy.ui.alarm.AlarmPublisher;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -33,7 +34,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class NotificationFetchReceiver extends BroadcastReceiver {
 
-	private static final boolean PROD = true; // TODO delete on release
+	private static final boolean PROD = false; // TODO delete on release
+	private static final AtomicInteger counter = new AtomicInteger(0);
 
 	/** The amount of time (millseconds) between polls for new sounds */
 	public static final long INTERVAL = 60 * 1000;
@@ -59,11 +61,16 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 					String json = "";
 					try {
 						json = response.body().string();
-					} catch (IOException e) { //TODO update this later
+						Log.i(NotificationFetchReceiver.class.getName(),
+							"Response from server: " + json);
+					} catch (IOException e) {
 						e.printStackTrace();
+						//TODO log error message for bad response
+						break;
 					}
-					if (checkNotify(context, json)) {
-						newSoundNotification(context, json);
+					JsonArray soundsToNotify = getSoundsToNotify(context, json);
+					if (soundsToNotify.size() > 0) {
+						newSoundNotification(context, soundsToNotify);
 					}
 					trigger(context);
 					break;
@@ -160,36 +167,35 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 	 *
 	 * @return whether the user must be notified of new sounds
 	 */
-	private boolean checkNotify(Context context, @NonNull String response) {
-		if (response.length() == 0) {
-			return false;
-		}
+	private JsonArray getSoundsToNotify(Context context, @NonNull String response) {
 		try {
+			JsonArray result = new JsonArray();
 			JsonArray json = JsonParser.parseString(response)
 				.getAsJsonArray();
 
 			int maxIdSeen = UserData.getInt(context, "maxIdSeen", Integer.MIN_VALUE);
 			int maxIdInResponse = Integer.MIN_VALUE;
 
-			if (json.size() == 0) {
-				return false;
-			}
 			for (JsonElement x : json) {
-				maxIdInResponse = Math
-					.max(maxIdInResponse, x.getAsJsonObject().get("soundID").getAsInt());
+				int soundId = x.getAsJsonObject().get("soundID").getAsInt();
+
+				if(soundId > maxIdSeen) {
+					maxIdInResponse = soundId;
+					result.add(x);
+				}
 			}
-			if (maxIdInResponse > maxIdSeen) {
+
+			if(maxIdInResponse > maxIdSeen) {
 				UserData.getSharedPreferences(context).edit()
 					.putInt("maxIdSeen", maxIdInResponse)
 					.apply();
-				return true;
 			}
+
+			return result;
 		} catch (GeneralSecurityException | IOException e) {
 			e.printStackTrace();
-			return false;
+			return new JsonArray();
 		}
-
-		return false;
 	}
 
 
@@ -200,16 +206,14 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 	 * @param context Application context
 	 * @param json    The json string received from the sound list endpoint
 	 */
-	private void newSoundNotification(Context context, String json) {
+	private void newSoundNotification(Context context, JsonArray json) {
 		Intent intent = new Intent(context, SoundListActivity.class);
-		Bundle extras = new Bundle(1);
-		extras.putString("json", json);
-		intent.replaceExtras(extras);
+		intent.putExtra("json", json.toString());
 
-		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+		PendingIntent pendingIntent = PendingIntent.getActivity(context, counter.getAndIncrement(), intent, 0);
 		Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
 			.setContentTitle("You received a sound!")
-			.setContentText("RING RING RING")
+			.setContentText("MaxIdSeen: " + UserData.getInt(context, "maxIdSeen",Integer.MIN_VALUE))
 			.setSmallIcon(R.drawable.ic_baseline_access_alarm_24)
 			.setContentIntent(pendingIntent)
 			.build();

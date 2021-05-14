@@ -22,10 +22,12 @@ import edu.ust.alarmbuddy.ui.alarm.AlarmPublisher;
 import edu.ust.alarmbuddy.worker.alarm.AlarmFetchReceiver;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class DemoFragment extends Fragment {
 
 	private DemoViewModel demoViewModel;
+	private static final AtomicInteger counter = new AtomicInteger(0);
 
 	public View onCreateView(@NonNull LayoutInflater inflater,
 		ViewGroup container, Bundle savedInstanceState) {
@@ -54,9 +56,8 @@ public class DemoFragment extends Fragment {
 		Toast.makeText(getContext(), "Demo alarm sequence initiated", Toast.LENGTH_SHORT).show();
 
 		Intent intent = new Intent(getContext(), AlarmFetchReceiver.class);
-		intent.replaceExtras(new Bundle());
 		intent.putExtra("wakeupTime", System.currentTimeMillis() + 10000L);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), 0, intent, 0);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), counter.getAndIncrement(), intent, 0);
 		AlarmPublisher.getAlarmManager(getContext())
 			.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, 1, pendingIntent);
 	}
