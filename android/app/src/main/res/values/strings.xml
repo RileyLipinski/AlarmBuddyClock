@@ -94,4 +94,7 @@
         "For example, position the FAB to one side of stream of a cards so the FAB won’t interfere "
         "when a user tries to pick up one of cards.\n\n"
     </string>
+      <string name="dialog_failed_login">"Incorrect username or password"</string>
+      <string name="fire">"Try Again"</string>
+      <string name="cancel">"Forgot My Password"</string>
 </resources>

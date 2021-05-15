@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
@@ -43,57 +42,36 @@ public class LoginActivity extends AppCompatActivity {
 
 		LoginViewModel viewModel = ViewModelProviders.of(this).get(LoginViewModel.class);
 
-		String username = "";
-		String token = "";
-
-		try {
-			username = UserData.getString(getApplicationContext(), "username");
-			token = UserData.getString(getApplicationContext(), "token");
-			Log.i("UserInfo", "Username: " + username + "\nToken: " + token);
-		}
-		catch (GeneralSecurityException e) {
-			Log.e("Get Sounds", "Could not get username: " + e);
-		}
-		catch (IOException e) {
-			Log.e("Get Sounds", "Could not get username: " + e);
-		}
-
 		final Button loginButton = findViewById(R.id.loginButton);
 		final Button goToCreateAccountButton = findViewById(R.id.goToCreateAccountButton);
 
-		loginButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				// get username/password from input
-				TextView username = findViewById(R.id.textUsername);
-				TextView password = findViewById(R.id.textPassword);
+		loginButton.setOnClickListener(v -> {
+			// get username/password from input
+			TextView username1 = findViewById(R.id.textUsername);
+			TextView password = findViewById(R.id.textPassword);
 
-				// convert TextView to strings for comparison
-				String stringUsername = username.getText().toString();
-				String stringPassword = password.getText().toString();
+			// convert TextView to strings for comparison
+			String stringUsername = username1.getText().toString();
+			String stringPassword = password.getText().toString();
 
-				try {
-					if (authenticateLogin(stringUsername, stringPassword)
-						&& loginAttempts < 4) {
-						loginToHome();
-					} else {
-						loginAttempts++;
-						FailedLoginDialogFragment dialog = new FailedLoginDialogFragment();
-						dialog.show(getSupportFragmentManager(), "TAG");
-					}
-				} catch (Exception e) {
-					Log.d("TAG", e.toString());
+			try {
+				if (authenticateLogin(stringUsername, stringPassword)
+					&& loginAttempts < 4) {
+					loginToHome();
+				} else {
+					loginAttempts++;
+					FailedLoginDialogFragment dialog = new FailedLoginDialogFragment();
+					dialog.show(getSupportFragmentManager(), "TAG");
 				}
+			} catch (Exception e) {
+				Log.d("TAG", e.toString());
 			}
 		});
 
 		//final Button forgotPasswordButton = findViewById(R.id.loginButton)
 		// TODO: forgot password action
 
-		goToCreateAccountButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				moveToCreateAccount();
-			}
-		});
+		goToCreateAccountButton.setOnClickListener(v -> moveToCreateAccount());
 
 	}
 
@@ -164,11 +142,9 @@ public class LoginActivity extends AppCompatActivity {
 		// this only works when called from the same context that it was created in (LoginActivity)
 		try {
 			UserData.clearSharedPreferences(getApplicationContext());
-		}
-		catch (GeneralSecurityException e) {
+		} catch (GeneralSecurityException e) {
 			Log.e("ClearSharedPreferences", e.toString());
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			Log.e("ClearSharedPreferences", e.toString());
 		}
 	}
