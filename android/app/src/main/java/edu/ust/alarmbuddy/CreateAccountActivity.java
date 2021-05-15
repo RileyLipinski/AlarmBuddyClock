@@ -13,49 +13,82 @@ import android.widget.EditText;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import static java.lang.Integer.parseInt;
 
 public class CreateAccountActivity extends AppCompatActivity {
+
+	Button createAccountButton;
+	Button returnToLoginButton;
+	EditText email;
+	EditText firstName;
+	EditText lastName;
+	EditText phoneNumber;
+	EditText birthday;
+	EditText username;
+	EditText password;
+	EditText confirmPassword;
+	TextView emailText;
+	TextView firstNameText;
+	TextView lastNameText;
+	TextView phoneNumberText;
+	TextView birthdayText;
+	TextView usernameText;
+	TextView passwordText;
+	TextView confirmPasswordText;
+	TextView createAccountErrorText;
+	EditText[] editTexts;
+	TextView[] textViews;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_create_account);
 
-		final Button createAccountButton = findViewById(R.id.createAccountButton);
-		final Button returnToLoginButton = findViewById(R.id.returnToLoginButton);
+		createAccountButton = findViewById(R.id.createAccountButton);
+		returnToLoginButton = findViewById(R.id.returnToLoginButton);
 
-		final TextView emailText = findViewById(R.id.emailText);
-		final TextView firstNameText = findViewById(R.id.firstNameText);
-		final TextView lastNameText = findViewById(R.id.lastNameText);
-		final TextView phoneNumberText = findViewById(R.id.phoneNumberText);
-		final TextView birthdayText = findViewById(R.id.birthdayText);
-		final TextView usernameText = findViewById(R.id.usernameText);
-		final TextView passwordText = findViewById(R.id.passwordText);
-		final TextView confirmPasswordText = findViewById(R.id.confirmPasswordText);
+		emailText = findViewById(R.id.emailText);
+		firstNameText = findViewById(R.id.firstNameText);
+		lastNameText = findViewById(R.id.lastNameText);
+		phoneNumberText = findViewById(R.id.phoneNumberText);
+		birthdayText = findViewById(R.id.birthdayText);
+		usernameText = findViewById(R.id.usernameText);
+		passwordText = findViewById(R.id.passwordText);
+		confirmPasswordText = findViewById(R.id.confirmPasswordText);
 
-		final EditText email = findViewById(R.id.email);
-		final EditText firstName = findViewById(R.id.firstName);
-		final EditText lastName = findViewById(R.id.lastName);
-		final EditText phoneNumber = findViewById(R.id.phoneNumber);
-		final EditText birthday = findViewById(R.id.birthday);
-		final EditText username = findViewById(R.id.username);
-		final EditText password = findViewById(R.id.password);
-		final EditText confirmPassword = findViewById(R.id.confirmPassword);
-		final TextView createAccountErrorText = findViewById(R.id.createAccountErrorText);
+		email = findViewById(R.id.email);
+		firstName = findViewById(R.id.firstName);
+		lastName = findViewById(R.id.lastName);
+		phoneNumber = findViewById(R.id.phoneNumber);
+		birthday = findViewById(R.id.birthday);
+		username = findViewById(R.id.username);
+		password = findViewById(R.id.password);
+		confirmPassword = findViewById(R.id.confirmPassword);
+		createAccountErrorText = findViewById(R.id.createAccountErrorText);
 
 		// put all TextViews in an array
-		TextView[] textViews = new TextView[]{emailText, firstNameText, lastNameText,
-			phoneNumberText, birthdayText, usernameText, passwordText, confirmPasswordText};
+		textViews = new TextView[]{emailText, firstNameText, lastNameText,
+		phoneNumberText, birthdayText, usernameText, passwordText, confirmPasswordText};
 
 		// put all EditTexts in an array
-		EditText[] editTexts = new EditText[]{email, firstName, lastName,
+		editTexts = new EditText[]{email, firstName, lastName,
 			phoneNumber, birthday, username, password, confirmPassword};
 
+	}
+
+	// set listeners
+	@Override
+	public void onResume() {
+		super.onResume();
+
 		//text change listeners to reset text to black
-		for (int i = 0; i < editTexts.length; i++) {
+		for (int i=0; i<editTexts.length; i++) {
 			int finalI = i;
 			editTexts[i].addTextChangedListener(new TextWatcher() {
 				@Override
@@ -67,6 +100,7 @@ public class CreateAccountActivity extends AppCompatActivity {
 				public void onTextChanged(CharSequence s, int start, int before, int count) {
 					resetTextColor(editTexts[finalI]);
 					resetTextColor(textViews[finalI]);
+
 				}
 
 				@Override
@@ -76,76 +110,99 @@ public class CreateAccountActivity extends AppCompatActivity {
 			});
 		}
 
+		// special case to reset confirmPassword when password is changed
+		password.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				resetTextColor(confirmPassword);
+
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+
+			}
+		});
+
+		// listeners to delete error text on change
+		birthday.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				if (createAccountErrorText.getText().toString().equals("You must be at least 18 years old to create an account")) {
+					createAccountErrorText.setText("");
+				}
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+
+			}
+		});
+
+		password.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				if (createAccountErrorText.getText().toString().equals("Passwords do not match")) {
+					createAccountErrorText.setText("");
+				}
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+
+			}
+		});
+
+		confirmPassword.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				if (createAccountErrorText.getText().toString().equals("Passwords do not match")) {
+					createAccountErrorText.setText("");
+				}
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+
+			}
+		});
+
 		createAccountButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				boolean allFieldsValid = true;
-
-				for (int i = 0; i < editTexts.length; i++) {
-					if (editTexts[i].getText().toString().equals("")) {
-						highlightInvalidField(textViews[i]);
-					}
-				}
-
-				if (!isValidEmail(email.getText())) {
-					highlightInvalidField(email);
-					allFieldsValid = false;
-					//createAccountErrorText.setText("Invalid email");
-				}
-				if (firstName.getText().toString().equals("")) {
-					highlightInvalidField(firstName);
-					allFieldsValid = false;
-					//createAccountErrorText.setText("Please enter a first name");
-				}
-				if (lastName.getText().toString().equals("")) {
-					highlightInvalidField(lastName);
-					allFieldsValid = false;
-					//createAccountErrorText.setText("Please enter a last name");
-				}
-				if (!isValidPhoneNumber(phoneNumber.getText().toString())) {
-					highlightInvalidField(phoneNumber);
-					allFieldsValid = false;
-					//createAccountErrorText.setText("Invalid phone number");
-				}
-				if (!isValidBirthday(birthday.getText().toString())) {
-					highlightInvalidField(birthday);
-					allFieldsValid = false;
-					//createAccountErrorText.setText("Invalid birthday");
-				}
-				if (!isValidUsername(username.getText().toString())) {
-					highlightInvalidField(username);
-					allFieldsValid = false;
-					//createAccountErrorText.setText("Please enter a username");
-				}
-				if (password.getText().toString().equals("")) {
-					highlightInvalidField(password);
-					allFieldsValid = false;
-					//createAccountErrorText.setText("Please enter a password");
-				}
-				if (confirmPassword.getText().toString().equals("")) {
-					highlightInvalidField(confirmPassword);
-					allFieldsValid = false;
-					//createAccountErrorText.setText("Please confirm your password");
-				}
-				if (!password.getText().toString()
-					.equals(confirmPassword.getText().toString())) {
-					highlightInvalidField(confirmPassword);
-					allFieldsValid = false;
-					createAccountErrorText.setText("Passwords do not match");
-				}
-				if (allFieldsValid) {
+				if (checkAllFields()){
 					// reformat birthday for request (from MM-DD-YYYY to YYYY-MM-DD)
 					String birthdate = birthday.getText().toString();
 					birthdate = birthdate.substring(6, 10) + "-" + birthdate.substring(0, 2) + "-"
-						+ birthdate.substring(3, 5);
+							+ birthdate.substring(3, 5);
 
 					// make post request to create user
 					if (AlarmBuddyHttp.createUser(username.getText().toString(),
-						password.getText().toString(),
-						firstName.getText().toString(),
-						lastName.getText().toString(),
-						email.getText().toString(),
-						phoneNumber.getText().toString(),
-						birthdate)) {
+							password.getText().toString(),
+							firstName.getText().toString(),
+							lastName.getText().toString(),
+							email.getText().toString(),
+							phoneNumber.getText().toString(),
+							birthdate)) {
 						// if account created successfully, inform user
 						//createAccountErrorText
 						//.setText("Account created, return to login page to login");
@@ -167,106 +224,187 @@ public class CreateAccountActivity extends AppCompatActivity {
 
 	}
 
-	private static boolean isValidEmail(CharSequence target) {
+	// returns whether or not all fields are valid
+	// for all invalid fields, turns text red
+	private boolean checkAllFields() {
+		boolean allFieldsValid = true;
+
+		for (int i = 0; i<editTexts.length; i++) {
+			if (editTexts[i].getText().toString().equals("")) {
+				highlightInvalidField(textViews[i]);
+				allFieldsValid = false;
+			}
+		}
+
+		// check all fields for their respective requirements
+		if (!isValidEmail(email.getText())) {
+			highlightInvalidField(email);
+			allFieldsValid = false;
+		}
+		if (!isValidName(firstName.getText().toString())) {
+			highlightInvalidField(firstName);
+			allFieldsValid = false;
+		}
+		if (!isValidName(lastName.getText().toString())) {
+			highlightInvalidField(lastName);
+			allFieldsValid = false;
+		}
+		if (!isValidPhoneNumber(phoneNumber.getText().toString())) {
+			highlightInvalidField(phoneNumber);
+			allFieldsValid = false;
+		}
+
+		if (!isValidUsername(username.getText().toString())) {
+			highlightInvalidField(username);
+			allFieldsValid = false;
+		}
+		if (!isValidPassword(password.getText().toString())) {
+			highlightInvalidField(password);
+			allFieldsValid = false;
+		}
+		if (!password.getText().toString()
+				.equals(confirmPassword.getText().toString())) {
+			highlightInvalidField(confirmPassword);
+			allFieldsValid = false;
+			createAccountErrorText.setText("Passwords do not match");
+		}
+		if (!isValidBirthday(birthday.getText().toString())) {
+			highlightInvalidField(birthday);
+			allFieldsValid = false;
+		}
+		else if (!userIs18(birthday.getText().toString())) {
+			highlightInvalidField(birthday);
+			createAccountErrorText.setText("You must be at least 18 years old to create an account");
+			allFieldsValid = false;
+		}
+		return allFieldsValid;
+	}
+
+	private boolean isValidEmail(CharSequence target) {
 		return (!TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches());
 	}
 
 	// since we are targeting a US audience, assume phone number matches US standards
-	// regex format -> 9 digits, no spaces or punctuation allowed (eg. 1230003456)
-	//              OR 9 digits separated by dashes (eg. 123-000-3456)
-	private static boolean isValidPhoneNumber(String phoneNumber) {
+	// must be in following format -> 9 digits, no spaces or punctuation allowed (eg. 1230003456)
+	//              			   OR 9 digits separated by dashes (eg. 123-000-3456)
+	private boolean isValidPhoneNumber(String phoneNumber) {
 		String regexStr = "^([0-9]{3})[-]([0-9]{3})[-]([0-9]{4})";
 		return phoneNumber.matches(regexStr);
 	}
 
-	private static boolean isValidBirthday(String birthday) {
-		String regexStr = "^([0-9]{2})[-]?([0-9]{2})[-]?([0-9]{4})";
+	// must be in MM-DD-YYYY format
+	private boolean isValidBirthday(String birthday) {
+		boolean isValid = true;
+		String regexStr = "^([0-9]{2})[-]([0-9]{2})[-]([0-9]{4})";
 		// check format
 		if (birthday.matches(regexStr)) {
-
-			// reformat birthday to ISO date format (YYYYMMDD)
-			birthday =
-				birthday.substring(6, 10) + birthday.substring(0, 2) + birthday.substring(3, 5);
 			//check if valid date
-			DateTimeFormatter dateFormatter = DateTimeFormatter.BASIC_ISO_DATE;
+			SimpleDateFormat dateFormatter = new SimpleDateFormat("MM-dd-yyyy");
+			dateFormatter.setLenient(false);
 			try {
-				LocalDate.parse(birthday, dateFormatter);
-			} catch (DateTimeParseException e) {
-				return false;
+				Date date = dateFormatter.parse(birthday);
+			} catch (ParseException e) {
+				isValid = false;
 			}
-			return true;
+
 		}
-		// if invalid format, return false
-		return false;
+		else {
+			isValid = false;
+		}
+
+		return isValid;
+	}
+
+	// birthday must be at least 18 years prior to current date
+	private boolean userIs18(String birthday) {
+		// check that the user is at least 18 years old
+		boolean isValid = true;
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("MM-dd-yyyy");
+		int newYear = parseInt(birthday.substring(6)) + 18;
+		String date = birthday.substring(0,6) + newYear;
+		try {
+			Date newDate = dateFormatter.parse(date);
+			Date currentDate = new Date();
+
+			if(newDate.after(currentDate)) {
+				isValid = false;
+			}
+
+		} catch (ParseException e) {
+			isValid = false;
+		}
+		return isValid;
 	}
 
 	/* name constraints:
-	 * length between 1-100 characters, inclusive
-	 * can only contain uppercase and lowercase English letters, hyphens, apostrophes
-	 */
-	private static boolean isValidName(String name) {
+	* length between 1-100 characters, inclusive
+	* can only contain uppercase and lowercase English letters, hyphens, apostrophes
+	*/
+	private boolean isValidName(String name) {
 		String regex = "^[A-Za-z-']+$";
 
 		return name.length() >= 1 && name.length() <= 100
-			&& name.matches(regex);
+				&& name.matches(regex);
 	}
 
 	/* username constraints:
-	 * length between 5-20 characters, inclusive
-	 * can only contain uppercase and lowercase English letters, numbers, underscores
-	 * must be unique
+	* length between 5-20 characters, inclusive
+	* can only contain uppercase and lowercase English letters, numbers, underscores
+	* must be unique
 	 */
-	private static boolean isValidUsername(String username) {
+	private boolean isValidUsername(String username) {
 		// TODO: check if username already taken
 		String regex = "^[A-Za-z0-9_]+$";
 
-		return username.length() >= 5 && username.length() <= 20
-			&& username.matches(regex);
+		 return username.length() >= 5 && username.length() <= 20
+				&& username.matches(regex);
 	}
 
 	/* password constraints:
-	 * length between 8-20 characters, inclusive
-	 * can only contain uppercase and lowercase English letter, numbers,
-	 *  and special characters but cannot contain <=>"&
-	 * in ascii values, can contain 0x21-0x7E but cannot contain 0x3C, 0x3D, 0x3E,
-	 *  0x22 and 0x26
-	 * MUST contain at least one of each: uppercase letter, lowercase letter, number,
-	 *  and special character
-	 */
-	private static boolean isValidPassword(String password) {
+	* length between 8-20 characters, inclusive
+	* can only contain uppercase and lowercase English letter, numbers,
+	*  and special characters but cannot contain <=>"&
+	* in ascii values, can contain 0x21-0x7E but cannot contain 0x3C, 0x3D, 0x3E,
+	*  0x22 and 0x26
+	* MUST contain at least one of each: uppercase letter, lowercase letter, number,
+	*  and special character
+	*/
+	private boolean isValidPassword(String password) {
 		boolean isValid = true;
 
 		// check that password only contains valid characters
-		for (int i = 0; i < password.length(); i++) {
-			int ascii = (int) password.charAt(i);
+		for (int i=0; i<password.length(); i++) {
+			int ascii = (int)password.charAt(i);
 			// out of range or is a forbidden character
 			if (ascii < 33 || ascii > 126
-				|| ascii == 60 || ascii == 61 || ascii == 62 || ascii == 34 || ascii == 38) {
+					|| ascii == 60 || ascii == 61 || ascii == 62 || ascii == 34 || ascii == 38) {
 				isValid = false;
 			}
 		}
+		return isValid;
+	}
 
+	private boolean passwordMeetsReqs(String password) {
 		// check that password contains uppercase letter, lowercase letter, number, special character
 		String regex = "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!#$%'()*+,\\-./:;?`{|}~]])";
-
-		return isValid && password.matches(regex);
+		return password.matches(regex);
 	}
 
-	private static void highlightInvalidField(EditText field) {
+	private void highlightInvalidField(EditText field) {
 		field.setTextColor(Color.RED);
 	}
 
-	private static void highlightInvalidField(TextView field) {
+	private void highlightInvalidField(TextView field) {
 		field.setTextColor(Color.RED);
 	}
 
-	private static void resetTextColor(EditText field) {
+	private void resetTextColor(EditText field) {
 		if (field.getCurrentTextColor() != Color.BLACK) {
 			field.setTextColor(Color.BLACK);
 		}
 	}
 
-	private static void resetTextColor(TextView field) {
+	private void resetTextColor(TextView field) {
 		if (field.getCurrentTextColor() != Color.BLACK) {
 			field.setTextColor(Color.BLACK);
 		}
