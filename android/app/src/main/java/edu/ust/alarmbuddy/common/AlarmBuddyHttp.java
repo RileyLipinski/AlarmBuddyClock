@@ -39,11 +39,22 @@ public class AlarmBuddyHttp {
 		client.newCall(r).enqueue(c);
 	}
 
+	/**
+	 * Makes a call to the database to create a new user.
+	 *
+	 * @param username  selected username
+	 * @param password  selected password
+	 * @param firstName user's first name
+	 * @param lastName  user's last name
+	 * @param email user's email
+	 * @param phoneNumber user's phone number in xxx-xxx-xxxx format
+	 * @param birthdate user's birthdate in MM-DD-YYYY format
+	 *
+	 * @return whether or not user was successfully created
+	 */
 	@RequiresApi(api = Build.VERSION_CODES.KITKAT)
-
 	public static boolean createUser(String username, String password, String firstName,
-		String lastName,
-		String email, String phoneNumber, String birthdate) {
+		String lastName, String email, String phoneNumber, String birthdate) {
 		String data = String.format(
 			"username=%s&password=%s&firstName=%s&lastName=%s&email=%s&phoneNumber=%s&birthDate=%s",
 			username, password, firstName, lastName, email, phoneNumber, birthdate);
