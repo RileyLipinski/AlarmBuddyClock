@@ -9,7 +9,6 @@ import android.util.Log;
 import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import edu.ust.alarmbuddy.worker.alarm.AlarmNoisemaker;
-
 import java.util.Calendar;
 
 public class Alarm {
@@ -31,21 +30,23 @@ public class Alarm {
 	/**
 	 * Object used to create an alarm
 	 *
-	 * @param alarmId id used to identify alarm
-	 * @param hour hour alarm is set for
-	 * @param minute minute alarm is set for
-	 * @param sunday true if alarm should recur on Sundays
-	 * @param monday true if alarm should recur on Mondays
-	 * @param tuesday true if alarm should recur on Tuesdays
+	 * @param alarmId   id used to identify alarm
+	 * @param hour      hour alarm is set for
+	 * @param minute    minute alarm is set for
+	 * @param sunday    true if alarm should recur on Sundays
+	 * @param monday    true if alarm should recur on Mondays
+	 * @param tuesday   true if alarm should recur on Tuesdays
 	 * @param wednesday true if alarm should recur on Wednesdays
-	 * @param thursday true if alarm should recur on Thursdays
-	 * @param friday true if alarm should recur on Fridays
-	 * @param saturday true if alarm should recur on Saturdays
-	 * @param name unique name given to alarm by user
-	 * @param created time alarm is created
+	 * @param thursday  true if alarm should recur on Thursdays
+	 * @param friday    true if alarm should recur on Fridays
+	 * @param saturday  true if alarm should recur on Saturdays
+	 * @param name      unique name given to alarm by user
+	 * @param created   time alarm is created
 	 * @param scheduled true if currently alarm service is currently scheduled
 	 */
-	public Alarm(int alarmId, int hour, int minute, boolean sunday, boolean monday, boolean tuesday, boolean wednesday, boolean thursday, boolean friday, boolean saturday, String name, long created, boolean scheduled) {
+	public Alarm(int alarmId, int hour, int minute, boolean sunday, boolean monday, boolean tuesday,
+		boolean wednesday, boolean thursday, boolean friday, boolean saturday, String name,
+		long created, boolean scheduled) {
 		this.alarmId = alarmId;
 		this.hour = hour;
 		this.minute = minute;
@@ -169,10 +170,12 @@ public class Alarm {
 	public void deleteAlarm(Context context) {
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		Intent intent = new Intent(context, AlarmNoisemaker.class);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+		PendingIntent pendingIntent = PendingIntent
+			.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 		alarmManager.cancel(pendingIntent);
 
-		String toastDeleteAlarm = String.format("Alarm (%s) deleted for %02d:%02d", name, hour, minute);
+		String toastDeleteAlarm = String
+			.format("Alarm (%s) deleted for %02d:%02d", name, hour, minute);
 		Toast toast = Toast.makeText(context, toastDeleteAlarm, Toast.LENGTH_LONG);
 		toast.show();
 		Log.i("deleted", toastDeleteAlarm);

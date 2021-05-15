@@ -23,7 +23,9 @@ public class App extends Application {
 	}
 
 	/**
-	 * This method is modified due to a difference in Android 8.0.  If API is level 26, the notification must specify a notification channel.  Otherwise the notification will never appear and instead the system will log an error.
+	 * This method is modified due to a difference in Android 8.0.  If API is level 26, the
+	 * notification must specify a notification channel.  Otherwise the notification will never
+	 * appear and instead the system will log an error.
 	 */
 	public void createNotificationChannel() {
 		//TODO notification channel not being created with pre-alarm sound
@@ -33,7 +35,7 @@ public class App extends Application {
 				"Alarm Service Channel",
 				NotificationManager.IMPORTANCE_DEFAULT
 			);
-			Log.i(App.class.getName(),"Creating notification channel");
+			Log.i(App.class.getName(), "Creating notification channel");
 			notificationChannel.setSound(
 				Uri.parse("android.resource://" + getPackageName() + '/' + R.raw.pre_alarm_noise),
 				new AudioAttributes.Builder().build()

@@ -73,7 +73,7 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 	 * Checks the response JSON to see if there are any new sounds in the DB. If new sounds exist,
 	 * sends a notification to the user.
 	 *
-	 * @param context Application context
+	 * @param context  Application context
 	 * @param response The JSON response body from the server
 	 */
 	private void handle200(Context context, Response response) {
@@ -187,13 +187,13 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 			for (JsonElement x : json) {
 				int soundId = x.getAsJsonObject().get("soundID").getAsInt();
 
-				if(soundId > maxIdSeen) {
+				if (soundId > maxIdSeen) {
 					maxIdInResponse = soundId;
 					result.add(x);
 				}
 			}
 
-			if(maxIdInResponse > maxIdSeen) {
+			if (maxIdInResponse > maxIdSeen) {
 				UserData.getSharedPreferences(context).edit()
 					.putInt("maxIdSeen", maxIdInResponse)
 					.apply();
@@ -218,10 +218,12 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 		Intent intent = new Intent(context, SoundListActivity.class);
 		intent.putExtra("json", json.toString());
 
-		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+		PendingIntent pendingIntent = PendingIntent
+			.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 		Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
 			.setContentTitle("You received a sound!")
-			.setContentText("MaxIdSeen: " + UserData.getInt(context, "maxIdSeen",Integer.MIN_VALUE))
+			.setContentText(
+				"MaxIdSeen: " + UserData.getInt(context, "maxIdSeen", Integer.MIN_VALUE))
 			.setSmallIcon(R.drawable.ic_baseline_access_alarm_24)
 			.setContentIntent(pendingIntent)
 			.build();

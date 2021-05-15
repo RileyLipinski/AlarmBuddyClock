@@ -11,9 +11,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import edu.ust.alarmbuddy.LoginActivity;
 import edu.ust.alarmbuddy.R;
@@ -50,7 +48,8 @@ public class DemoFragment extends Fragment {
 
 		Intent intent = new Intent(getContext(), AlarmFetchReceiver.class);
 		intent.putExtra("wakeupTime", System.currentTimeMillis() + 10000L);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+		PendingIntent pendingIntent = PendingIntent
+			.getBroadcast(getContext(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 		AlarmPublisher.getAlarmManager(getContext())
 			.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, 1, pendingIntent);
 	}

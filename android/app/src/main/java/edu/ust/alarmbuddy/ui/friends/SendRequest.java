@@ -18,9 +18,7 @@ import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import edu.ust.alarmbuddy.common.UserData;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.concurrent.CountDownLatch;
-
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -87,7 +85,9 @@ public class SendRequest extends AppCompatActivity {
 		CountDownLatch countDownLatch = new CountDownLatch(1);
 		client.newCall(request).enqueue(new Callback() {
 			@Override
-			public void onFailure(@NotNull Call call, @NotNull IOException e) {countDownLatch.countDown();}
+			public void onFailure(@NotNull Call call, @NotNull IOException e) {
+				countDownLatch.countDown();
+			}
 
 			@Override
 			public void onResponse(@NotNull Call call, @NotNull Response response)
@@ -95,19 +95,19 @@ public class SendRequest extends AppCompatActivity {
 				Log.i(SendRequest.class.getName(), "Code: " + response.code());
 				Log.i(SendRequest.class.getName(), "Message: " + response.body().string());
 				if (response.isSuccessful()) {
-					flag=1;
+					flag = 1;
 					countDownLatch.countDown();
 				}
 			}
 		});
 		countDownLatch.await();
 
-		if(flag == 1){
+		if (flag == 1) {
 			showToast("Request sent");
-		}else{
+		} else {
 			showToast("Request could not be sent");
 		}
-		flag =0;
+		flag = 0;
 	}
 
 	private void showToast(String input) {

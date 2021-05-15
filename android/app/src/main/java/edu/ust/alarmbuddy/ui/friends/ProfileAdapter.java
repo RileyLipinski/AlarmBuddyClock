@@ -1,6 +1,5 @@
 package edu.ust.alarmbuddy.ui.friends;
 
-import android.app.Application;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,16 +8,10 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
-
-import edu.ust.alarmbuddy.common.UserData;
 import org.jetbrains.annotations.NotNull;
 
 /***
@@ -63,14 +56,13 @@ public class ProfileAdapter extends
 
 		}
 
-		public void Click(int flag){
+		public void Click(int flag) {
 
-			if (flag==0){
+			if (flag == 0) {
 				Intent intent = new Intent(itemView.getContext(), Friend_Options.class);
 				intent.putExtra("name", mTextView1.getText().toString());
 				itemView.getContext().startActivity(intent);
-			}
-			else{
+			} else {
 				Intent intent = new Intent(itemView.getContext(), Request_Options.class);
 				intent.putExtra("name", mTextView1.getText().toString());
 				itemView.getContext().startActivity(intent);
@@ -91,13 +83,12 @@ public class ProfileAdapter extends
 	public ProfileViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
 		View v = LayoutInflater.from(parent.getContext())
 			.inflate(R.layout.friend_list, parent, false);
-		return new ProfileViewHolder(v,flag);
+		return new ProfileViewHolder(v, flag);
 	}
 
 	@Override
 	public void onBindViewHolder(@NonNull @NotNull ProfileViewHolder holder, int position) {
 		holder.currentProfile = mProfileList.get(position);
-
 
 		holder.mImageView.setImageResource(holder.currentProfile.getImageResource());
 		holder.mTextView1.setText(holder.currentProfile.getText1());

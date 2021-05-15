@@ -41,7 +41,7 @@ public class SoundListActivity extends Activity {
 	private void listSounds(String jsonString) {
 		//TODO holding onto some stale information, look into synchronizing the events order
 		//it's probably because I'm reusing notification ids, fuck
-		Log.i(SoundListActivity.class.getName(),"Attempting to list this json: " + jsonString);
+		Log.i(SoundListActivity.class.getName(), "Attempting to list this json: " + jsonString);
 		JsonArray json;
 		try {
 			json = JsonParser.parseString(jsonString).getAsJsonArray();
@@ -74,6 +74,7 @@ public class SoundListActivity extends Activity {
 	}
 
 	private void returnToMainButton() {
-		findViewById(R.id.soundListBackButton).setOnClickListener(view -> startActivity(new Intent(this, MainActivity.class)));
+		findViewById(R.id.soundListBackButton)
+			.setOnClickListener(view -> startActivity(new Intent(this, MainActivity.class)));
 	}
 }

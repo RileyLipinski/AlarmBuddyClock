@@ -19,7 +19,6 @@ import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import edu.ust.alarmbuddy.common.UserData;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.concurrent.CountDownLatch;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -31,153 +30,155 @@ import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
 public class Request_Options extends AppCompatActivity {
-    private ImageView picture;
-    private int flag;
-    private TextView name;
-    private Button accept;
-    private Button deny;
-    private Button block;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_request_options);
+	private ImageView picture;
+	private int flag;
+	private TextView name;
+	private Button accept;
+	private Button deny;
+	private Button block;
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle("Request Options");
-        actionBar.setDisplayHomeAsUpEnabled(true);
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_request_options);
 
-        picture = findViewById(R.id.ROptionsImage);
-        name = findViewById(R.id.ROptionsText);
-        accept = findViewById(R.id.Accept);
-        deny = findViewById(R.id.Deny);
-        block = findViewById(R.id.Block);
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setTitle("Request Options");
+		actionBar.setDisplayHomeAsUpEnabled(true);
 
-        Intent intent = getIntent();
-        name.setText(intent.getStringExtra("name"));
+		picture = findViewById(R.id.ROptionsImage);
+		name = findViewById(R.id.ROptionsText);
+		accept = findViewById(R.id.Accept);
+		deny = findViewById(R.id.Deny);
+		block = findViewById(R.id.Block);
 
-        accept.setOnClickListener(v -> {
-            try {
-                Post("accept");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
+		Intent intent = getIntent();
+		name.setText(intent.getStringExtra("name"));
 
-        deny.setOnClickListener(v -> {
-            try {
-                Post("deny");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
+		accept.setOnClickListener(v -> {
+			try {
+				Post("accept");
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
 
-        block.setOnClickListener(v -> {
-            try {
-                Post("block");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-    }
+		deny.setOnClickListener(v -> {
+			try {
+				Post("deny");
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
 
-    private void Post(String command) throws InterruptedException {
-        OkHttpClient client = new OkHttpClient();
-        flag = 0;
+		block.setOnClickListener(v -> {
+			try {
+				Post("block");
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
+	}
 
-        String token = UserData.getStringNotNull(this, "token");
-        String username = UserData.getStringNotNull(this, "username");
+	private void Post(String command) throws InterruptedException {
+		OkHttpClient client = new OkHttpClient();
+		flag = 0;
 
-        String action = "";
-        if (command.compareTo("accept")==0){
-            //Special attention
-            action = "acceptFriendRequest";
-            String url =
-                    AlarmBuddyHttp.API_URL + "/" + action + "/" + name.getText().toString().trim()
-                            +"/" + username;
-        }
-        else if (command.compareTo("deny")==0){
-            action = "denyFriendRequest";String url =
-                    AlarmBuddyHttp.API_URL + "/" + action + "/" + name.getText().toString().trim()
-                            +"/" + username;
+		String token = UserData.getStringNotNull(this, "token");
+		String username = UserData.getStringNotNull(this, "username");
 
-        }
-        else if(command.compareTo("block")==0){
-            action = "";
-        }
+		String action = "";
+		if (command.compareTo("accept") == 0) {
+			//Special attention
+			action = "acceptFriendRequest";
+			String url =
+				AlarmBuddyHttp.API_URL + "/" + action + "/" + name.getText().toString().trim()
+					+ "/" + username;
+		} else if (command.compareTo("deny") == 0) {
+			action = "denyFriendRequest";
+			String url =
+				AlarmBuddyHttp.API_URL + "/" + action + "/" + name.getText().toString().trim()
+					+ "/" + username;
 
-        String url =
-                AlarmBuddyHttp.API_URL + "/" + action + "/" + username + "/" + name.getText().toString()
-                        .trim();
-        Log.i(Friend_Options.class.getName(), "URL: " + url);
+		} else if (command.compareTo("block") == 0) {
+			action = "";
+		}
 
-        Request request = new Request.Builder()
-                .post(RequestBody.create("", MediaType.parse("text/plain")))
-                .url(url)
-                .header("Authorization", token)
-                .build();
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {countDownLatch.countDown();}
+		String url =
+			AlarmBuddyHttp.API_URL + "/" + action + "/" + username + "/" + name.getText().toString()
+				.trim();
+		Log.i(Friend_Options.class.getName(), "URL: " + url);
 
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response)
-                    throws IOException {
-                Log.i(Friend_Options.class.getName(), "Code: " + response.code());
-                Log.i(Friend_Options.class.getName(), "Message: " + response.body().string());
-                if (response.isSuccessful()) {
-                    flag=1;
-                    countDownLatch.countDown();
-                }
-            }
-        });
-        countDownLatch.await();
+		Request request = new Request.Builder()
+			.post(RequestBody.create("", MediaType.parse("text/plain")))
+			.url(url)
+			.header("Authorization", token)
+			.build();
+		CountDownLatch countDownLatch = new CountDownLatch(1);
+		client.newCall(request).enqueue(new Callback() {
+			@Override
+			public void onFailure(@NotNull Call call, @NotNull IOException e) {
+				countDownLatch.countDown();
+			}
 
-        if(flag == 1 && command.compareTo("accept")==0){
-            showToast("Request Accepted");
+			@Override
+			public void onResponse(@NotNull Call call, @NotNull Response response)
+				throws IOException {
+				Log.i(Friend_Options.class.getName(), "Code: " + response.code());
+				Log.i(Friend_Options.class.getName(), "Message: " + response.body().string());
+				if (response.isSuccessful()) {
+					flag = 1;
+					countDownLatch.countDown();
+				}
+			}
+		});
+		countDownLatch.await();
 
-        }else if (flag ==0 && command.compareTo("accept")==0) {
-            showToast("ERROR: Request could not be accepted");
+		if (flag == 1 && command.compareTo("accept") == 0) {
+			showToast("Request Accepted");
 
-        } else if (flag==1 && command.compareTo("deny")==0){
-            showToast("Request Denied");
+		} else if (flag == 0 && command.compareTo("accept") == 0) {
+			showToast("ERROR: Request could not be accepted");
 
-        }else if (flag ==0 && command.compareTo("deny")==0){
-            showToast("ERROR: Request could not be denied");
+		} else if (flag == 1 && command.compareTo("deny") == 0) {
+			showToast("Request Denied");
 
-        }else if (flag ==1 && command.compareTo("block")==0){
-            showToast("User Blocked");
+		} else if (flag == 0 && command.compareTo("deny") == 0) {
+			showToast("ERROR: Request could not be denied");
 
-        }else if (flag ==0 && command.compareTo("block")==0){
-            showToast("ERROR: User Was Not Blocked");
-        }
+		} else if (flag == 1 && command.compareTo("block") == 0) {
+			showToast("User Blocked");
 
-        flag =0;
-    }
+		} else if (flag == 0 && command.compareTo("block") == 0) {
+			showToast("ERROR: User Was Not Blocked");
+		}
 
-    private void showToast(String input) {
-        LayoutInflater inflater = getLayoutInflater();
-        View layout = inflater
-                .inflate(R.layout.friend_request_toast, findViewById(R.id.toast_root));
+		flag = 0;
+	}
 
-        TextView text = layout.findViewById(R.id.toast_text);
-        text.setText(input);
+	private void showToast(String input) {
+		LayoutInflater inflater = getLayoutInflater();
+		View layout = inflater
+			.inflate(R.layout.friend_request_toast, findViewById(R.id.toast_root));
 
-        Toast toast = new Toast(this);
-        toast.setGravity(Gravity.CENTER, 0, 0);
-        toast.setDuration(Toast.LENGTH_SHORT);
-        toast.setView(layout);
-        toast.show();
-    }
+		TextView text = layout.findViewById(R.id.toast_text);
+		text.setText(input);
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        super.onOptionsItemSelected(item);
-        if (item.getItemId() == android.R.id.home) {
-            setResult(Activity.RESULT_CANCELED);
-            finish();
-        }
-        return super.onOptionsItemSelected(item);
-    }
+		Toast toast = new Toast(this);
+		toast.setGravity(Gravity.CENTER, 0, 0);
+		toast.setDuration(Toast.LENGTH_SHORT);
+		toast.setView(layout);
+		toast.show();
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+		super.onOptionsItemSelected(item);
+		if (item.getItemId() == android.R.id.home) {
+			setResult(Activity.RESULT_CANCELED);
+			finish();
+		}
+		return super.onOptionsItemSelected(item);
+	}
 }

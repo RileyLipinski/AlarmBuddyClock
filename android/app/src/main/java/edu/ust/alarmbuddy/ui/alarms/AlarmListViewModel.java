@@ -4,10 +4,7 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 import edu.ust.alarmbuddy.ui.alarm.Alarm;
-
 import java.util.List;
 
 public class AlarmListViewModel extends AndroidViewModel {
@@ -20,7 +17,7 @@ public class AlarmListViewModel extends AndroidViewModel {
 
 	}
 
-    public LiveData<List<Alarm>> getCurrentAlarms() {
+	public LiveData<List<Alarm>> getCurrentAlarms() {
 		return currentAlarms;
-    }
+	}
 }

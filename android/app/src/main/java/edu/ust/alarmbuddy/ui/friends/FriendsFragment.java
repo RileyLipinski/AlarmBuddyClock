@@ -19,7 +19,6 @@ import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import edu.ust.alarmbuddy.common.UserData;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
@@ -30,7 +29,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
-
 
 
 /***
@@ -74,7 +72,7 @@ public class FriendsFragment extends Fragment {
 		nameList.sort(String::compareToIgnoreCase);
 
 		//uses the sorted names to create Profile objects
-		int i =0;
+		int i = 0;
 		for (String s : nameList) {
 			profileList.add(new Profile(R.drawable.ic_baseline_account_box, s, "details"));
 		}
@@ -191,7 +189,7 @@ public class FriendsFragment extends Fragment {
 		int flag;
 		mRecyclerView = v.findViewById(R.id.recyclerView);
 		flag = populateArray();
-		mAdapter = new ProfileAdapter(getMProfileList(),0);
+		mAdapter = new ProfileAdapter(getMProfileList(), 0);
 		mRecyclerView.setLayoutManager(mlayoutManager);
 		mRecyclerView.setAdapter(mAdapter);
 		return flag;
