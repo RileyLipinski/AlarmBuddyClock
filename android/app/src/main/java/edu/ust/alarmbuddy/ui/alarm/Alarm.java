@@ -127,7 +127,7 @@ public class Alarm {
 //
 //		Intent intent = new Intent(context, AlarmPublisher.class);
 //
-//		PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, alarmId, intent, 0);
+//		PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(System.currentTimeMillis());
@@ -137,19 +137,19 @@ public class Alarm {
 		calendar.set(Calendar.HOUR_OF_DAY, hour);
 
 		String dayOfWeek = "day";
-		if (calendar.get(Calendar.DAY_OF_WEEK) == 1) {
+		if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
 			dayOfWeek = "Sunday";
-		} else if (calendar.get(Calendar.DAY_OF_WEEK) == 2) {
+		} else if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY) {
 			dayOfWeek = "Monday";
-		} else if (calendar.get(Calendar.DAY_OF_WEEK) == 3) {
+		} else if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.TUESDAY) {
 			dayOfWeek = "Tuesday";
-		} else if (calendar.get(Calendar.DAY_OF_WEEK) == 4) {
+		} else if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.WEDNESDAY) {
 			dayOfWeek = "Wednesday";
-		} else if (calendar.get(Calendar.DAY_OF_WEEK) == 5) {
+		} else if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.THURSDAY) {
 			dayOfWeek = "Thursday";
-		} else if (calendar.get(Calendar.DAY_OF_WEEK) == 6) {
+		} else if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {
 			dayOfWeek = "Friday";
-		} else if (calendar.get(Calendar.DAY_OF_WEEK) == 7) {
+		} else if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
 			dayOfWeek = "Saturday";
 		}
 
@@ -169,7 +169,7 @@ public class Alarm {
 	public void deleteAlarm(Context context) {
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		Intent intent = new Intent(context, AlarmNoisemaker.class);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, alarmId, intent, 0);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 		alarmManager.cancel(pendingIntent);
 
 		String toastDeleteAlarm = String.format("Alarm (%s) deleted for %02d:%02d", name, hour, minute);

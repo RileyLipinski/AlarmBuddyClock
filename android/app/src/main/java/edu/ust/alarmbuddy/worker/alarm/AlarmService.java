@@ -15,12 +15,9 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import edu.ust.alarmbuddy.AlarmActivity;
 import edu.ust.alarmbuddy.R;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class AlarmService extends Service {
-
-	private static final AtomicInteger counter = new AtomicInteger(0);
 	private MediaPlayer mediaPlayer;
 
 	@Override
@@ -31,7 +28,7 @@ public class AlarmService extends Service {
 	/**
 	 * This method is used to begin the alarm by sending a notification and starting the sound.
 	 *
-	 * @param intent
+	 * @param intent Intent received to start the alarm
 	 * @param flags
 	 * @param startId
 	 * @return
@@ -43,7 +40,7 @@ public class AlarmService extends Service {
 		Log.i(AlarmService.class.getName(), "Starting alarm from service");
 
 		Intent alarmIntent = new Intent(this, AlarmActivity.class);
-		PendingIntent pendingIntent = PendingIntent.getActivity(this, counter.getAndIncrement(), alarmIntent, 0);
+		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
 		// play the pre-alarm noise, then start looping the actual alarm sound
 		mediaPlayer = MediaPlayer.create(this, R.raw.pre_alarm_noise);

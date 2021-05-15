@@ -18,17 +18,17 @@ public class SoundListActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
 		setContentView(R.layout.activity_sound_list);
 		returnToMainButton();
 	}
 
+	/**
+	 * Rebuilds the list of sounds received from the database each time the activity is restarted.
+	 */
 	@Override
 	public void onResume() {
+		super.onResume();
+
 		RecyclerView recyclerView = findViewById(R.id.soundList);
 		SoundListAdapter soundListAdapter = (SoundListAdapter) recyclerView.getAdapter();
 		if (soundListAdapter != null) {
@@ -36,11 +36,11 @@ public class SoundListActivity extends Activity {
 		}
 
 		listSounds(getIntent().getStringExtra("json"));
-		super.onResume();
 	}
 
 	private void listSounds(String jsonString) {
 		//TODO holding onto some stale information, look into synchronizing the events order
+		//it's probably because I'm reusing notification ids, fuck
 		Log.i(SoundListActivity.class.getName(),"Attempting to list this json: " + jsonString);
 		JsonArray json;
 		try {
@@ -74,8 +74,6 @@ public class SoundListActivity extends Activity {
 	}
 
 	private void returnToMainButton() {
-		findViewById(R.id.soundListBackButton).setOnClickListener(view -> {
-			startActivity(new Intent(this, MainActivity.class));
-		});
+		findViewById(R.id.soundListBackButton).setOnClickListener(view -> startActivity(new Intent(this, MainActivity.class)));
 	}
 }

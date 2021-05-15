@@ -9,7 +9,6 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -24,7 +23,6 @@ import edu.ust.alarmbuddy.ui.alarm.AlarmPublisher;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -35,7 +33,6 @@ import org.jetbrains.annotations.NotNull;
 public class NotificationFetchReceiver extends BroadcastReceiver {
 
 	private static final boolean PROD = false; // TODO delete on release
-	private static final AtomicInteger counter = new AtomicInteger(0);
 
 	/** The amount of time (millseconds) between polls for new sounds */
 	public static final long INTERVAL = 60 * 1000;
@@ -55,23 +52,8 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 			trigger(context);
 		} else {
 			switch (response.code()) {
-				case 200: // check if new sounds exist and notify the user if needed
-					Log.i(NotificationFetchReceiver.class.getName(),
-						"Good response, checking for new sounds");
-					String json = "";
-					try {
-						json = response.body().string();
-						Log.i(NotificationFetchReceiver.class.getName(),
-							"Response from server: " + json);
-					} catch (IOException e) {
-						e.printStackTrace();
-						//TODO log error message for bad response
-						break;
-					}
-					JsonArray soundsToNotify = getSoundsToNotify(context, json);
-					if (soundsToNotify.size() > 0) {
-						newSoundNotification(context, soundsToNotify);
-					}
+				case 200:
+					handle200(context, response);
 					trigger(context);
 					break;
 				case 401: // user is no longer authenticated, stop polling
@@ -88,8 +70,34 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 	}
 
 	/**
-	 * Schedules an instance of this BroadcastReceiver to fire after the number of milliseconds
-	 * specified in NotificationFetchReceiver.INTERVAL
+	 * Checks the response JSON to see if there are any new sounds in the DB. If new sounds exist,
+	 * sends a notification to the user.
+	 *
+	 * @param context Application context
+	 * @param response The JSON response body from the server
+	 */
+	private void handle200(Context context, Response response) {
+		Log.i(NotificationFetchReceiver.class.getName(),
+			"Good response, checking for new sounds");
+		String json;
+		try {
+			json = response.body().string();
+			Log.i(NotificationFetchReceiver.class.getName(),
+				"Response from server: " + json);
+		} catch (IOException e) {
+			e.printStackTrace();
+			json = "";
+		}
+
+		JsonArray soundsToNotify = getSoundsToNotify(context, json);
+		if (soundsToNotify.size() > 0) {
+			newSoundNotification(context, soundsToNotify);
+		}
+	}
+
+	/**
+	 * Schedules an instance of this BroadcastReceiver to fire after NotificationFetchReceiver.INTERVAL
+	 * milliseconds
 	 *
 	 * @param context Application context
 	 */
@@ -210,7 +218,7 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 		Intent intent = new Intent(context, SoundListActivity.class);
 		intent.putExtra("json", json.toString());
 
-		PendingIntent pendingIntent = PendingIntent.getActivity(context, counter.getAndIncrement(), intent, 0);
+		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 		Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
 			.setContentTitle("You received a sound!")
 			.setContentText("MaxIdSeen: " + UserData.getInt(context, "maxIdSeen",Integer.MIN_VALUE))

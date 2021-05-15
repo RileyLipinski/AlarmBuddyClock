@@ -22,33 +22,26 @@ import edu.ust.alarmbuddy.ui.alarm.AlarmPublisher;
 import edu.ust.alarmbuddy.worker.alarm.AlarmFetchReceiver;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class DemoFragment extends Fragment {
 
 	private DemoViewModel demoViewModel;
-	private static final AtomicInteger counter = new AtomicInteger(0);
 
 	public View onCreateView(@NonNull LayoutInflater inflater,
 		ViewGroup container, Bundle savedInstanceState) {
 		demoViewModel =
 			ViewModelProviders.of(this).get(DemoViewModel.class);
 		View root = inflater.inflate(R.layout.fragment_demo, container, false);
+
 		final TextView textView = root.findViewById(R.id.text_notifications);
-		demoViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-			@Override
-			public void onChanged(@Nullable String s) {
-				textView.setText(s);
-			}
-		});
+		demoViewModel.getText().observe(getViewLifecycleOwner(), s -> textView.setText(s));
+
 		final Button logoutButton = root.findViewById(R.id.logout_button);
-		logoutButton.setOnClickListener(view -> {
-			doLogout();
-		});
+		logoutButton.setOnClickListener(view -> doLogout());
+
 		final Button demoButton = root.findViewById(R.id.demo_button);
-		demoButton.setOnClickListener(view -> {
-			demoButton();
-		});
+		demoButton.setOnClickListener(view -> demoButton());
+
 		return root;
 	}
 
@@ -57,7 +50,7 @@ public class DemoFragment extends Fragment {
 
 		Intent intent = new Intent(getContext(), AlarmFetchReceiver.class);
 		intent.putExtra("wakeupTime", System.currentTimeMillis() + 10000L);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), counter.getAndIncrement(), intent, 0);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 		AlarmPublisher.getAlarmManager(getContext())
 			.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, 1, pendingIntent);
 	}
