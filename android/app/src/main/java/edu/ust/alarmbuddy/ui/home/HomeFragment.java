@@ -69,17 +69,10 @@ public class HomeFragment extends Fragment {
 		String username = "";
 		String token = "";
 
-		try {
-			username = UserData.getString(getContext(), "username");
-			token = UserData.getString(getContext(), "token");
-			Log.i("UserInfo", "Username: " + username + "\nToken: " + token);
-		}
-		catch (GeneralSecurityException e) {
-			Log.e("Get Sounds", "Could not get username: " + e);
-		}
-		catch (IOException e) {
-			Log.e("Get Sounds", "Could not get username: " + e);
-		}
+
+		username = UserData.getString(getContext(), "username");
+		token = UserData.getString(getContext(), "token");
+		Log.i("UserInfo", "Username: " + username + "\nToken: " + token);
 
 		String finalUsername = username;
 		String finalToken = token;
