@@ -85,7 +85,7 @@ def CreateAlarmIntent(day, timeofday):
 
 
         th = threading.Thread(target=scheduler.run)
-        scheduler_e = scheduler.enterabs(t, 1, play_alarm, ([th]))
+        scheduler_e = scheduler.enterabs(t, 1, play_alarm, ([th])) #maybe have sound id here?
         speak_output = "You have created an alarm that will go off on " + day + " at " + timeofday  + "."
         print("in create alarm: " + speak_output)
         th.start()
@@ -96,15 +96,65 @@ def CreateAlarmIntent(day, timeofday):
 def RecordAlarmIntent():
     speak_output = "Okay. After I say, start, speak into the microphone... start."
     th = threading.Thread(target=scheduler.run)
-    scheduler_e = scheduler.enter(8, 1, record_audio, ([th, 89]))
+    scheduler_e = scheduler.enter(8, 1, record_audio, ([th]))
     th.start()
     return statement(speak_output).simple_card('Record', speak_output)
 
-def play_alarm(thread, sound_id):
+@ask.intent('AlarmBuddy_GetFriends')
+def GetFriendIntent():
+    speak_output = 'Your current friends are... '
+    friends_url = config['base_url'] + '/friendsWith/' + config['alarmbuddy_account']['username']
+    friends_header = {'Authorization': token}
+    f = requests.get(friends_url, headers=friends_header)
+    friends_list = json.loads(f.content)
+
+    #friends_list = [{'username2': 'amaz0n'}, {'username2': 'Don2'}, {'username2': 'jjj123769'}, {'username2': 'Johnny'}, {'username2': 'Twiggy1'}, {'username2': 'Honk_Supreme'}, {'username2': 'brianna4'}, {'username2': 'woah1'}]
+    for i in range(6):
+        if(i < len(friends_list)):
+            speak_output = speak_output + friends_list[i]['username2'] + ", "
+    speak_output = speak_output[:-2] + "."
+    if(len(friends_list) > 6):
+        speak_output = speak_output + " To see more friends, please go to the Alarmbuddy website, or the Alarmbuddy mobile app."
+    return question(speak_output).simple_card('getFriends', speak_output)
+
+@ask.intent('AlarmBuddy_GetFriendRequests')
+def GetFriendRequestsIntent():
+    speak_output = 'Your current requests are... '
+    requests_url = config['base_url'] + '/requests/' + config['alarmbuddy_account']['username']
+    requests_header = {'Authorization': token}
+    f = requests.get(requests_url, headers=requests_header)
+    requests_list = json.loads(f.content)
+    print(requests_list)
+    if(len(requests_list) <= 0):
+        speak_output = 'You currently have no incoming friend requests.'
+        return question(speak_output).simple_card('getFriendRequests', speak_output)
+    for request in requests_list:
+        speak_output = speak_output + request['senderUsername'] + ", "
+    speak_output = speak_output[:-2] + "."
+    return question(speak_output).simple_card('getFriendRequests', speak_output)
+
+@ask.intent('AlarmBuddy_GetBlockList')
+def GetBlockListIntent():
+    speak_output = 'Your current blocked accounts are... '
+    getblock_url = config['base_url'] + '/getBlockList/' + config['alarmbuddy_account']['username']
+    getblock_header = {'Authorization': token}
+    f = requests.get(getblock_url, headers=getblock_header)
+    block_list = json.loads(f.content)
+    print(block_list)
+    if(len(block_list) <= 0):
+        speak_output = 'You currently have nobody on your block list.'
+        return question(speak_output).simple_card('getBlockList', speak_output)
+    for block in block_list:
+        speak_output = speak_output + block['blocked'] + ", "
+    speak_output = speak_output[:-2] + "."
+    return question(speak_output).simple_card('getBlockList', speak_output)
+
+def play_alarm(thread):
     # Function that is called at the time specified by the Create Alarm Intent
     print("in play alarm")
-    download_url = config['base_url'] + '/download/' + config['alarmbuddy_account']['username'] + '/' + sound_id
+    download_url = config['base_url'] + '/download/' + config['alarmbuddy_account']['username'] + '/'
     response = requests.get(download_url, headers={'Authorization': token})
+    #if fails to download sound, replace sound with default.
     #print(response.json())
     open('downloadedsound.mp3', 'wb').write(response.content)
     sound_path = os.getcwd() + '/downloadedsound.mp3'
@@ -116,7 +166,7 @@ def record_audio(thread):
     seconds = 20  # Duration of recording
     print(sd.query_devices())
 
-    mydevice = 2
+    mydevice = 4
 
     myrecording = sd.rec(int(seconds * fs), samplerate=fs, channels=2, device=mydevice)
     sd.wait()  # Wait until recording is finished
@@ -135,6 +185,8 @@ def upload_file(filename):
     file_data = {'file': (filename, open(filename, 'rb'), 'audio/mpeg')}
     info_data = {'soundDescription': 'Amazon Team Alexa MP3 Upload'}
     u = requests.post(upload_url, headers=upload_header, files=file_data, data=info_data)
+
+    #put a check. If fails to upload, do something?
     print(u)
     print(u.content)
 
