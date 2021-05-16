@@ -2,6 +2,7 @@ package edu.ust.alarmbuddy.ui.friends;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -17,6 +18,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
+import edu.ust.alarmbuddy.common.ProfilePictures;
 import edu.ust.alarmbuddy.common.UserData;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
@@ -31,7 +33,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class Request_Options extends AppCompatActivity {
 
-	private ImageView picture;
+	private Bitmap picture;
+	private ImageView image;
 	private int flag;
 	private TextView name;
 	private Button accept;
@@ -47,7 +50,7 @@ public class Request_Options extends AppCompatActivity {
 		actionBar.setTitle("Request Options");
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
-		picture = findViewById(R.id.ROptionsImage);
+		image = findViewById(R.id.ROptionsImage);
 		name = findViewById(R.id.ROptionsText);
 		accept = findViewById(R.id.Accept);
 		deny = findViewById(R.id.Deny);
@@ -55,6 +58,8 @@ public class Request_Options extends AppCompatActivity {
 
 		Intent intent = getIntent();
 		name.setText(intent.getStringExtra("name"));
+		picture = ProfilePictures.getProfilePic(getApplicationContext(), name.getText().toString());
+		image.setImageBitmap(picture);
 
 		accept.setOnClickListener(v -> {
 			try {
@@ -88,22 +93,18 @@ public class Request_Options extends AppCompatActivity {
 		String token = UserData.getStringNotNull(this, "token");
 		String username = UserData.getStringNotNull(this, "username");
 
-		String action = "";
-		if (command.compareTo("accept") == 0) {
-			//Special attention
-			action = "acceptFriendRequest";
-			String url =
-				AlarmBuddyHttp.API_URL + "/" + action + "/" + name.getText().toString().trim()
-					+ "/" + username;
-		} else if (command.compareTo("deny") == 0) {
-			action = "denyFriendRequest";
-			String url =
-				AlarmBuddyHttp.API_URL + "/" + action + "/" + name.getText().toString().trim()
-					+ "/" + username;
+        String action = "";
+        if (command.compareTo("accept")==0){
+            //Special attention
+            action = "acceptFriendRequest";
+        }
+        else if (command.compareTo("deny")==0){
+            action = "denyFriendRequest";
 
-		} else if (command.compareTo("block") == 0) {
-			action = "";
-		}
+        }
+        else if(command.compareTo("block")==0){
+            action = "blockUser";
+        }
 
 		String url =
 			AlarmBuddyHttp.API_URL + "/" + action + "/" + username + "/" + name.getText().toString()

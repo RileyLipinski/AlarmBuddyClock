@@ -1,6 +1,7 @@
 package edu.ust.alarmbuddy.ui.friends;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,7 @@ public class ProfileAdapter extends
 		private ImageView mImageView;
 		private TextView mTextView1;
 		private TextView mTextView2;
+		private Bitmap picture;
 		private View view;
 		private Profile currentProfile;
 		private int flag;
@@ -43,12 +45,9 @@ public class ProfileAdapter extends
 			super(itemView);
 			view = itemView;
 			flag = num;
-			view.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					Click(flag);
-				}
-			});
+			view.setOnClickListener(v -> Click(flag));
+
+
 			mImageView = itemView.findViewById(R.id.imageView);
 			mTextView1 = itemView.findViewById(R.id.textView);
 			mTextView2 = itemView.findViewById(R.id.textView2);
@@ -89,8 +88,12 @@ public class ProfileAdapter extends
 	@Override
 	public void onBindViewHolder(@NonNull @NotNull ProfileViewHolder holder, int position) {
 		holder.currentProfile = mProfileList.get(position);
+		if (holder.currentProfile.getImageResource() ==0){
+			holder.mImageView.setImageBitmap(holder.currentProfile.getPicture());
+		}else {
+			holder.mImageView.setImageResource(holder.currentProfile.getImageResource());
+		}
 
-		holder.mImageView.setImageResource(holder.currentProfile.getImageResource());
 		holder.mTextView1.setText(holder.currentProfile.getText1());
 		holder.mTextView2.setText(holder.currentProfile.getText2());
 

@@ -2,6 +2,7 @@ package edu.ust.alarmbuddy.ui.friends;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -17,6 +18,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
+import edu.ust.alarmbuddy.common.ProfilePictures;
 import edu.ust.alarmbuddy.common.UserData;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
@@ -31,39 +33,49 @@ import org.jetbrains.annotations.NotNull;
 
 public class Friend_Options extends AppCompatActivity {
 
-	private ImageView picture;
+	private Bitmap picture;
+	private ImageView image;
 	private int flag;
 	private TextView name;
 	private Button remove;
 	private Button block;
 
-	//TODO: Implement blocking
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_friend_options);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_friend_options);
 
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setTitle("Friend Options");
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
-		picture = findViewById(R.id.FOptionsImage);
+		image = findViewById(R.id.FOptionsImage);
 		name = findViewById(R.id.FOptionsText);
 		remove = findViewById(R.id.RemoveFriend);
 		block = findViewById(R.id.BlockUser);
 
 		Intent intent = getIntent();
 		name.setText(intent.getStringExtra("name"));
+		picture = ProfilePictures.getProfilePic(getApplicationContext(), name.getText().toString());
+		image.setImageBitmap(picture);
 
-		remove.setOnClickListener(v -> {
-			try {
-				Post("remove");
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		});
-	}
+        remove.setOnClickListener(v -> {
+            try {
+                Post("remove");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        block.setOnClickListener(v -> {
+            try {
+                Post("block");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+    }
 
 	private void Post(String command) throws InterruptedException {
 		OkHttpClient client = new OkHttpClient();
@@ -72,12 +84,13 @@ public class Friend_Options extends AppCompatActivity {
 		String token = token = UserData.getStringNotNull(this, "token");
 		String username = username = UserData.getStringNotNull(this, "username");
 
-		String action = "";
-		if (command.compareTo("remove") == 0) {
-			action = "deleteFriend";
-		} else if (command.compareTo("block") == 0) {
-			action = "";
-		}
+        String action = "";
+        if (command.compareTo("remove")==0){
+            action = "deleteFriend";
+        }
+        else if(command.compareTo("block")==0){
+            action = "blockUser";
+        }
 
 		String url =
 			AlarmBuddyHttp.API_URL + "/" + action + "/" + username + "/" + name.getText().toString()

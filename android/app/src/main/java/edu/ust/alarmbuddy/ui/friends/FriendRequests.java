@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
+import edu.ust.alarmbuddy.common.ProfilePictures;
 import edu.ust.alarmbuddy.common.UserData;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,8 +50,7 @@ public class FriendRequests extends AppCompatActivity {
 		actionBar.setTitle("Inbox");
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
-		int flag;
-		ArrayList<Profile> profileList = new ArrayList<>();
+        int flag;
 
 		mRecyclerView = findViewById(R.id.inboxRecyclerView);
 		try {
@@ -85,7 +85,7 @@ public class FriendRequests extends AppCompatActivity {
 
 		//uses the sorted names to create Profile objects
 		for (String s : nameList) {
-			profileList.add(new Profile(R.drawable.ic_baseline_account_box, s, "details"));
+			profileList.add(new Profile(ProfilePictures.getProfilePic(getApplicationContext(), s), s, "details"));
 		}
 
 		setMProfileList(profileList);
@@ -125,18 +125,18 @@ public class FriendRequests extends AppCompatActivity {
 					Matcher matcher = pattern.matcher(myResponse);
 					ArrayList<String> result = new ArrayList<>();
 
-					while (matcher.find()) {
-						result.add(matcher.group(1));
-					}
-					for (int i = 1; i < result.size(); i += 2) {
-						nameList.add(result.get(i));
-					}
-				}
-				countDownLatch.countDown();
-			}
-		});
-		countDownLatch.await();
-	}
+                    while (matcher.find()) {
+                        result.add(matcher.group(1));
+                    }
+                    for (int i = 1; i < result.size(); i += 3) {
+                        nameList.add(result.get(i));
+                    }
+                }
+                countDownLatch.countDown();
+            }
+        });
+        countDownLatch.await();
+    }
 
 	private ArrayList<Profile> getMProfileList() {
 		return this.mProfileList;
@@ -146,6 +146,31 @@ public class FriendRequests extends AppCompatActivity {
 		mProfileList = input;
 	}
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        int flag;
+
+        mRecyclerView = findViewById(R.id.inboxRecyclerView);
+        try{
+            flag = populateArray();
+        }catch (InterruptedException e) {
+            flag=0;
+            e.printStackTrace();
+        }
+
+        if (flag == 0){
+            TextView text = findViewById(R.id.inboxText);
+            text.setText("Your inbox is empty");
+        }
+        else {
+            TextView text = findViewById(R.id.inboxText);
+            text.setText("");
+        }
+        mAdapter = new ProfileAdapter(getMProfileList(),1);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setAdapter(mAdapter);
+    }
 
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
