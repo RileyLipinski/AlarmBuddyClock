@@ -164,10 +164,18 @@ public class Alarm {
 			dayOfWeek = "Saturday";
 		}
 
-		String toastCreateAlarm = String
-			.format("Alarm (%s) set for %s at %02d:%02d", name, dayOfWeek, hour, minute);
+		String toastCreateAlarm;
+		if(name.length() != 0) {
+			toastCreateAlarm = String
+					.format("Alarm (%s) set for %s at %02d:%02d", name, dayOfWeek, hour, minute);
+		} else {
+			toastCreateAlarm = String
+					.format("Alarm set for %s at %02d:%02d", dayOfWeek, hour, minute);
+		}
+
 		Toast toast = Toast.makeText(context, toastCreateAlarm, Toast.LENGTH_LONG);
 		toast.show();
+
 
 		AlarmPublisher.publishAlarm(context, calendar.getTimeInMillis());
 	}

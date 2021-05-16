@@ -52,6 +52,11 @@ public class AlarmListFragment extends Fragment implements OnToggleAlarmListener
 
 	@Override
 	public void onToggle(Alarm alarm) {
-
+		if(alarm.isScheduled()) {
+			alarm.deleteAlarm(getContext());
+		} else {
+			alarm.setAlarm(getContext());
+		}
+		alarmListViewModel.update(alarm);
 	}
 }
