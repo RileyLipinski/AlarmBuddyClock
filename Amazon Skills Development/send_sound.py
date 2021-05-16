@@ -1,9 +1,9 @@
-@ask.intent('AlarmBuddy_SendSound', mapping={'friend_uname' : 'friend_uname', 'sound_name' : 'sound_name'})
-def SendSoundIntent(friend_uname, sound_name):
+@ask.intent('AlarmBuddy_SendSound', mapping={'friend_uname' : 'friend_uname', 'sound_id' : 'sound_id'})
+def SendSoundIntent(friend_uname, sound_id):
     if(friend_uname is None):
         speak_output = "Sorry, you must specify a username to send a sound to."
         return question(speak_output).reprompt(speak_output).simple_card('AddFriend_UnameError', speak_output)
-    if(sound_name is None):
+    if(sound_id is None):
         speak_output = "Sorry, you must specify a recorded alarm to send."
         return question(speak_output).reprompt(speak_output).simple_card('SendSound_SoundIdError', speak_output)
 
@@ -27,7 +27,7 @@ def SendSoundIntent(friend_uname, sound_name):
     #find requested sound
     sound_to_send = None
     for sound in sound_list:
-        if sound['soundName'] == sound_name:
+        if sound['soundID'] == sound_id:
             sound_to_send = sound
 
     if sound_to_send is None:
@@ -37,14 +37,8 @@ def SendSoundIntent(friend_uname, sound_name):
     #Send the sound.
     send_sound_url = config['base_url'] + '/shareSound/' + config['alarmbuddy_account']['username'] + '/' + friend_uname + '/' + str(sound_to_send['soundID'])
     u = requests.post(send_sound_url, headers=header)
-    if(u.status_code == 409):
-        speak_output = "That alarm has already been sent to " + friend_uname + ". Say record alarm to record a new alarm to send."
-        return question(speak_output).reprompt(speak_output).simple_card('SendSound_SoundAlreadySent', speak_output)
     if(u.status_code != 201):
         speak_output = "Something went wrong. We couldn't send the sound to your friend."
         return question(speak_output).reprompt(speak_output).simple_card('SendSound_Error', speak_output)
 
-    return statement('Okay.' + sound_name + 'has been sent to ' + friend_uname)
-
-
-
+    return statement('Okay. ' + sound_to_send['soundName'] + ' has been sent to ' + friend_uname)
