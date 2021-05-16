@@ -60,7 +60,7 @@ public class AlarmBuddyHttp {
 			username, password, firstName, lastName, email, phoneNumber, birthdate);
 		RequestBody body = RequestBody.create(data, QUERYSTRING);
 		Request request = new Request.Builder()
-			.url("https://alarmbuddy.wm.r.appspot.com/register")
+			.url(API_URL + "/register")
 			.post(body)
 			.build();
 

@@ -87,7 +87,7 @@ public class LoginActivity extends AppCompatActivity {
 		throws IOException {
 		//build the request
 		String data = "username=" + username + "&password=" + password;
-		URL url = new URL("https://alarmbuddy.wm.r.appspot.com/login");
+		URL url = new URL(AlarmBuddyHttp.API_URL + "/login");
 		RequestBody body = RequestBody.create(data, MediaType
 			.parse("application/x-www-form-urlencoded"));
 		Request request = new Request.Builder()

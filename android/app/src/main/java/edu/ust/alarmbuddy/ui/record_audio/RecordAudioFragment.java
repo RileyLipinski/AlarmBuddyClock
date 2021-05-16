@@ -2,8 +2,8 @@ package edu.ust.alarmbuddy.ui.record_audio;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
@@ -23,16 +23,23 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
+import edu.ust.alarmbuddy.common.ProfilePictures;
 import edu.ust.alarmbuddy.common.UserData;
+import java.io.File;
+import java.io.IOException;
+
+import edu.ust.alarmbuddy.ui.friends.SendRequest;
 import nl.bravobit.ffmpeg.ExecuteBinaryResponseHandler;
 import nl.bravobit.ffmpeg.FFmpeg;
-import okhttp3.*;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 public class RecordAudioFragment extends Fragment {
 
@@ -48,8 +55,8 @@ public class RecordAudioFragment extends Fragment {
 
 	private Button recordButton = null;
 	private Button playButton = null;
-	private Button uploadSoundButton = null;
 	private Button sendButton = null;
+	private Button uploadButton;
 
 	private MediaRecorder recorder = null;
 	private MediaPlayer player = null;
@@ -65,14 +72,14 @@ public class RecordAudioFragment extends Fragment {
 		root = inflater.inflate(R.layout.fragment_record_audio, container, false);
 
 		// where to store recorded audio file
-		audioFile = new File(getContext().getExternalFilesDir(""),
+		audioFile = new File(Environment.getExternalStorageDirectory(),
 			"android_test.3gpp");
 
 		// set buttons
 		recordButton = root.findViewById(R.id.recordButton);
 		playButton = root.findViewById(R.id.playButton);
-		uploadSoundButton = root.findViewById(R.id.uploadButton);
 		sendButton = root.findViewById(R.id.GoToSelectFriendsButton);
+		uploadButton = root.findViewById(R.id.uploadButton);
 
 		recordButton.setText("Start recording");
 		playButton.setText("Play sound");
@@ -81,15 +88,17 @@ public class RecordAudioFragment extends Fragment {
 		requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO,
 			Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
 
-		return root;
-	}
 
-	@Override
-	public void onResume() {
-		super.onResume();
+		uploadButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				ProfilePictures.getProfilePic(getContext(),"Don2");
+				ProfilePictures.getProfilePicPath(getContext(),"Don2");
+			}
+		});
+
 
 		// set listeners for record, play, and upload
-		recordButton.setOnClickListener(new View.OnClickListener() {
+		View.OnClickListener recordClicker = new View.OnClickListener() {
 			public void onClick(View v) {
 				// only starts recording if mic can be used
 				if (micPermission == true) {
@@ -103,9 +112,10 @@ public class RecordAudioFragment extends Fragment {
 					mStartRecording = !mStartRecording;
 				}
 			}
-		});
+		};
+		recordButton.setOnClickListener(recordClicker);
 
-		playButton.setOnClickListener(new View.OnClickListener() {
+		View.OnClickListener playClicker = new View.OnClickListener() {
 			public void onClick(View v) {
 				// check if there is a recorded file to play
 				if (audioFile.exists()) {
@@ -119,26 +129,25 @@ public class RecordAudioFragment extends Fragment {
 					mStartPlaying = !mStartPlaying;
 				}
 			}
-		});
-
-
-		uploadSoundButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				if (audioFile.exists()) {
-					uploadSound(getContext(), audioFile.getAbsolutePath());
-				}
-			}
-		});
+		};
+		playButton.setOnClickListener(playClicker);
 
 		sendButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				FragmentManager fm = getFragmentManager();
-				FragmentTransaction ft = fm.beginTransaction();
-				ft.replace(R.id.nav_host_fragment, new SelectFriendsFragment());
-				ft.commit();
+				Intent intent = new Intent(getActivity(), SelectableActivity.class);
+				startActivity(intent);
 			}
 		});
 
+		return root;
+	}
+
+
+	@Override
+	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		mViewModel = ViewModelProviders.of(this).get(RecordAudioViewModel.class);
+		// TODO: Use the ViewModel
 	}
 
 	public static RecordAudioFragment newInstance() {
@@ -248,22 +257,16 @@ public class RecordAudioFragment extends Fragment {
 		recorder = null;
 	}
 
-	/**
-	 * Makes a call to the database to upload a selected sound file.
-	 *
-	 * @param context    Application context
-	 * @param sound_path Absolute path to the sound file
-	 */
 	public void uploadSound(Context context, String sound_path) {
 		if (FFmpeg.getInstance(context).isSupported()) {
 
 			OkHttpClient client = new OkHttpClient();
 			FFmpeg ffmpeg = FFmpeg.getInstance(context);
 
-
-			formattedAudioFile = new File(context.getExternalFilesDir(""), "a.mp3");
+			formattedAudioFile = new File(Environment.getExternalStorageDirectory(), "a.mp3");
 			try {
-				String[] cmd = new String[]{"-y", "-i", sound_path, formattedAudioFile.getAbsolutePath()};
+				String[] cmd = new String[]{"-y", "-i", sound_path,
+					formattedAudioFile.getAbsolutePath()};
 				ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
 					@Override
 					public void onFailure(String message) {
@@ -285,29 +288,29 @@ public class RecordAudioFragment extends Fragment {
 							Log.e("Upload Sound", "Could not retrieve username or token");
 						}
 
-						RequestBody fileContent = RequestBody.create(new File(formattedAudioFile.getAbsolutePath()),
+						RequestBody fileContent = RequestBody
+							.create(new File(formattedAudioFile.getAbsolutePath()),
 								MediaType.parse("audio/mpeg"));
 
 						RequestBody body = new MultipartBody.Builder()
-								.setType(MultipartBody.FORM)
-								.addFormDataPart("file", formattedAudioFile.getName(), fileContent)
-								.addFormDataPart("soundDescription", "alarm sound")
-								.build();
+							.setType(MultipartBody.FORM)
+							.addFormDataPart("file", formattedAudioFile.getName(), fileContent)
+							.addFormDataPart("soundDescription", "alarm sound")
+							.build();
 
 						//RequestBody body = RequestBody.create(data, QUERYSTRING);
 						Request request = new Request.Builder()
-								.url("https://alarmbuddy.wm.r.appspot.com/upload/" + username)
-								//.url("http://192.168.1.15:3000/upload/" + username)
-								.header("Authorization", token)
-								.post(body)
-								.build();
+							.url(AlarmBuddyHttp.API_URL + "/upload/" + username)
+							.header("Authorization", token)
+							.post(body)
+							.build();
 
 						Log.i("Upload Sound", request.toString());
 						try {
-							Log.i("Upload Sound", fileContent.toString() + " " + fileContent.contentLength()
+							Log.i("Upload Sound",
+								fileContent.toString() + " " + fileContent.contentLength()
 									+ " " + fileContent.contentType());
-						}
-						catch (IOException e) {
+						} catch (IOException e) {
 							Log.e("upload", "contentLength " + e);
 						}
 
@@ -318,8 +321,10 @@ public class RecordAudioFragment extends Fragment {
 							}
 
 							@Override
-							public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-								Log.i("Response", response.toString() + " / " +response.body().string());
+							public void onResponse(@NotNull Call call, @NotNull Response response)
+								throws IOException {
+								Log.i("Response",
+									response.toString() + " / " + response.body().string());
 							}
 						});
 					}
@@ -336,13 +341,6 @@ public class RecordAudioFragment extends Fragment {
 
 
 	}
-
-	/**
-	 * Determines the mimetype of a file.
-	 *
-	 * @param url Absolute path to file
-	 * @return Mimetype of the file
-	 */
 
 	public static String getMimeType(String url) {
 		String type = null;

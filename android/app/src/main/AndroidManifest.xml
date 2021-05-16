@@ -21,27 +21,22 @@
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
     android:theme="@style/AppTheme">
-    <activity android:name=".ui.friends.Request_Options">
-    </activity>
-    <activity android:name=".ui.friends.Friend_Options">
-    </activity>
-
     <receiver android:name=".worker.alarm.AlarmFetchReceiver"/>
     <receiver android:name=".worker.alarm.AlarmNoisemaker"/>
     <receiver android:name=".worker.notification.NotificationFetchReceiver"/>
 
     <activity android:name=".ui.friends.SendRequest"/>
     <activity android:name=".ui.friends.FriendRequests"/>
-
     <activity
-      android:name=".MainActivity"
+      android:name="edu.ust.alarmbuddy.MainActivity"
       android:label="@string/app_name">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
       </intent-filter>
     </activity>
 
-    <activity android:name=".LoginActivity">
+    <activity
+      android:name=".LoginActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
 
@@ -51,7 +46,8 @@
 
     <activity android:name=".AlarmActivity"/>
     <activity android:name=".CreateAccountActivity"/>
-    <activity android:name=".SoundListActivity"/>
+    <activity android:name=".ui.soundlist.SoundListActivity"/>
+    <activity android:name=".ui.record_audio.SelectableActivity"/>
 
     <service android:name=".worker.alarm.AlarmService"/>
   </application>

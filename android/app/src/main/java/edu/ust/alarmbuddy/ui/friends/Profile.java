@@ -7,7 +7,7 @@ package edu.ust.alarmbuddy.ui.friends;
 public class Profile {
 
 	private final int mImageResource;
-	private final String mText1;
+	private String mText1;
 	private final String mText2;
 
 	public Profile(int imageResource, String text1, String text2) {
@@ -26,5 +26,9 @@ public class Profile {
 
 	public String getText2() {
 		return mText2;
+	}
+
+	public void setText1(String name) {
+		mText1 = name;
 	}
 }

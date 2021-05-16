@@ -2,24 +2,21 @@ package edu.ust.alarmbuddy.ui.record_audio;
 
 import edu.ust.alarmbuddy.ui.friends.Profile;
 
-/**
- * Profile wrapper class that allows profile to be selected/deselected
- */
 public class SelectableProfile extends Profile {
+    private Boolean isSelected;
 
-    private boolean isSelected = false;
-
-    public SelectableProfile(Profile profile) {
-        super(profile.getImageResource(), profile.getText1(), profile.getText2());
+    // no image resource
+    public SelectableProfile (String name) {
+        super(-1, name, "");
+        isSelected = false;
     }
 
-    public boolean isSelected() {
+    public Boolean isSelected() {
         return isSelected;
     }
 
-    public void setSelected(boolean selected) {
+    public void setSelected(Boolean selected) {
         isSelected = selected;
     }
-
 
 }
