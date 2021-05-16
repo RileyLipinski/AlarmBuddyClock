@@ -117,6 +117,20 @@ def GetFriendIntent():
         speak_output = speak_output + " To see more friends, please go to the Alarmbuddy website, or the Alarmbuddy mobile app."
     return question(speak_output).simple_card('getFriends', speak_output)
 
+@ask.intent('AlarmBuddy_GetSounds')
+def GetSoundsIntent():
+    speak_output = 'The sounds on your account are... '
+    sounds_url = config['base_url'] + '/sounds/' + config['alarmbuddy_account']['username']
+    sounds_header = {'Authorization': token}
+    f = requests.get(sounds_url, headers=sounds_header)
+    sounds_list = json.loads(f.content)
+
+    #friends_list = [{'username2': 'amaz0n'}, {'username2': 'Don2'}, {'username2': 'jjj123769'}, {'username2': 'Johnny'}, {'username2': 'Twiggy1'}, {'username2': 'Honk_Supreme'}, {'username2': 'brianna4'}, {'username2': 'woah1'}]
+    for sound in sounds_list:
+        speak_output = speak_output + sound['soundName'] + ' with i.d. ' + str(sound['soundID']) + ', '
+    speak_output = speak_output[:-2] + "."
+    return question(speak_output).simple_card('getSounds', speak_output)
+
 @ask.intent('AlarmBuddy_GetFriendRequests')
 def GetFriendRequestsIntent():
     speak_output = 'Your current requests are... '
@@ -149,6 +163,57 @@ def GetBlockListIntent():
     speak_output = speak_output[:-2] + "."
     return question(speak_output).simple_card('getBlockList', speak_output)
 
+@ask.intent('AlarmBuddy_SendSounds', mapping={'friend_uname' : 'friend_uname', 'sound_id' : 'sound_id'})
+def SendSoundIntent(friend_uname, sound_id):
+    print(sound_id)
+    if(friend_uname is None):
+        speak_output = "Sorry, you must specify a username to send a sound to."
+        return question(speak_output).reprompt(speak_output).simple_card('AddFriend_UnameError', speak_output)
+    if(sound_id is None):
+        speak_output = "Sorry, you must specify a recorded sound i.d. to send."
+        return question(speak_output).reprompt(speak_output).simple_card('SendSound_SoundIdError', speak_output)
+
+    #get list of friends
+    header = {"Authorization": token}
+    friends_list_url = config['base_url'] + '/friendsWith/' + config['alarmbuddy_account']['username']
+    friends_list = requests.get(friends_list_url, headers=header).json()
+
+    #check that recipient is a friend
+    friend_found = False
+    for friend in friends_list:
+        print('in friend')
+        print(friend)
+        if friend['username2'] == friend_uname:
+            friend_found = True
+    if(not friend_found):
+        speak_output = "Sorry, you must be friends with someone to send them an alarm."
+        return question(speak_output).reprompt(speak_output).simple_card('SendSound_NotFriendError', speak_output)
+        
+    #get list of sounds
+    sound_list_url = config['base_url'] + '/sounds/' + config['alarmbuddy_account']['username']
+    sound_list = requests.get(sound_list_url, headers=header).json()
+
+    #find requested sound
+    sound_to_send = None
+    for sound in sound_list:
+        print('in sound')
+        print(sound)
+        if str(sound['soundID']) == str(sound_id):
+            sound_to_send = sound
+
+    if sound_to_send is None:
+        speak_output = "Sorry, an alarm sound with that i.d. cannot be found. Have you recorded it?"
+        return question(speak_output).reprompt(speak_output).simple_card('SendSound_SoundNotFoundError', speak_output)
+
+    #Send the sound.
+    send_sound_url = config['base_url'] + '/shareSound/' + config['alarmbuddy_account']['username'] + '/' + friend_uname + '/' + str(sound_to_send['soundID'])
+    u = requests.post(send_sound_url, headers=header)
+    if(u.status_code != 201):
+        speak_output = "Something went wrong. We couldn't send the sound to your friend."
+        return question(speak_output).reprompt(speak_output).simple_card('SendSound_Error', speak_output)
+
+    return statement('Okay. ' + sound_to_send['soundName'] + ' has been sent to ' + friend_uname)
+
 def play_alarm(thread):
     # Function that is called at the time specified by the Create Alarm Intent
     print("in play alarm")
@@ -176,8 +241,8 @@ def record_audio(thread):
     print('start conversion')
     sound = AudioSegment.from_wav('output.wav')
 
-    sound.export('output.mp3', format='mp3')
-    upload_file('output.mp3')
+    sound.export('amazon.mp3', format='mp3')
+    upload_file('amazon.mp3')
 
 def upload_file(filename):
     upload_url = config['base_url'] + '/upload/' + config['alarmbuddy_account']['username']
