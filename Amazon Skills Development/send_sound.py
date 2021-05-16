@@ -37,6 +37,9 @@ def SendSoundIntent(friend_uname, sound_name):
     #Send the sound.
     send_sound_url = config['base_url'] + '/shareSound/' + config['alarmbuddy_account']['username'] + '/' + friend_uname + '/' + str(sound_to_send['soundID'])
     u = requests.post(send_sound_url, headers=header)
+    if(u.status_code == 409):
+        speak_output = "That alarm has already been sent to " + friend_uname + ". Say record alarm to record a new alarm to send."
+        return question(speak_output).reprompt(speak_output).simple_card('SendSound_SoundAlreadySent', speak_output)
     if(u.status_code != 201):
         speak_output = "Something went wrong. We couldn't send the sound to your friend."
         return question(speak_output).reprompt(speak_output).simple_card('SendSound_Error', speak_output)
