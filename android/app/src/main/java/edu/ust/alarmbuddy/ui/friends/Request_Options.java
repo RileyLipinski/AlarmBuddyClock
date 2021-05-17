@@ -93,18 +93,16 @@ public class Request_Options extends AppCompatActivity {
 		String token = UserData.getStringNotNull(this, "token");
 		String username = UserData.getStringNotNull(this, "username");
 
-        String action = "";
-        if (command.compareTo("accept")==0){
-            //Special attention
-            action = "acceptFriendRequest";
-        }
-        else if (command.compareTo("deny")==0){
-            action = "denyFriendRequest";
+		String action = "";
+		if (command.compareTo("accept") == 0) {
+			//Special attention
+			action = "acceptFriendRequest";
+		} else if (command.compareTo("deny") == 0) {
+			action = "denyFriendRequest";
 
-        }
-        else if(command.compareTo("block")==0){
-            action = "blockUser";
-        }
+		} else if (command.compareTo("block") == 0) {
+			action = "blockUser";
+		}
 
 		String url =
 			AlarmBuddyHttp.API_URL + "/" + action + "/" + username + "/" + name.getText().toString()

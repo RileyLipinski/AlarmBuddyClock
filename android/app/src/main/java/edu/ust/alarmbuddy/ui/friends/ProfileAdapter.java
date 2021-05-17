@@ -47,7 +47,6 @@ public class ProfileAdapter extends
 			flag = num;
 			view.setOnClickListener(v -> Click(flag));
 
-
 			mImageView = itemView.findViewById(R.id.imageView);
 			mTextView1 = itemView.findViewById(R.id.textView);
 			mTextView2 = itemView.findViewById(R.id.textView2);
@@ -88,9 +87,9 @@ public class ProfileAdapter extends
 	@Override
 	public void onBindViewHolder(@NonNull @NotNull ProfileViewHolder holder, int position) {
 		holder.currentProfile = mProfileList.get(position);
-		if (holder.currentProfile.getImageResource() ==0){
+		if (holder.currentProfile.getImageResource() == 0) {
 			holder.mImageView.setImageBitmap(holder.currentProfile.getPicture());
-		}else {
+		} else {
 			holder.mImageView.setImageResource(holder.currentProfile.getImageResource());
 		}
 

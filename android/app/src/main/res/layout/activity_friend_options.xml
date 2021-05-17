@@ -11,8 +11,8 @@
     android:layout_width="400dp"
     android:layout_height="300dp"
     android:padding="10dp"
-  android:adjustViewBounds="true"
-  android:scaleType="fitCenter"/>
+    android:adjustViewBounds="true"
+    android:scaleType="fitCenter"/>
 
   <TextView
     android:id="@+id/FOptionsText"

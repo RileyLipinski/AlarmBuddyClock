@@ -1,5 +1,7 @@
 package edu.ust.alarmbuddy;
 
+import static java.lang.Integer.parseInt;
+
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -13,12 +15,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import static java.lang.Integer.parseInt;
 
 public class CreateAccountActivity extends AppCompatActivity {
 
@@ -74,7 +73,7 @@ public class CreateAccountActivity extends AppCompatActivity {
 
 		// put all TextViews in an array
 		textViews = new TextView[]{emailText, firstNameText, lastNameText,
-		phoneNumberText, birthdayText, usernameText, passwordText, confirmPasswordText};
+			phoneNumberText, birthdayText, usernameText, passwordText, confirmPasswordText};
 
 		// put all EditTexts in an array
 		editTexts = new EditText[]{email, firstName, lastName,
@@ -88,7 +87,7 @@ public class CreateAccountActivity extends AppCompatActivity {
 		super.onResume();
 
 		//text change listeners to reset text to black
-		for (int i=0; i<editTexts.length; i++) {
+		for (int i = 0; i < editTexts.length; i++) {
 			int finalI = i;
 			editTexts[i].addTextChangedListener(new TextWatcher() {
 				@Override
@@ -138,7 +137,8 @@ public class CreateAccountActivity extends AppCompatActivity {
 
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				if (createAccountErrorText.getText().toString().equals("You must be at least 18 years old to create an account")) {
+				if (createAccountErrorText.getText().toString()
+					.equals("You must be at least 18 years old to create an account")) {
 					createAccountErrorText.setText("");
 				}
 			}
@@ -189,20 +189,20 @@ public class CreateAccountActivity extends AppCompatActivity {
 
 		createAccountButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				if (checkAllFields()){
+				if (checkAllFields()) {
 					// reformat birthday for request (from MM-DD-YYYY to YYYY-MM-DD)
 					String birthdate = birthday.getText().toString();
 					birthdate = birthdate.substring(6, 10) + "-" + birthdate.substring(0, 2) + "-"
-							+ birthdate.substring(3, 5);
+						+ birthdate.substring(3, 5);
 
 					// make post request to create user
 					if (AlarmBuddyHttp.createUser(username.getText().toString(),
-							password.getText().toString(),
-							firstName.getText().toString(),
-							lastName.getText().toString(),
-							email.getText().toString(),
-							phoneNumber.getText().toString(),
-							birthdate)) {
+						password.getText().toString(),
+						firstName.getText().toString(),
+						lastName.getText().toString(),
+						email.getText().toString(),
+						phoneNumber.getText().toString(),
+						birthdate)) {
 						// if account created successfully, inform user
 						//createAccountErrorText
 						//.setText("Account created, return to login page to login");
@@ -229,7 +229,7 @@ public class CreateAccountActivity extends AppCompatActivity {
 	private boolean checkAllFields() {
 		boolean allFieldsValid = true;
 
-		for (int i = 0; i<editTexts.length; i++) {
+		for (int i = 0; i < editTexts.length; i++) {
 			if (editTexts[i].getText().toString().equals("")) {
 				highlightInvalidField(textViews[i]);
 				allFieldsValid = false;
@@ -263,7 +263,7 @@ public class CreateAccountActivity extends AppCompatActivity {
 			allFieldsValid = false;
 		}
 		if (!password.getText().toString()
-				.equals(confirmPassword.getText().toString())) {
+			.equals(confirmPassword.getText().toString())) {
 			highlightInvalidField(confirmPassword);
 			allFieldsValid = false;
 			createAccountErrorText.setText("Passwords do not match");
@@ -271,10 +271,10 @@ public class CreateAccountActivity extends AppCompatActivity {
 		if (!isValidBirthday(birthday.getText().toString())) {
 			highlightInvalidField(birthday);
 			allFieldsValid = false;
-		}
-		else if (!userIs18(birthday.getText().toString())) {
+		} else if (!userIs18(birthday.getText().toString())) {
 			highlightInvalidField(birthday);
-			createAccountErrorText.setText("You must be at least 18 years old to create an account");
+			createAccountErrorText
+				.setText("You must be at least 18 years old to create an account");
 			allFieldsValid = false;
 		}
 		return allFieldsValid;
@@ -307,8 +307,7 @@ public class CreateAccountActivity extends AppCompatActivity {
 				isValid = false;
 			}
 
-		}
-		else {
+		} else {
 			isValid = false;
 		}
 
@@ -321,12 +320,12 @@ public class CreateAccountActivity extends AppCompatActivity {
 		boolean isValid = true;
 		SimpleDateFormat dateFormatter = new SimpleDateFormat("MM-dd-yyyy");
 		int newYear = parseInt(birthday.substring(6)) + 18;
-		String date = birthday.substring(0,6) + newYear;
+		String date = birthday.substring(0, 6) + newYear;
 		try {
 			Date newDate = dateFormatter.parse(date);
 			Date currentDate = new Date();
 
-			if(newDate.after(currentDate)) {
+			if (newDate.after(currentDate)) {
 				isValid = false;
 			}
 
@@ -337,47 +336,47 @@ public class CreateAccountActivity extends AppCompatActivity {
 	}
 
 	/* name constraints:
-	* length between 1-100 characters, inclusive
-	* can only contain uppercase and lowercase English letters, hyphens, apostrophes
-	*/
+	 * length between 1-100 characters, inclusive
+	 * can only contain uppercase and lowercase English letters, hyphens, apostrophes
+	 */
 	private boolean isValidName(String name) {
 		String regex = "^[A-Za-z-']+$";
 
 		return name.length() >= 1 && name.length() <= 100
-				&& name.matches(regex);
+			&& name.matches(regex);
 	}
 
 	/* username constraints:
-	* length between 5-20 characters, inclusive
-	* can only contain uppercase and lowercase English letters, numbers, underscores
-	* must be unique
+	 * length between 5-20 characters, inclusive
+	 * can only contain uppercase and lowercase English letters, numbers, underscores
+	 * must be unique
 	 */
 	private boolean isValidUsername(String username) {
 		// TODO: check if username already taken
 		String regex = "^[A-Za-z0-9_]+$";
 
-		 return username.length() >= 5 && username.length() <= 20
-				&& username.matches(regex);
+		return username.length() >= 5 && username.length() <= 20
+			&& username.matches(regex);
 	}
 
 	/* password constraints:
-	* length between 8-20 characters, inclusive
-	* can only contain uppercase and lowercase English letter, numbers,
-	*  and special characters but cannot contain <=>"&
-	* in ascii values, can contain 0x21-0x7E but cannot contain 0x3C, 0x3D, 0x3E,
-	*  0x22 and 0x26
-	* MUST contain at least one of each: uppercase letter, lowercase letter, number,
-	*  and special character
-	*/
+	 * length between 8-20 characters, inclusive
+	 * can only contain uppercase and lowercase English letter, numbers,
+	 *  and special characters but cannot contain <=>"&
+	 * in ascii values, can contain 0x21-0x7E but cannot contain 0x3C, 0x3D, 0x3E,
+	 *  0x22 and 0x26
+	 * MUST contain at least one of each: uppercase letter, lowercase letter, number,
+	 *  and special character
+	 */
 	private boolean isValidPassword(String password) {
 		boolean isValid = true;
 
 		// check that password only contains valid characters
-		for (int i=0; i<password.length(); i++) {
-			int ascii = (int)password.charAt(i);
+		for (int i = 0; i < password.length(); i++) {
+			int ascii = (int) password.charAt(i);
 			// out of range or is a forbidden character
 			if (ascii < 33 || ascii > 126
-					|| ascii == 60 || ascii == 61 || ascii == 62 || ascii == 34 || ascii == 38) {
+				|| ascii == 60 || ascii == 61 || ascii == 62 || ascii == 34 || ascii == 38) {
 				isValid = false;
 			}
 		}

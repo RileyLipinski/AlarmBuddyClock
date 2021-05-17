@@ -3,29 +3,29 @@ package edu.ust.alarmbuddy.ui.record_audio;
 import androidx.annotation.NonNull;
 
 public class SelectableViewModel {
-    private String friendName;
-    private Boolean isSelected;
 
-    public SelectableViewModel(@NonNull final String name) {
-        setFriendName(name);
-        setSelectedStatus(false);
-    }
+	private String friendName;
+	private Boolean isSelected;
 
-    @NonNull
-    public String getFriendName() {
-        return friendName;
-    }
+	public SelectableViewModel(@NonNull final String name) {
+		setFriendName(name);
+		setSelectedStatus(false);
+	}
 
-    public void setFriendName(@NonNull final String friendName) {
-        this.friendName = friendName;
-    }
+	@NonNull
+	public String getFriendName() {
+		return friendName;
+	}
 
-    public Boolean getSelectedStatus() {
-        return isSelected;
-    }
+	public void setFriendName(@NonNull final String friendName) {
+		this.friendName = friendName;
+	}
 
-    public void setSelectedStatus(Boolean status) {
-        isSelected = status;
-    }
+	public Boolean getSelectedStatus() {
+		return isSelected;
+	}
 
+	public void setSelectedStatus(Boolean status) {
+		isSelected = status;
+	}
 }

@@ -7,69 +7,72 @@ import android.view.ViewGroup;
 import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.ui.friends.Profile;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class SelectableProfileAdapter extends RecyclerView.Adapter implements SelectableViewHolder.OnItemSelectedListener{
+public class SelectableProfileAdapter extends RecyclerView.Adapter implements
+	SelectableViewHolder.OnItemSelectedListener {
 
-    private List<SelectableProfile> mProfiles;
-    SelectableViewHolder.OnItemSelectedListener listener;
+	private List<SelectableProfile> mProfiles;
+	SelectableViewHolder.OnItemSelectedListener listener;
 
-    public SelectableProfileAdapter(SelectableViewHolder.OnItemSelectedListener listener, final List<SelectableProfile> selectableProfiles) {
-        mProfiles = new ArrayList<>();
-        if (selectableProfiles != null) {
-            this.mProfiles.addAll(selectableProfiles);
-        }
-        this.listener = listener;
-    }
+	public SelectableProfileAdapter(SelectableViewHolder.OnItemSelectedListener listener,
+		final List<SelectableProfile> selectableProfiles) {
+		mProfiles = new ArrayList<>();
+		if (selectableProfiles != null) {
+			this.mProfiles.addAll(selectableProfiles);
+		}
+		this.listener = listener;
+	}
 
-    @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
-        final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.selected_profile, parent, false);
-        return new SelectableViewHolder(view, (SelectableViewHolder.OnItemSelectedListener) this);
-    }
+	@Override
+	public RecyclerView.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
+		final View view = LayoutInflater.from(parent.getContext())
+			.inflate(R.layout.selected_profile, parent, false);
+		return new SelectableViewHolder(view, (SelectableViewHolder.OnItemSelectedListener) this);
+	}
 
-    @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder viewHolder, final int position) {
+	@Override
+	public void onBindViewHolder(final RecyclerView.ViewHolder viewHolder, final int position) {
 
-        SelectableViewHolder holder = (SelectableViewHolder) viewHolder;
-        SelectableProfile selectableProfile = mProfiles.get(position);
-        String name = selectableProfile.getText1();
-        holder.textView.setText(name);
+		SelectableViewHolder holder = (SelectableViewHolder) viewHolder;
+		SelectableProfile selectableProfile = mProfiles.get(position);
+		String name = selectableProfile.getText1();
+		holder.textView.setText(name);
 
-        TypedValue value = new TypedValue();
-        holder.textView.getContext().getTheme().resolveAttribute(android.R.attr.listChoiceIndicatorMultiple, value, true);
-        int checkMarkDrawableResId = value.resourceId;
-        holder.textView.setCheckMarkDrawable(checkMarkDrawableResId);
+		TypedValue value = new TypedValue();
+		holder.textView.getContext().getTheme()
+			.resolveAttribute(android.R.attr.listChoiceIndicatorMultiple, value, true);
+		int checkMarkDrawableResId = value.resourceId;
+		holder.textView.setCheckMarkDrawable(checkMarkDrawableResId);
 
-        holder.profile = selectableProfile;
-        holder.setChecked(holder.profile.isSelected());
-    }
+		holder.profile = selectableProfile;
+		holder.setChecked(holder.profile.isSelected());
+	}
 
-    @Override
-    public int getItemCount() {
-        return mProfiles.size();
-    }
+	@Override
+	public int getItemCount() {
+		return mProfiles.size();
+	}
 
-    @Override
-    public int getItemViewType(final int position) {
-        return R.layout.selected_profile;
-    }
+	@Override
+	public int getItemViewType(final int position) {
+		return R.layout.selected_profile;
+	}
 
-    public List<Profile> getSelectedItems() {
+	public List<Profile> getSelectedItems() {
 
-        List<Profile> selectedItems = new ArrayList<>();
-        for (SelectableProfile item : mProfiles) {
-            if (item.isSelected()) {
-                selectedItems.add(item);
-            }
-        }
-        return selectedItems;
-    }
+		List<Profile> selectedItems = new ArrayList<>();
+		for (SelectableProfile item : mProfiles) {
+			if (item.isSelected()) {
+				selectedItems.add(item);
+			}
+		}
+		return selectedItems;
+	}
 
-    @Override
-    public void onItemSelected(SelectableProfile item) {
+	@Override
+	public void onItemSelected(SelectableProfile item) {
         /*
         if (!isMultiSelectionEnabled) {
 
@@ -85,6 +88,6 @@ public class SelectableProfileAdapter extends RecyclerView.Adapter implements Se
             notifyDataSetChanged();
         }
         */
-        listener.onItemSelected(item);
-    }
+		listener.onItemSelected(item);
+	}
 }

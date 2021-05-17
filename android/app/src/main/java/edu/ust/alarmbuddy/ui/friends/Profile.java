@@ -20,7 +20,7 @@ public class Profile {
 		picture = null;
 	}
 
-	public Profile (Bitmap PFP, String text1, String text2){
+	public Profile(Bitmap PFP, String text1, String text2) {
 		picture = PFP;
 		mText1 = text1;
 		mText2 = text2;
@@ -39,7 +39,7 @@ public class Profile {
 		return mText2;
 	}
 
-	public Bitmap getPicture(){
+	public Bitmap getPicture() {
 		return picture;
 	}
 

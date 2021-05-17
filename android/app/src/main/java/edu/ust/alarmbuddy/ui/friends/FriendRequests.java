@@ -50,7 +50,7 @@ public class FriendRequests extends AppCompatActivity {
 		actionBar.setTitle("Inbox");
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
-        int flag;
+		int flag;
 
 		mRecyclerView = findViewById(R.id.inboxRecyclerView);
 		try {
@@ -85,7 +85,9 @@ public class FriendRequests extends AppCompatActivity {
 
 		//uses the sorted names to create Profile objects
 		for (String s : nameList) {
-			profileList.add(new Profile(ProfilePictures.getProfilePic(getApplicationContext(), s), s, "details"));
+			profileList.add(
+				new Profile(ProfilePictures.getProfilePic(getApplicationContext(), s), s,
+					"details"));
 		}
 
 		setMProfileList(profileList);
@@ -125,18 +127,18 @@ public class FriendRequests extends AppCompatActivity {
 					Matcher matcher = pattern.matcher(myResponse);
 					ArrayList<String> result = new ArrayList<>();
 
-                    while (matcher.find()) {
-                        result.add(matcher.group(1));
-                    }
-                    for (int i = 1; i < result.size(); i += 3) {
-                        nameList.add(result.get(i));
-                    }
-                }
-                countDownLatch.countDown();
-            }
-        });
-        countDownLatch.await();
-    }
+					while (matcher.find()) {
+						result.add(matcher.group(1));
+					}
+					for (int i = 1; i < result.size(); i += 3) {
+						nameList.add(result.get(i));
+					}
+				}
+				countDownLatch.countDown();
+			}
+		});
+		countDownLatch.await();
+	}
 
 	private ArrayList<Profile> getMProfileList() {
 		return this.mProfileList;
@@ -146,31 +148,30 @@ public class FriendRequests extends AppCompatActivity {
 		mProfileList = input;
 	}
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        int flag;
+	@Override
+	protected void onResume() {
+		super.onResume();
+		int flag;
 
-        mRecyclerView = findViewById(R.id.inboxRecyclerView);
-        try{
-            flag = populateArray();
-        }catch (InterruptedException e) {
-            flag=0;
-            e.printStackTrace();
-        }
+		mRecyclerView = findViewById(R.id.inboxRecyclerView);
+		try {
+			flag = populateArray();
+		} catch (InterruptedException e) {
+			flag = 0;
+			e.printStackTrace();
+		}
 
-        if (flag == 0){
-            TextView text = findViewById(R.id.inboxText);
-            text.setText("Your inbox is empty");
-        }
-        else {
-            TextView text = findViewById(R.id.inboxText);
-            text.setText("");
-        }
-        mAdapter = new ProfileAdapter(getMProfileList(),1);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setAdapter(mAdapter);
-    }
+		if (flag == 0) {
+			TextView text = findViewById(R.id.inboxText);
+			text.setText("Your inbox is empty");
+		} else {
+			TextView text = findViewById(R.id.inboxText);
+			text.setText("");
+		}
+		mAdapter = new ProfileAdapter(getMProfileList(), 1);
+		mRecyclerView.setLayoutManager(mLayoutManager);
+		mRecyclerView.setAdapter(mAdapter);
+	}
 
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {

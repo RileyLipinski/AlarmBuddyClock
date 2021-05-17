@@ -3,7 +3,6 @@ package edu.ust.alarmbuddy.ui.friends;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -59,7 +58,7 @@ public class FriendsFragment extends Fragment {
 		mProfileList = null;
 		sendButton = null;
 		inButton = null;
-		view =null;
+		view = null;
 	}
 
 	private int populateArray() throws InterruptedException {
@@ -78,9 +77,11 @@ public class FriendsFragment extends Fragment {
 
 		//uses the sorted names to create Profile objects
 		Bitmap[] PFP = new Bitmap[1];
-		int i =0;
+		int i = 0;
 		for (String s : nameList) {
-			profileList.add(new Profile(ProfilePictures.getProfilePic(getActivity().getApplicationContext(), s), s, "details"));
+			profileList.add(
+				new Profile(ProfilePictures.getProfilePic(getActivity().getApplicationContext(), s),
+					s, "details"));
 			/*getPFP(s, getActivity().getApplicationContext(), PFP);
 
 			if (PFP[0]==null){
@@ -252,27 +253,25 @@ public class FriendsFragment extends Fragment {
 	}
 
 	@Override
-    public void onResume(){
-	    super.onResume();
-	    int flag;
+	public void onResume() {
+		super.onResume();
+		int flag;
 
-        try {
-            flag = buildRecyclerView(view);
-        } catch (InterruptedException e) {
-            flag = 0;
-            e.printStackTrace();
-        }
-        if (flag == 0) {
-            TextView text = view.findViewById(R.id.text_friends);
-            text.setText(
-                    "You don't currently have any AlarmBuddy friends. Press the send friend request button to begin adding friends.");
-        }
-        else{
+		try {
+			flag = buildRecyclerView(view);
+		} catch (InterruptedException e) {
+			flag = 0;
+			e.printStackTrace();
+		}
+		if (flag == 0) {
+			TextView text = view.findViewById(R.id.text_friends);
+			text.setText(
+				"You don't currently have any AlarmBuddy friends. Press the send friend request button to begin adding friends.");
+		} else {
 			TextView text = view.findViewById(R.id.text_friends);
 			text.setText("");
 		}
-
-    }
+	}
 
 	@Override
 	public void onCreateOptionsMenu(@NotNull Menu menu, MenuInflater inflater) {

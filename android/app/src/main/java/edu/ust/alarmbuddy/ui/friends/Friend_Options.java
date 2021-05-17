@@ -41,10 +41,10 @@ public class Friend_Options extends AppCompatActivity {
 	private Button block;
 
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_friend_options);
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_friend_options);
 
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setTitle("Friend Options");
@@ -60,22 +60,22 @@ public class Friend_Options extends AppCompatActivity {
 		picture = ProfilePictures.getProfilePic(getApplicationContext(), name.getText().toString());
 		image.setImageBitmap(picture);
 
-        remove.setOnClickListener(v -> {
-            try {
-                Post("remove");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
+		remove.setOnClickListener(v -> {
+			try {
+				Post("remove");
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
 
-        block.setOnClickListener(v -> {
-            try {
-                Post("block");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-    }
+		block.setOnClickListener(v -> {
+			try {
+				Post("block");
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
+	}
 
 	private void Post(String command) throws InterruptedException {
 		OkHttpClient client = new OkHttpClient();
@@ -84,13 +84,12 @@ public class Friend_Options extends AppCompatActivity {
 		String token = token = UserData.getStringNotNull(this, "token");
 		String username = username = UserData.getStringNotNull(this, "username");
 
-        String action = "";
-        if (command.compareTo("remove")==0){
-            action = "deleteFriend";
-        }
-        else if(command.compareTo("block")==0){
-            action = "blockUser";
-        }
+		String action = "";
+		if (command.compareTo("remove") == 0) {
+			action = "deleteFriend";
+		} else if (command.compareTo("block") == 0) {
+			action = "blockUser";
+		}
 
 		String url =
 			AlarmBuddyHttp.API_URL + "/" + action + "/" + username + "/" + name.getText().toString()
