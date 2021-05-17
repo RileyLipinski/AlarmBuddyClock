@@ -37,8 +37,6 @@ public class AlarmService extends Service {
 	 */
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		// TODO verify that we can set multiple alarms
-
 		Log.i(AlarmService.class.getName(), "Starting alarm from service");
 
 		Intent alarmIntent = new Intent(this, AlarmActivity.class);
