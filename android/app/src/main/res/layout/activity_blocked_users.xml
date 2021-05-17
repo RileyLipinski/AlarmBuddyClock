@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
-  tools:context=".ui.friends.FriendRequests">
+  tools:context=".ui.friends.BlockedUsers">
 
   <androidx.recyclerview.widget.RecyclerView
-    android:id="@+id/inboxRecyclerView"
+    android:id="@+id/BlockedRecyclerView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="4dp"
     android:scrollbars="vertical"
+    android:layout_marginBottom="110dp"
     android:background="#000000"/>
   <TextView
-    android:id="@+id/inboxText"
+    android:id="@+id/text_blocked"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_centerVertical="true"

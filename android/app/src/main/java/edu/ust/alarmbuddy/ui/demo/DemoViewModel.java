@@ -1,4 +1,4 @@
-package edu.ust.alarmbuddy.ui.notifications;
+package edu.ust.alarmbuddy.ui.demo;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

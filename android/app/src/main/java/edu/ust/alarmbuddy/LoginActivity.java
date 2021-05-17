@@ -1,12 +1,12 @@
 package edu.ust.alarmbuddy;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
 import com.google.gson.JsonParser;
@@ -22,9 +22,12 @@ import java.util.concurrent.CountDownLatch;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
+
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -35,6 +38,18 @@ public class LoginActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.login);
+
+		// if the user is logged in, redirect to the homepage
+		if (userCurrentlyLoggedIn()) {
+			loginToHome();
+			return;
+		}
+
+		// for app link, is this necessary?
+		Intent appLinkIntent = getIntent();
+		String appLinkAction = appLinkIntent.getAction();
+		Uri appLinkData = appLinkIntent.getData();
+
 		LoginViewModel viewModel = ViewModelProviders.of(this).get(LoginViewModel.class);
 
 		final Button loginButton = findViewById(R.id.loginButton);
@@ -42,14 +57,13 @@ public class LoginActivity extends AppCompatActivity {
 
 		loginButton.setOnClickListener(v -> {
 			// get username/password from input
-			TextView username = findViewById(R.id.textUsername);
+			TextView username1 = findViewById(R.id.textUsername);
 			TextView password = findViewById(R.id.textPassword);
 
 			// convert TextView to strings for comparison
-			String stringUsername = username.getText().toString();
+			String stringUsername = username1.getText().toString();
 			String stringPassword = password.getText().toString();
 
-			// if username and password match, "login" to homepage
 			try {
 				if (authenticateLogin(stringUsername, stringPassword)
 					&& loginAttempts < 4) {
@@ -67,29 +81,59 @@ public class LoginActivity extends AppCompatActivity {
 		//final Button forgotPasswordButton = findViewById(R.id.loginButton)
 		// TODO: forgot password action
 
-		goToCreateAccountButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				moveToCreateAccount();
+		goToCreateAccountButton.setOnClickListener(v -> moveToCreateAccount());
+	}
+
+	/**
+	 * @return whether the user has valid login credentials
+	 */
+	private boolean userCurrentlyLoggedIn() {
+		Context context = getApplicationContext();
+
+		String username = UserData.getString(context, "username");
+		String token = UserData.getString(context, "token");
+
+		if (username == null || token == null) {
+			return false;
+		}
+
+		OkHttpClient client = new OkHttpClient();
+		CountDownLatch latch = new CountDownLatch(1);
+		final int[] code = new int[1];
+
+		Request request = new Request.Builder()
+			.get()
+			.url(AlarmBuddyHttp.API_URL + "/users/" + username)
+			.header("Authorization", token)
+			.build();
+
+		client.newCall(request).enqueue(new Callback() {
+			@Override
+			public void onFailure(@NotNull Call call, @NotNull IOException e) {
+				call.cancel();
+				code[0] = 500;
+				latch.countDown();
+			}
+
+			@Override
+			public void onResponse(@NotNull Call call, @NotNull Response response) {
+				code[0] = response.code();
+				latch.countDown();
 			}
 		});
 
-	}
-
-	@Override
-	public void onStart() {
-		String event = getIntent().getStringExtra("event");
-		if (event != null) {
-			if ("logout".equals(event)) {
-				Toast.makeText(getApplicationContext(), "Successfully logged out.",
-					Toast.LENGTH_SHORT).show();
-			}
+		try {
+			latch.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return false;
 		}
-		super.onStart();
+
+		return code[0] == 200;
 	}
 
 	private void loginToHome() {
-		Log.i(LoginActivity.class.getName(), "Notification fetch activated");
-		NotificationFetchReceiver.triggerSelf(getApplicationContext());
+		NotificationFetchReceiver.scheduleNotificationFetch(getApplicationContext());
 		startActivity(new Intent(this, MainActivity.class));
 	}
 
@@ -101,7 +145,7 @@ public class LoginActivity extends AppCompatActivity {
 		throws IOException {
 		//build the request
 		String data = "username=" + username + "&password=" + password;
-		URL url = new URL("https://alarmbuddy-312620.uc.r.appspot.com/login");
+		URL url = new URL(AlarmBuddyHttp.API_URL + "/login");
 		RequestBody body = RequestBody.create(data, MediaType
 			.parse("application/x-www-form-urlencoded"));
 		Request request = new Request.Builder()
@@ -148,4 +192,25 @@ public class LoginActivity extends AppCompatActivity {
 		}
 		return stringResponse[0] != null && stringResponse[0].substring(8, 12).equals("true");
 	}
+
+	@Override
+	protected void onDestroy() {
+		// TODO: does not clear info on force quitting app
+		// when app is destroyed, also destroy user info
+		// this only works when called from the same context that it was created in (LoginActivity)
+		super.onDestroy();
+		try {
+			UserData.clearSharedPreferences(getApplicationContext());
+		} catch (GeneralSecurityException e) {
+			Log.e("ClearSharedPreferences", e.toString());
+		} catch (IOException e) {
+			Log.e("ClearSharedPreferences", e.toString());
+		}
+	}
 }
+
+
+
+
+
+

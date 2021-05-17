@@ -1,6 +1,8 @@
 package edu.ust.alarmbuddy.ui.friends;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -8,7 +10,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -16,6 +18,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
+import edu.ust.alarmbuddy.common.ProfilePictures;
 import edu.ust.alarmbuddy.common.UserData;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
@@ -28,54 +31,83 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
-/***
- * @author Keghan Halloran
- * This activity provides the framework for sending friend requests
- * it currently does nothing other than displaying a message to the user
- * since we do not have the ability to add to a users friends list
- * or send a user a friend request yet. Implementing the intended usage
- * is dependant on further collaboration with the database team.
- */
-public class SendRequest extends AppCompatActivity {
+public class Request_Options extends AppCompatActivity {
 
-	private Button button;
-	private EditText entry;
+	private Bitmap picture;
+	private ImageView image;
 	private int flag;
+	private TextView name;
+	private Button accept;
+	private Button deny;
+	private Button block;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_send_request);
+		setContentView(R.layout.activity_request_options);
 
 		ActionBar actionBar = getSupportActionBar();
-		actionBar.setTitle("Send A Friend Request");
+		actionBar.setTitle("Request Options");
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
-		button = findViewById(R.id.button);
-		entry = findViewById(R.id.textUsername);
-		entry.setText(" ");
-		button.setOnClickListener(v -> {
+		image = findViewById(R.id.ROptionsImage);
+		name = findViewById(R.id.ROptionsText);
+		accept = findViewById(R.id.Accept);
+		deny = findViewById(R.id.Deny);
+		block = findViewById(R.id.Block);
+
+		Intent intent = getIntent();
+		name.setText(intent.getStringExtra("name"));
+		picture = ProfilePictures.getProfilePic(getApplicationContext(), name.getText().toString());
+		image.setImageBitmap(picture);
+
+		accept.setOnClickListener(v -> {
 			try {
-				send();
+				Post("accept");
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		});
 
+		deny.setOnClickListener(v -> {
+			try {
+				Post("deny");
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
 
+		block.setOnClickListener(v -> {
+			try {
+				Post("block");
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
 	}
 
-	private void send() throws InterruptedException {
+	private void Post(String command) throws InterruptedException {
 		OkHttpClient client = new OkHttpClient();
 		flag = 0;
 
 		String token = UserData.getStringNotNull(this, "token");
-		String username = UserData.getString(this, "username");
+		String username = UserData.getStringNotNull(this, "username");
+
+		String action = "";
+		if (command.compareTo("accept") == 0) {
+			//Special attention
+			action = "acceptFriendRequest";
+		} else if (command.compareTo("deny") == 0) {
+			action = "denyFriendRequest";
+
+		} else if (command.compareTo("block") == 0) {
+			action = "blockUser";
+		}
 
 		String url =
-			AlarmBuddyHttp.API_URL + "/sendRequest/" + username + "/" + entry.getText().toString()
+			AlarmBuddyHttp.API_URL + "/" + action + "/" + username + "/" + name.getText().toString()
 				.trim();
-		Log.i(SendRequest.class.getName(), "URL: " + url);
+		Log.i(Friend_Options.class.getName(), "URL: " + url);
 
 		Request request = new Request.Builder()
 			.post(RequestBody.create("", MediaType.parse("text/plain")))
@@ -92,8 +124,8 @@ public class SendRequest extends AppCompatActivity {
 			@Override
 			public void onResponse(@NotNull Call call, @NotNull Response response)
 				throws IOException {
-				Log.i(SendRequest.class.getName(), "Code: " + response.code());
-				Log.i(SendRequest.class.getName(), "Message: " + response.body().string());
+				Log.i(Friend_Options.class.getName(), "Code: " + response.code());
+				Log.i(Friend_Options.class.getName(), "Message: " + response.body().string());
 				if (response.isSuccessful()) {
 					flag = 1;
 					countDownLatch.countDown();
@@ -102,11 +134,25 @@ public class SendRequest extends AppCompatActivity {
 		});
 		countDownLatch.await();
 
-		if (flag == 1) {
-			showToast("Request sent");
-		} else {
-			showToast("Request could not be sent");
+		if (flag == 1 && command.compareTo("accept") == 0) {
+			showToast("Request Accepted");
+
+		} else if (flag == 0 && command.compareTo("accept") == 0) {
+			showToast("ERROR: Request could not be accepted");
+
+		} else if (flag == 1 && command.compareTo("deny") == 0) {
+			showToast("Request Denied");
+
+		} else if (flag == 0 && command.compareTo("deny") == 0) {
+			showToast("ERROR: Request could not be denied");
+
+		} else if (flag == 1 && command.compareTo("block") == 0) {
+			showToast("User Blocked");
+
+		} else if (flag == 0 && command.compareTo("block") == 0) {
+			showToast("ERROR: User Was Not Blocked");
 		}
+
 		flag = 0;
 	}
 
@@ -125,7 +171,6 @@ public class SendRequest extends AppCompatActivity {
 		toast.show();
 	}
 
-	//allows the back arrow at the top of this activity to go back to the Friends Fragment instead of a parent activity
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		super.onOptionsItemSelected(item);

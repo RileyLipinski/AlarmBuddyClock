@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  tools:context=".ui.friends.Friend_Options">
+
+  <ImageView
+    android:id="@+id/FOptionsImage"
+    android:layout_width="400dp"
+    android:layout_height="300dp"
+    android:padding="10dp"
+    android:adjustViewBounds="true"
+    android:scaleType="fitCenter"/>
+
+  <TextView
+    android:id="@+id/FOptionsText"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/FOptionsImage"
+    android:paddingTop="5dp"
+    android:textSize="50dp"
+    android:layout_centerHorizontal="true"
+    android:textColor="@android:color/black"/>
+
+  <Button
+    android:id="@+id/RemoveFriend"
+    android:text="Remove Friend"
+    android:layout_width="190dp"
+    android:layout_height="100dp"
+    android:layout_marginBottom="56dp"
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentLeft="true"
+    android:layout_marginRight="10dp"/>
+
+  <Button
+    android:id="@+id/BlockUser"
+    android:text="Block User"
+    android:layout_width="190dp"
+    android:layout_height="100dp"
+    android:layout_marginBottom="56dp"
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentRight="true"
+    android:layout_marginLeft="10dp"/>
+
+</RelativeLayout>

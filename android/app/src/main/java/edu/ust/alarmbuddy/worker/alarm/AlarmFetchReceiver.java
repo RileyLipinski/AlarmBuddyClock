@@ -7,12 +7,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
+import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import edu.ust.alarmbuddy.common.UserData;
 import edu.ust.alarmbuddy.ui.alarm.AlarmPublisher;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
+import java.util.Comparator;
+import java.util.concurrent.CountDownLatch;
+import java.util.stream.StreamSupport;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -34,29 +39,70 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 
 		long wakeupTime = intent.getLongExtra("wakeupTime", Long.MIN_VALUE);
 
-		String token = "";
-		try {
-			token = UserData.getString(context, "token");
-		} catch (GeneralSecurityException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		String username = "";
-		try {
-			username = UserData.getString(context, "username");
-		} catch (GeneralSecurityException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		String soundId = "58";
-		//TODO remove hardcoded sound id in production
+		String token = UserData.getStringNotNull(context, "token");
+		String username = UserData.getStringNotNull(context, "username");
+		int soundId = getSoundId(username, token);
+
+		downloadSound(context, wakeupTime, username, token, soundId);
+	}
+
+	private int getSoundId(String username, String token) {
+		final int[] result = new int[]{-1};
+		String url = AlarmBuddyHttp.API_URL + "/sounds/" + username;
+		Log.i(AlarmFetchReceiver.class.getName(), "Sending request to " + url);
 
 		OkHttpClient client = new OkHttpClient();
 		Request request = new Request.Builder()
-			.url(String
-				.format("https://alarmbuddy.wm.r.appspot.com/download/%s/%s", username, soundId))
+			.url(url)
+			.header("Authorization", token)
+			.get()
+			.build();
+		CountDownLatch latch = new CountDownLatch(1);
+
+		client.newCall(request).enqueue(new Callback() {
+			@Override
+			public void onFailure(@NotNull Call call, @NotNull IOException e) {
+				call.cancel();
+				logHttpError("No response when retrieving sound list");
+				latch.countDown();
+			}
+
+			@Override
+			public void onResponse(@NotNull Call call, @NotNull Response response)
+				throws IOException {
+				String responseBody = response.body().string();
+				if (response.code() == 200) {
+					JsonArray json = JsonParser.parseString(responseBody).getAsJsonArray();
+
+					// find the largest soundId in the json response body
+					StreamSupport.stream(json.spliterator(), false)
+						.map(x -> x.getAsJsonObject().get("soundID").getAsInt())
+						.max(Comparator.comparing(Integer::valueOf))
+						.ifPresent(integer -> result[0] = integer);
+				} else {
+					logHttpError("Sound list responded with non-success code " + response.code());
+					logHttpError(responseBody);
+				}
+				latch.countDown();
+			}
+		});
+
+		try {
+			latch.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return result[0];
+	}
+
+	private void downloadSound(Context context, long wakeupTime, String username, String token,
+		int soundId) {
+		String url = AlarmBuddyHttp.API_URL + "/download/" + username + "/" + soundId;
+		Log.i(AlarmFetchReceiver.class.getName(), "Sending request to " + url);
+
+		OkHttpClient client = new OkHttpClient();
+		Request request = new Request.Builder()
+			.url(url)
 			.header("Authorization", token)
 			.get()
 			.build();
@@ -65,60 +111,67 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 			@Override
 			public void onResponse(@NotNull Call call, @NotNull Response response)
 				throws IOException {
-				//TODO handle non-200 response codes in here
-
-				// error check on Content-Type response header
+				boolean useDefaultNoise = true;
 				String mimeType = response.header("Content-Type");
 
-				if (mimeType != null && mimeType.equals("audio/mpeg")) {
-					// response contained a proper audio file
-					File file = new File(context.getExternalFilesDir(""), "databaseAlarm.mp3");
-					byte[] responseBytes = response.body().bytes();
+				if (response.code() != 200) {
+					logHttpError("Response came back with non-success code " + response.code());
+					logHttpError(response.body().string());
 
-					FileOutputStream outputStream = new FileOutputStream(file);
-					outputStream.write(responseBytes);
-					outputStream.flush();
-					outputStream.close();
+				} else if (mimeType == null) {
+					logHttpError("MIME type of response is null");
+					logHttpError(response.body().string());
 
-					Log.i(AlarmFetchReceiver.class.getName(),
-						"File successfully downloaded from database: " + file.getAbsolutePath());
+				} else if (!mimeType.equals("audio/mpeg")) {
+					logHttpError(
+						"MIME type " + mimeType + " is not permitted. Only audio/mpeg is allowed.");
+					logHttpError(response.body().string());
 
-					scheduleAlarm(false);
 				} else {
-					// response came back with a disallowed file type
-					Log.e(AlarmFetchReceiver.class.getName(), "Mime type " + mimeType
-						+ " is not permitted. Only audio/mpeg is permitted.");
-					Log.e(AlarmFetchReceiver.class.getName(),
-						"RESPONSE: \n" + response.body().string());
-					scheduleAlarm(true);
+					saveDownloadedSound(context, response.body().bytes());
+					useDefaultNoise = false;
 				}
+
+				scheduleAlarm(context, wakeupTime, useDefaultNoise);
 			}
 
 			@Override
 			public void onFailure(@NotNull Call call, @NotNull IOException e) {
 				call.cancel();
 				Log.e(AlarmFetchReceiver.class.getName(),
-					"Error fetching alarm from database, assigning default noise");
-				scheduleAlarm(true);
-			}
-
-			/**
-			 * @param useDefaultNoise Determines whether alarm will be scheduled using the
-			 *                        default noise
-			 */
-			private void scheduleAlarm(boolean useDefaultNoise) {
-				Log.i(AlarmFetchReceiver.class.getName(),
-					"Scheduling alarm. Default: " + useDefaultNoise);
-
-				Intent outputIntent = new Intent(context, AlarmNoisemaker.class);
-				intent.replaceExtras(new Bundle());
-				outputIntent.putExtra("useDefaultNoise", useDefaultNoise);
-
-				PendingIntent pendingIntent = PendingIntent
-					.getBroadcast(context, 0, outputIntent, 0);
-				AlarmManager alarmManager = AlarmPublisher.getAlarmManager(context);
-				alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeupTime, pendingIntent);
+					"No response when downloading sound from database");
+				scheduleAlarm(context, wakeupTime, true);
 			}
 		});
+	}
+
+	private void saveDownloadedSound(Context context, byte[] bytes) throws IOException {
+		File file = new File(context.getExternalFilesDir(""), "databaseAlarm.mp3");
+
+		FileOutputStream outputStream = new FileOutputStream(file);
+		outputStream.write(bytes);
+		outputStream.flush();
+		outputStream.close();
+
+		Log.i(AlarmFetchReceiver.class.getName(),
+			"File successfully downloaded from database: " + file.getAbsolutePath());
+	}
+
+	private void scheduleAlarm(Context context, long wakeupTime, boolean useDefaultNoise) {
+		Log.i(AlarmFetchReceiver.class.getName(),
+			"Scheduling alarm. Default: " + useDefaultNoise);
+
+		Intent intent = new Intent(context, AlarmNoisemaker.class);
+		intent.replaceExtras(new Bundle());
+		intent.putExtra("useDefaultNoise", useDefaultNoise);
+
+		PendingIntent pendingIntent = PendingIntent
+			.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+		AlarmManager alarmManager = AlarmPublisher.getAlarmManager(context);
+		alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeupTime, pendingIntent);
+	}
+
+	private void logHttpError(String message) {
+		Log.e(AlarmFetchReceiver.class.getName(), message);
 	}
 }
