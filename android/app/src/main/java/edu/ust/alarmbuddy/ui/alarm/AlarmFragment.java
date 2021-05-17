@@ -18,11 +18,13 @@ import java.util.Random;
 public class AlarmFragment extends Fragment {
 
 	private AlarmViewModel alarmViewModel;
+	private static Random random;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		alarmViewModel = ViewModelProviders.of(this).get(AlarmViewModel.class);
+		random = new Random();
 	}
 
 
@@ -35,7 +37,7 @@ public class AlarmFragment extends Fragment {
 		final Button button = root.findViewById(R.id.fragment_alarm_createAlarm);
 		button.setOnClickListener(view -> {
 			final TimePicker timePicker = root.findViewById(R.id.fragment_alarm_clock);
-			int alarmID = new Random().nextInt(Integer.MAX_VALUE);
+			int alarmID = random.nextInt(Integer.MAX_VALUE);
 			final TextView alarmName = root.findViewById(R.id.fragment_alarm_alarmName);
 			Alarm alarm = new Alarm(alarmID, timePicker.getHour(), timePicker.getMinute(), false,
 				false, false, false, false, false, false, alarmName.getText().toString(),
