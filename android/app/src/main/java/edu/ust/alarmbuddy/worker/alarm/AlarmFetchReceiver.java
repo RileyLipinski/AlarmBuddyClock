@@ -166,7 +166,7 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 		intent.putExtra("useDefaultNoise", useDefaultNoise);
 
 		PendingIntent pendingIntent = PendingIntent
-			.getBroadcast(context, 0, intent, 0);
+			.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 		AlarmManager alarmManager = AlarmPublisher.getAlarmManager(context);
 		alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeupTime, pendingIntent);
 	}

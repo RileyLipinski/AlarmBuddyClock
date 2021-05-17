@@ -2,6 +2,7 @@ package edu.ust.alarmbuddy.ui.record_audio;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
@@ -19,6 +20,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import edu.ust.alarmbuddy.R;
+import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
+import edu.ust.alarmbuddy.common.ProfilePictures;
 import edu.ust.alarmbuddy.common.UserData;
 import java.io.File;
 import java.io.IOException;
@@ -48,7 +51,8 @@ public class RecordAudioFragment extends Fragment {
 
 	private Button recordButton = null;
 	private Button playButton = null;
-	private Button uploadSoundButton = null;
+	private Button sendButton = null;
+	private Button uploadButton;
 
 	private MediaRecorder recorder = null;
 	private MediaPlayer player = null;
@@ -70,7 +74,8 @@ public class RecordAudioFragment extends Fragment {
 		// set buttons
 		recordButton = root.findViewById(R.id.recordButton);
 		playButton = root.findViewById(R.id.playButton);
-		uploadSoundButton = root.findViewById(R.id.uploadButton);
+		sendButton = root.findViewById(R.id.GoToSelectFriendsButton);
+		uploadButton = root.findViewById(R.id.uploadButton);
 
 		recordButton.setText("Start recording");
 		playButton.setText("Play sound");
@@ -79,49 +84,46 @@ public class RecordAudioFragment extends Fragment {
 		requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO,
 			Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
 
+		uploadButton.setOnClickListener(v -> {
+			ProfilePictures.getProfilePic(getContext(), "Don2");
+			ProfilePictures.getProfilePicPath(getContext(), "Don2");
+		});
+
 		// set listeners for record, play, and upload
-		View.OnClickListener recordClicker = new View.OnClickListener() {
-			public void onClick(View v) {
-				// only starts recording if mic can be used
-				if (micPermission == true) {
-					// when clicked, start or stop recording
-					onRecord(mStartRecording);
-					if (mStartRecording) {
-						recordButton.setText("Stop recording");
-					} else {
-						recordButton.setText("Start recording");
-					}
-					mStartRecording = !mStartRecording;
+		View.OnClickListener recordClicker = v -> {
+			// only starts recording if mic can be used
+			if (micPermission == true) {
+				// when clicked, start or stop recording
+				onRecord(mStartRecording);
+				if (mStartRecording) {
+					recordButton.setText("Stop recording");
+				} else {
+					recordButton.setText("Start recording");
 				}
+				mStartRecording = !mStartRecording;
 			}
 		};
 		recordButton.setOnClickListener(recordClicker);
 
-		View.OnClickListener playClicker = new View.OnClickListener() {
-			public void onClick(View v) {
-				// check if there is a recorded file to play
-				if (audioFile.exists()) {
-					// when clicked, start or stop playing sound
-					onPlay(mStartPlaying);
-					if (mStartPlaying) {
-						playButton.setText("Stop playing");
-					} else {
-						playButton.setText("Play sound");
-					}
-					mStartPlaying = !mStartPlaying;
+		View.OnClickListener playClicker = v -> {
+			// check if there is a recorded file to play
+			if (audioFile.exists()) {
+				// when clicked, start or stop playing sound
+				onPlay(mStartPlaying);
+				if (mStartPlaying) {
+					playButton.setText("Stop playing");
+				} else {
+					playButton.setText("Play sound");
 				}
+				mStartPlaying = !mStartPlaying;
 			}
 		};
 		playButton.setOnClickListener(playClicker);
 
-		View.OnClickListener uploadClicker = new View.OnClickListener() {
-			public void onClick(View v) {
-				if (audioFile.exists()) {
-					uploadSound(getContext(), audioFile.getAbsolutePath());
-				}
-			}
-		};
-		uploadSoundButton.setOnClickListener(uploadClicker);
+		sendButton.setOnClickListener(v -> {
+			Intent intent = new Intent(getActivity(), SelectableActivity.class);
+			startActivity(intent);
+		});
 
 		return root;
 	}
@@ -284,8 +286,7 @@ public class RecordAudioFragment extends Fragment {
 
 						//RequestBody body = RequestBody.create(data, QUERYSTRING);
 						Request request = new Request.Builder()
-							.url("https://alarmbuddy.wm.r.appspot.com/upload/" + username)
-							//.url("http://192.168.1.15:3000/upload/" + username)
+							.url(AlarmBuddyHttp.API_URL + "/upload/" + username)
 							.header("Authorization", token)
 							.post(body)
 							.build();
@@ -313,18 +314,13 @@ public class RecordAudioFragment extends Fragment {
 							}
 						});
 					}
-
-
 				});
 			} catch (Exception e) {
 				Log.e("Convert from wav to mp3", "Exception: " + e);
 			}
 
 			Log.i("Upload Sound", sound_path + "  " + formattedAudioFile.getAbsolutePath());
-
 		}
-
-
 	}
 
 	public static String getMimeType(String url) {
@@ -335,6 +331,4 @@ public class RecordAudioFragment extends Fragment {
 		}
 		return type;
 	}
-
-
 }

@@ -2,6 +2,7 @@ package edu.ust.alarmbuddy.ui.friends;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,9 +18,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
+import edu.ust.alarmbuddy.common.ProfilePictures;
 import edu.ust.alarmbuddy.common.UserData;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
@@ -30,7 +31,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
-
 
 
 /***
@@ -49,6 +49,7 @@ public class FriendsFragment extends Fragment {
 	private ArrayList<Profile> mProfileList;
 	private Button sendButton;
 	private Button inButton;
+	private View view;
 
 	public FriendsFragment() {
 		mRecyclerView = null;
@@ -57,6 +58,7 @@ public class FriendsFragment extends Fragment {
 		mProfileList = null;
 		sendButton = null;
 		inButton = null;
+		view = null;
 	}
 
 	private int populateArray() throws InterruptedException {
@@ -74,9 +76,21 @@ public class FriendsFragment extends Fragment {
 		nameList.sort(String::compareToIgnoreCase);
 
 		//uses the sorted names to create Profile objects
-		int i =0;
+		Bitmap[] PFP = new Bitmap[1];
+		int i = 0;
 		for (String s : nameList) {
-			profileList.add(new Profile(R.drawable.ic_baseline_account_box, s, "details"));
+			profileList.add(
+				new Profile(ProfilePictures.getProfilePic(getActivity().getApplicationContext(), s),
+					s, "details"));
+			/*getPFP(s, getActivity().getApplicationContext(), PFP);
+
+			if (PFP[0]==null){
+				profileList.add(new Profile(R.drawable.ic_baseline_account_box, s, "details"));
+			}
+			else {
+				profileList.add(new Profile(PFP[0], s, "details"));
+			}
+			PFP[0] = null;*/
 		}
 
 		setMProfileList(profileList);
@@ -130,6 +144,46 @@ public class FriendsFragment extends Fragment {
 		countDownLatch.await();
 	}
 
+	/*private static void getPFP(String name, Context context, Bitmap[] image) throws InterruptedException {
+		OkHttpClient client = new OkHttpClient();
+
+		String token = "";
+		token = UserData.getStringNotNull(context, "token");
+
+		String username = "";
+		username = UserData.getStringNotNull(context, "username");
+
+		Request request = new Request.Builder()
+				.url(AlarmBuddyHttp.API_URL + "/getProfilePicture/" + username + "/" + name)
+				.header("Authorization", token)
+				.build();
+
+		//insures that the get request is completed before the code continues
+		CountDownLatch countDownLatch = new CountDownLatch(1);
+		client.newCall(request).enqueue(new Callback() {
+			@Override
+			public void onFailure(@NotNull Call call, @NotNull IOException e) {
+				call.cancel();
+				countDownLatch.countDown();
+			}
+
+			@Override
+			public void onResponse(@NotNull Call call, @NotNull Response response)
+					throws IOException {
+				if (response.isSuccessful()) {
+
+					image[0] = BitmapFactory.decodeStream(response.body().byteStream());
+
+				}
+				else{
+					image[0] = null;
+				}
+				countDownLatch.countDown();
+			}
+		});
+		countDownLatch.await();
+	}*/
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -141,6 +195,7 @@ public class FriendsFragment extends Fragment {
 		int flag;
 		// Inflate the layout for this fragment
 		View v = inflater.inflate(R.layout.fragment_friends, container, false);
+		view = v;
 
 		buildButton(v);
 
@@ -191,10 +246,31 @@ public class FriendsFragment extends Fragment {
 		int flag;
 		mRecyclerView = v.findViewById(R.id.recyclerView);
 		flag = populateArray();
-		mAdapter = new ProfileAdapter(getMProfileList(),0);
+		mAdapter = new ProfileAdapter(getMProfileList(), 0);
 		mRecyclerView.setLayoutManager(mlayoutManager);
 		mRecyclerView.setAdapter(mAdapter);
 		return flag;
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		int flag;
+
+		try {
+			flag = buildRecyclerView(view);
+		} catch (InterruptedException e) {
+			flag = 0;
+			e.printStackTrace();
+		}
+		if (flag == 0) {
+			TextView text = view.findViewById(R.id.text_friends);
+			text.setText(
+				"You don't currently have any AlarmBuddy friends. Press the send friend request button to begin adding friends.");
+		} else {
+			TextView text = view.findViewById(R.id.text_friends);
+			text.setText("");
+		}
 	}
 
 	@Override

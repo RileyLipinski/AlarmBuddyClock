@@ -11,9 +11,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import edu.ust.alarmbuddy.LoginActivity;
 import edu.ust.alarmbuddy.R;
@@ -32,21 +30,16 @@ public class DemoFragment extends Fragment {
 		demoViewModel =
 			ViewModelProviders.of(this).get(DemoViewModel.class);
 		View root = inflater.inflate(R.layout.fragment_demo, container, false);
+
 		final TextView textView = root.findViewById(R.id.text_notifications);
-		demoViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-			@Override
-			public void onChanged(@Nullable String s) {
-				textView.setText(s);
-			}
-		});
+		demoViewModel.getText().observe(getViewLifecycleOwner(), s -> textView.setText(s));
+
 		final Button logoutButton = root.findViewById(R.id.logout_button);
-		logoutButton.setOnClickListener(view -> {
-			doLogout();
-		});
+		logoutButton.setOnClickListener(view -> doLogout());
+
 		final Button demoButton = root.findViewById(R.id.demo_button);
-		demoButton.setOnClickListener(view -> {
-			demoButton();
-		});
+		demoButton.setOnClickListener(view -> demoButton());
+
 		return root;
 	}
 
@@ -54,9 +47,9 @@ public class DemoFragment extends Fragment {
 		Toast.makeText(getContext(), "Demo alarm sequence initiated", Toast.LENGTH_SHORT).show();
 
 		Intent intent = new Intent(getContext(), AlarmFetchReceiver.class);
-		intent.replaceExtras(new Bundle());
 		intent.putExtra("wakeupTime", System.currentTimeMillis() + 10000L);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), 0, intent, 0);
+		PendingIntent pendingIntent = PendingIntent
+			.getBroadcast(getContext(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 		AlarmPublisher.getAlarmManager(getContext())
 			.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, 1, pendingIntent);
 	}

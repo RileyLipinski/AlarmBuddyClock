@@ -26,7 +26,7 @@ public class AlarmListViewModel extends AndroidViewModel {
 		alarmList.update(alarm);
 	}
 
-    public LiveData<List<Alarm>> getCurrentAlarms() {
+	public LiveData<List<Alarm>> getCurrentAlarms() {
 		return currentAlarms;
-    }
+	}
 }

@@ -49,4 +49,9 @@ public class SoundListAdapter extends RecyclerView.Adapter<SoundListViewHolder> 
 			name = itemView.findViewById(R.id.soundName);
 		}
 	}
+
+	public void empty() {
+		soundList.clear();
+		notifyDataSetChanged();
+	}
 }

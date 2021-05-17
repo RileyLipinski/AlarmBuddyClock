@@ -1,56 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="6dp"
-            app:cardElevation="6dp"
-            android:layout_margin="8dp"
-            tools:ignore="MissingConstraints">
+  <androidx.cardview.widget.CardView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="6dp"
+    app:cardElevation="6dp"
+    android:layout_margin="8dp"
+    tools:ignore="MissingConstraints">
 
-        <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="6dp" tools:ignore="UseSwitchCompatOrMaterialXml">
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:padding="6dp"
+      tools:ignore="UseSwitchCompatOrMaterialXml">
 
-                //Alarm Time
-                <TextView
-                    android:id="@+id/alarm_list_alarm"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="00:00"
-                    android:textSize="36sp"/>
+      //Alarm Time
+      <TextView
+        android:id="@+id/alarm_list_alarm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="00:00"
+        android:textSize="36sp"/>
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_margin="2dp">
+      <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="2dp">
 
-                //Alarm name
-                <TextView
-                    android:id="@+id/alarm_list_alarm_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="12sp" />
+        //Alarm name
+        <TextView
+          android:id="@+id/alarm_list_alarm_name"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:textSize="12sp"/>
 
-            </LinearLayout>
+      </LinearLayout>
 
-            //Alarm started
-            <Switch
-                    android:id="@+id/alarm_list_alarm_started"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+      //Alarm started
+      <Switch
+        android:id="@+id/alarm_list_alarm_started"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
 
-        </LinearLayout>
+    </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+  </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

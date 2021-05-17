@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
-import edu.ust.alarmbuddy.common.ProfilePictures;
 import edu.ust.alarmbuddy.common.UserData;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,15 +25,13 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
-public class FriendRequests extends AppCompatActivity {
-
+public class BlockedUsers extends AppCompatActivity {
 	private RecyclerView mRecyclerView;
 	private RecyclerView.Adapter mAdapter;
 	private RecyclerView.LayoutManager mLayoutManager;
 	private ArrayList<Profile> mProfileList;
 
-
-	public FriendRequests() {
+	public BlockedUsers() {
 		mRecyclerView = null;
 		mAdapter = null;
 		mLayoutManager = new LinearLayoutManager(this);
@@ -44,15 +41,15 @@ public class FriendRequests extends AppCompatActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_friend_requests);
+		setContentView(R.layout.activity_blocked_users);
 
 		ActionBar actionBar = getSupportActionBar();
-		actionBar.setTitle("Inbox");
+		actionBar.setTitle("Unblock User");
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
 		int flag;
 
-		mRecyclerView = findViewById(R.id.inboxRecyclerView);
+		mRecyclerView = findViewById(R.id.BlockedRecyclerView);
 		try {
 			flag = populateArray();
 		} catch (InterruptedException e) {
@@ -61,8 +58,8 @@ public class FriendRequests extends AppCompatActivity {
 		}
 
 		if (flag == 0) {
-			TextView text = findViewById(R.id.inboxText);
-			text.setText("Your inbox is empty");
+			TextView text = findViewById(R.id.text_blocked);
+			text.setText("You haven't blocked any users");
 		}
 		mAdapter = new ProfileAdapter(getMProfileList(), 1);
 		mRecyclerView.setLayoutManager(mLayoutManager);
@@ -85,9 +82,7 @@ public class FriendRequests extends AppCompatActivity {
 
 		//uses the sorted names to create Profile objects
 		for (String s : nameList) {
-			profileList.add(
-				new Profile(ProfilePictures.getProfilePic(getApplicationContext(), s), s,
-					"details"));
+			profileList.add(new Profile(R.drawable.ic_baseline_account_box, s, "details"));
 		}
 
 		setMProfileList(profileList);
@@ -103,7 +98,7 @@ public class FriendRequests extends AppCompatActivity {
 		String username = UserData.getStringNotNull(context, "username");
 
 		Request request = new Request.Builder()
-			.url(AlarmBuddyHttp.API_URL + "/requests/" + username)
+			.url(AlarmBuddyHttp.API_URL + "/getBlockList/" + username)
 			.header("Authorization", token)
 			.build();
 
@@ -153,7 +148,7 @@ public class FriendRequests extends AppCompatActivity {
 		super.onResume();
 		int flag;
 
-		mRecyclerView = findViewById(R.id.inboxRecyclerView);
+		mRecyclerView = findViewById(R.id.BlockedRecyclerView);
 		try {
 			flag = populateArray();
 		} catch (InterruptedException e) {
@@ -162,10 +157,10 @@ public class FriendRequests extends AppCompatActivity {
 		}
 
 		if (flag == 0) {
-			TextView text = findViewById(R.id.inboxText);
+			TextView text = findViewById(R.id.text_blocked);
 			text.setText("Your inbox is empty");
 		} else {
-			TextView text = findViewById(R.id.inboxText);
+			TextView text = findViewById(R.id.text_blocked);
 			text.setText("");
 		}
 		mAdapter = new ProfileAdapter(getMProfileList(), 1);

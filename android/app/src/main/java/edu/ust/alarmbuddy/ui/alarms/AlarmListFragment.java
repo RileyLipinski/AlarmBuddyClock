@@ -14,9 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.ui.alarms.database.Alarm;
 
-import java.util.List;
-
-public class AlarmListFragment extends Fragment implements OnToggleAlarmListener{
+public class AlarmListFragment extends Fragment implements OnToggleAlarmListener {
 
 	private AlarmListRecyclerViewAdapter alarmListRecyclerViewAdapter;
 	private AlarmListViewModel alarmListViewModel;
@@ -41,7 +39,7 @@ public class AlarmListFragment extends Fragment implements OnToggleAlarmListener
 
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
 		@Nullable Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_alarm_list, container,false);
+		View view = inflater.inflate(R.layout.fragment_alarm_list, container, false);
 
 		recyclerView = view.findViewById(R.id.fragment_alarm_list_recyclerView);
 		recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
