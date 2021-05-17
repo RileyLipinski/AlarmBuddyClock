@@ -6,7 +6,9 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
-import edu.ust.alarmbuddy.ui.alarm.Alarm;
+import edu.ust.alarmbuddy.ui.alarms.database.Alarm;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
@@ -22,19 +24,17 @@ public class AlarmListRecyclerViewAdapter extends RecyclerView.Adapter<AlarmList
 	}
 
 	@NonNull
-	@NotNull
 	@Override
-	public AlarmListViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent,
-		int viewType) {
+	public AlarmListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 		View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.alarm_list,
 			parent, false);
-		return new AlarmListViewHolder(itemView);
+		return new AlarmListViewHolder(itemView, listener);
 	}
 
 	@Override
 	public void onBindViewHolder(@NonNull AlarmListViewHolder holder, int position) {
 		Alarm alarm = alarmList.get(position);
-		holder.bind(alarm, listener);
+		holder.bind(alarm);
 	}
 
 	/**
@@ -50,7 +50,7 @@ public class AlarmListRecyclerViewAdapter extends RecyclerView.Adapter<AlarmList
 	@Override
 	public void onViewRecycled(@NonNull AlarmListViewHolder holder) {
 		super.onViewRecycled(holder);
-		//holder.alarmsStarted.setOnCheckedChangeListener(null);
+		holder.alarmStarted.setOnCheckedChangeListener(null);
 	}
 
 	public void setAlarms(List<Alarm> alarmList) {

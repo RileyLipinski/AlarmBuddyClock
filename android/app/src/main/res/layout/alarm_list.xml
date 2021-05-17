@@ -18,8 +18,10 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:orientation="horizontal"
-      android:padding="6dp">
+      android:padding="6dp"
+      tools:ignore="UseSwitchCompatOrMaterialXml">
 
+      //Alarm Time
       <TextView
         android:id="@+id/alarm_list_alarm"
         android:layout_width="wrap_content"
@@ -27,6 +29,30 @@
         android:text="00:00"
         android:textSize="36sp"/>
 
+      <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="2dp">
+
+        //Alarm name
+        <TextView
+          android:id="@+id/alarm_list_alarm_name"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:textSize="12sp"/>
+
+      </LinearLayout>
+
+      //Alarm started
+      <Switch
+        android:id="@+id/alarm_list_alarm_started"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
+
     </LinearLayout>
+
   </androidx.cardview.widget.CardView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

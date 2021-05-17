@@ -7,10 +7,13 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
-import edu.ust.alarmbuddy.ui.alarm.Alarm;
+import edu.ust.alarmbuddy.ui.alarms.database.Alarm;
+import java.util.List;
 
 public class AlarmListFragment extends Fragment implements OnToggleAlarmListener {
 
@@ -23,8 +26,12 @@ public class AlarmListFragment extends Fragment implements OnToggleAlarmListener
 		super.onCreate(savedInstanceState);
 
 		alarmListRecyclerViewAdapter = new AlarmListRecyclerViewAdapter(this);
-		//alarmListViewModel = ViewModelProviders.of(this).get(AlarmListViewModel.class);
-		//alarmListViewModel.getCurrentAlarms().observe(this, new Observer<List<Alarm>>() {
+		alarmListViewModel = ViewModelProviders.of(this).get(AlarmListViewModel.class);
+		alarmListViewModel.getCurrentAlarms().observe(this, alarmList -> {
+			if(alarmList != null) {
+				alarmListRecyclerViewAdapter.setAlarms(alarmList);
+			}
+		});
 
 	}
 
@@ -41,6 +48,11 @@ public class AlarmListFragment extends Fragment implements OnToggleAlarmListener
 
 	@Override
 	public void onToggle(Alarm alarm) {
-
+		if(alarm.isScheduled()) {
+			alarm.deleteAlarm(getContext());
+		} else {
+			alarm.setAlarm(getContext());
+		}
+		alarmListViewModel.update(alarm);
 	}
 }
