@@ -133,6 +133,7 @@ public class LoginActivity extends AppCompatActivity {
 	}
 
 	private void loginToHome() {
+		NotificationFetchReceiver.scheduleNotificationFetch(getApplicationContext());
 		startActivity(new Intent(this, MainActivity.class));
 	}
 

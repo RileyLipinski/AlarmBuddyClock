@@ -55,15 +55,16 @@ public class UserData {
 	 *                file
 	 * @param key     The key being searched for
 	 *
-	 * @return Whether the parameter key is stored in the preferences file
-	 *
-	 * @throws GeneralSecurityException when the MasterKey cannot successfully decrypt the
-	 *                                  preferences file
-	 * @throws IOException              when the preferences file cannot be read
+	 * @return Whether the parameter key is stored in the preferences file, or false if an exception
+	 * is thrown
 	 */
-	public static boolean containsKey(Context context, String key)
-		throws GeneralSecurityException, IOException {
-		return getSharedPreferences(context).contains(key);
+	public static boolean containsKey(Context context, String key) {
+		try {
+			return getSharedPreferences(context).contains(key);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	/**

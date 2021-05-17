@@ -32,8 +32,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class NotificationFetchReceiver extends BroadcastReceiver {
 
-	private static final boolean PROD = false; // TODO delete on release
-
 	/** The amount of time (millseconds) between polls for new sounds */
 	public static final long INTERVAL = 60 * 1000;
 
@@ -49,12 +47,12 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 		if (response == null) {
 			Log.e(NotificationFetchReceiver.class.getName(),
 				"Could not get a response from database, retrying fetch");
-			trigger(context);
+			scheduleNotificationFetch(context);
 		} else {
 			switch (response.code()) {
 				case 200:
 					handle200(context, response);
-					trigger(context);
+					scheduleNotificationFetch(context);
 					break;
 				case 401: // user is no longer authenticated, stop polling
 					Log.i(NotificationFetchReceiver.class.getName(),
@@ -64,7 +62,7 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 					Log.w(NotificationFetchReceiver.class.getName(), String
 						.format("Response code %d not explicitly handled, retrying",
 							response.code()));
-					trigger(context);
+					scheduleNotificationFetch(context);
 			}
 		}
 	}
@@ -101,7 +99,7 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 	 *
 	 * @param context Application context
 	 */
-	public static void trigger(Context context) {
+	public static void scheduleNotificationFetch(Context context) {
 		AlarmPublisher.getAlarmManager(context).set(AlarmManager.ELAPSED_REALTIME_WAKEUP, INTERVAL,
 			PendingIntent
 				.getBroadcast(context, 0, new Intent(context, NotificationFetchReceiver.class), 0));
@@ -121,19 +119,13 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 		try {
 			String token = UserData.getString(context, "token");
 			String username = UserData.getString(context, "username");
-			String url;
 
-			if (PROD) {
-				if (token == null) {
-					// force API to return 401 if user has no credentials
-					token = "";
-					username = "username";
-				}
-				url = AlarmBuddyHttp.API_URL + "/sounds/" + username;
-			} else { // TODO delete this if statement when releasing
-				token = token == null ? "n" : "y";
-				url = "http://10.0.2.2:8080/sounds-list/" + token;
+			if (token == null) {
+				// force API to return 401 if user has no credentials
+				token = "";
+				username = "username";
 			}
+			String url = AlarmBuddyHttp.API_URL + "/sounds/" + username;
 
 			Log.i(NotificationFetchReceiver.class.getName(), "Polling url " + url);
 
@@ -205,7 +197,6 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 			return new JsonArray();
 		}
 	}
-
 
 	/**
 	 * Sets up and sends a notification to the user when they have received new sounds from their
