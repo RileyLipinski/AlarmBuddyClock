@@ -1,5 +1,5 @@
 <resources>
-  <string name="app_name">Android</string>
+  <string name="app_name">AlarmBuddy</string>
   <string name="title_home">Home</string>
   <string name="title_alarm">Alarm</string>
   <string name="title_demo">Demo</string>

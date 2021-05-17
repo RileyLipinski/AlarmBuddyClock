@@ -1,5 +1,6 @@
 package edu.ust.alarmbuddy;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import edu.ust.alarmbuddy.common.UserData;
 import edu.ust.alarmbuddy.ui.login.FailedLoginDialogFragment;
 import edu.ust.alarmbuddy.ui.login.LoginViewModel;
+import edu.ust.alarmbuddy.worker.notification.NotificationFetchReceiver;
 import java.io.IOException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
@@ -20,9 +22,11 @@ import java.util.concurrent.CountDownLatch;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -34,6 +38,12 @@ public class LoginActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.login);
+
+		// if the user is logged in, redirect to the homepage
+		if (userCurrentlyLoggedIn()) {
+			loginToHome();
+			return;
+		}
 
 		// for app link, is this necessary?
 		Intent appLinkIntent = getIntent();
@@ -72,7 +82,54 @@ public class LoginActivity extends AppCompatActivity {
 		// TODO: forgot password action
 
 		goToCreateAccountButton.setOnClickListener(v -> moveToCreateAccount());
+	}
 
+	/**
+	 * @return whether the user has valid login credentials
+	 */
+	private boolean userCurrentlyLoggedIn() {
+		Context context = getApplicationContext();
+
+		String username = UserData.getString(context, "username");
+		String token = UserData.getString(context, "token");
+
+		if (username == null || token == null) {
+			return false;
+		}
+
+		OkHttpClient client = new OkHttpClient();
+		CountDownLatch latch = new CountDownLatch(1);
+		final int[] code = new int[1];
+
+		Request request = new Request.Builder()
+			.get()
+			.url(AlarmBuddyHttp.API_URL + "/users/" + username)
+			.header("Authorization", token)
+			.build();
+
+		client.newCall(request).enqueue(new Callback() {
+			@Override
+			public void onFailure(@NotNull Call call, @NotNull IOException e) {
+				call.cancel();
+				code[0] = 500;
+				latch.countDown();
+			}
+
+			@Override
+			public void onResponse(@NotNull Call call, @NotNull Response response) {
+				code[0] = response.code();
+				latch.countDown();
+			}
+		});
+
+		try {
+			latch.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return false;
+		}
+
+		return code[0] == 200;
 	}
 
 	private void loginToHome() {
@@ -140,6 +197,7 @@ public class LoginActivity extends AppCompatActivity {
 		// TODO: does not clear info on force quitting app
 		// when app is destroyed, also destroy user info
 		// this only works when called from the same context that it was created in (LoginActivity)
+		super.onDestroy();
 		try {
 			UserData.clearSharedPreferences(getApplicationContext());
 		} catch (GeneralSecurityException e) {
