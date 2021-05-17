@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.ui.alarms.database.Alarm;
+import java.util.List;
 
 public class AlarmListFragment extends Fragment implements OnToggleAlarmListener {
 
@@ -26,12 +27,9 @@ public class AlarmListFragment extends Fragment implements OnToggleAlarmListener
 
 		alarmListRecyclerViewAdapter = new AlarmListRecyclerViewAdapter(this);
 		alarmListViewModel = ViewModelProviders.of(this).get(AlarmListViewModel.class);
-		alarmListViewModel.getCurrentAlarms().observe(this, new Observer<List<Alarm>>() {
-			@Override
-			public void onChanged(List<Alarm> alarmList) {
-				if(alarmList != null) {
-					alarmListRecyclerViewAdapter.setAlarms(alarmList);
-				}
+		alarmListViewModel.getCurrentAlarms().observe(this, alarmList -> {
+			if(alarmList != null) {
+				alarmListRecyclerViewAdapter.setAlarms(alarmList);
 			}
 		});
 
