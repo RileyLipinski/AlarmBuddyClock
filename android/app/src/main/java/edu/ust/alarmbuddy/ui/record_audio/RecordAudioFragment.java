@@ -6,14 +6,14 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
-import android.os.Bundle;
-import android.os.Environment;
+import android.os.*;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,6 +25,11 @@ import edu.ust.alarmbuddy.common.ProfilePictures;
 import edu.ust.alarmbuddy.common.UserData;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
+import java.util.Timer;
+import java.util.concurrent.CountDownLatch;
+
 import nl.bravobit.ffmpeg.ExecuteBinaryResponseHandler;
 import nl.bravobit.ffmpeg.FFmpeg;
 import okhttp3.Call;
@@ -36,6 +41,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
+import org.w3c.dom.Text;
 
 public class RecordAudioFragment extends Fragment {
 
@@ -46,16 +52,24 @@ public class RecordAudioFragment extends Fragment {
 	private final int MY_PERMISSIONS_RECORD_AUDIO = 1;
 	private final int MY_PERMISSIONS_WRITE_EXTERNAL_STORAGE = 2;
 
-	private File audioFile = null;
-	private File formattedAudioFile = null;
+	private File audioFile;
 
-	private Button recordButton = null;
-	private Button playButton = null;
-	private Button sendButton = null;
-	private Button uploadButton;
+	private Button recordButton;
+	private Button playButton;
+	private Button sendButton;
 
-	private MediaRecorder recorder = null;
-	private MediaPlayer player = null;
+	private TextView timerText;
+	private TextView playText;
+
+	private MediaRecorder recorder;
+	private MediaPlayer player;
+
+	private CountDownTimer recordTimer;
+	private CountDownTimer playTimer;
+
+	private long totalSeconds = 11;
+	private long intervalSeconds = 1;
+	private int duration = 0;
 
 	private boolean micPermission = false;
 	private boolean mStartRecording = true;
@@ -68,14 +82,51 @@ public class RecordAudioFragment extends Fragment {
 		root = inflater.inflate(R.layout.fragment_record_audio, container, false);
 
 		// where to store recorded audio file
-		audioFile = new File(Environment.getExternalStorageDirectory(),
-			"android_test.3gpp");
+		audioFile = new File(getContext().getExternalFilesDir(""),
+			"raw_recording.3gpp");
 
 		// set buttons
 		recordButton = root.findViewById(R.id.recordButton);
 		playButton = root.findViewById(R.id.playButton);
 		sendButton = root.findViewById(R.id.GoToSelectFriendsButton);
-		uploadButton = root.findViewById(R.id.uploadButton);
+
+		playText = root.findViewById(R.id.play_text);
+		timerText = root.findViewById(R.id.timer);
+		recordTimer = new CountDownTimer(totalSeconds * 1000, intervalSeconds * 1000) {
+			public void onTick(long millisUntilFinished) {
+				timerText.setText(String.format(":%02d",(totalSeconds * 1000 - millisUntilFinished) / 1000));
+				duration = (int)((totalSeconds * 1000 - millisUntilFinished) / 1000);
+			}
+
+			public void onFinish() {
+				stopRecording();
+				recordButton.setText("Start recording");
+				createSuccessToast();
+				recordTimer.cancel();
+				timerText.setText(":00");
+				playText.setText(String.format(":00/:%02d", duration));
+			}
+		};
+
+		playTimer = new CountDownTimer(totalSeconds * 1000, intervalSeconds * 1000) {
+			public void onTick(long millisUntilFinished) {
+				if (duration > 0) {
+					playText.setText(String.format(":%02d/:%02d", (totalSeconds * 1000 - millisUntilFinished) / 1000, duration));
+					if (((totalSeconds * 1000 - millisUntilFinished) / 1000) >= duration) {
+						playTimer.cancel();
+						playText.setText(String.format(":%02d/:%02d", duration, duration));
+						playButton.setText("Play sound");
+						onPlay(false);
+						mStartPlaying = true;
+					}
+				}
+			}
+
+			public void onFinish() {
+				playButton.setText("Play sound");
+				playTimer.cancel();
+			}
+		};
 
 		recordButton.setText("Start recording");
 		playButton.setText("Play sound");
@@ -84,41 +135,54 @@ public class RecordAudioFragment extends Fragment {
 		requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO,
 			Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
 
-		uploadButton.setOnClickListener(v -> {
-			ProfilePictures.getProfilePic(getContext(), "Don2");
-			ProfilePictures.getProfilePicPath(getContext(), "Don2");
-		});
+
 
 		// set listeners for record, play, and upload
-		View.OnClickListener recordClicker = v -> {
-			// only starts recording if mic can be used
-			if (micPermission == true) {
-				// when clicked, start or stop recording
-				onRecord(mStartRecording);
-				if (mStartRecording) {
-					recordButton.setText("Stop recording");
-				} else {
-					recordButton.setText("Start recording");
+		recordButton.setOnClickListener(v -> {
+			if (mStartPlaying) {
+				// only starts recording if mic can be used
+				if (micPermission == true) {
+					// when clicked, start or stop recording
+					onRecord(mStartRecording);
+					if (mStartRecording) {
+						recordButton.setText("Stop recording");
+					} else {
+						recordButton.setText("Start recording");
+						timerText.setText(":00");
+						createSuccessToast();
+						playText.setText(String.format(":00/:%02d", duration));
+					}
+					mStartRecording = !mStartRecording;
 				}
-				mStartRecording = !mStartRecording;
 			}
-		};
-		recordButton.setOnClickListener(recordClicker);
+			else {
+				Toast.makeText(getContext(), "You are playing a sound!", 4).show();
+			}
+		});
 
-		View.OnClickListener playClicker = v -> {
+		playButton.setOnClickListener(v -> {
 			// check if there is a recorded file to play
-			if (audioFile.exists()) {
+			if (mStartRecording) {
 				// when clicked, start or stop playing sound
 				onPlay(mStartPlaying);
 				if (mStartPlaying) {
 					playButton.setText("Stop playing");
+					if (duration > 0) {
+						playTimer.start();
+					}
+					else {
+						Toast.makeText(getContext(), "You haven't recorded a sound yet!", 4).show();
+					}
 				} else {
 					playButton.setText("Play sound");
+					playTimer.cancel();
 				}
 				mStartPlaying = !mStartPlaying;
 			}
-		};
-		playButton.setOnClickListener(playClicker);
+			else {
+				Toast.makeText(getContext(), "You are recording a sound!", 4).show();
+			}
+		});
 
 		sendButton.setOnClickListener(v -> {
 			Intent intent = new Intent(getActivity(), SelectableActivity.class);
@@ -127,6 +191,7 @@ public class RecordAudioFragment extends Fragment {
 
 		return root;
 	}
+
 
 
 	@Override
@@ -183,12 +248,14 @@ public class RecordAudioFragment extends Fragment {
 		}
 	}
 
-
 	private void onRecord(boolean start) {
 		if (start) {
 			startRecording();
+			recordTimer.start();
 		} else {
 			stopRecording();
+			recordTimer.cancel();
+
 		}
 	}
 
@@ -243,92 +310,8 @@ public class RecordAudioFragment extends Fragment {
 		recorder = null;
 	}
 
-	public void uploadSound(Context context, String sound_path) {
-		if (FFmpeg.getInstance(context).isSupported()) {
-
-			OkHttpClient client = new OkHttpClient();
-			FFmpeg ffmpeg = FFmpeg.getInstance(context);
-
-			formattedAudioFile = new File(Environment.getExternalStorageDirectory(), "a.mp3");
-			try {
-				String[] cmd = new String[]{"-y", "-i", sound_path,
-					formattedAudioFile.getAbsolutePath()};
-				ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
-					@Override
-					public void onFailure(String message) {
-						Log.i("Convert to mp3", "Failure " + message);
-					}
-
-					@Override
-					public void onSuccess(String message) {
-						Log.i("Convert to mp3", "Success " + message);
-
-						String mime = getMimeType(formattedAudioFile.getAbsolutePath());
-
-						String username = "";
-						String token = "";
-						try {
-							username = UserData.getString(context, "username");
-							token = UserData.getString(context, "token");
-						} catch (Exception e) {
-							Log.e("Upload Sound", "Could not retrieve username or token");
-						}
-
-						RequestBody fileContent = RequestBody
-							.create(new File(formattedAudioFile.getAbsolutePath()),
-								MediaType.parse("audio/mpeg"));
-
-						RequestBody body = new MultipartBody.Builder()
-							.setType(MultipartBody.FORM)
-							.addFormDataPart("file", formattedAudioFile.getName(), fileContent)
-							.addFormDataPart("soundDescription", "alarm sound")
-							.build();
-
-						//RequestBody body = RequestBody.create(data, QUERYSTRING);
-						Request request = new Request.Builder()
-							.url(AlarmBuddyHttp.API_URL + "/upload/" + username)
-							.header("Authorization", token)
-							.post(body)
-							.build();
-
-						Log.i("Upload Sound", request.toString());
-						try {
-							Log.i("Upload Sound",
-								fileContent.toString() + " " + fileContent.contentLength()
-									+ " " + fileContent.contentType());
-						} catch (IOException e) {
-							Log.e("upload", "contentLength " + e);
-						}
-
-						client.newCall(request).enqueue(new Callback() {
-							@Override
-							public void onFailure(@NotNull Call call, @NotNull IOException e) {
-								Log.i("Failure", e.toString());
-							}
-
-							@Override
-							public void onResponse(@NotNull Call call, @NotNull Response response)
-								throws IOException {
-								Log.i("Response",
-									response.toString() + " / " + response.body().string());
-							}
-						});
-					}
-				});
-			} catch (Exception e) {
-				Log.e("Convert from wav to mp3", "Exception: " + e);
-			}
-
-			Log.i("Upload Sound", sound_path + "  " + formattedAudioFile.getAbsolutePath());
-		}
+	private void createSuccessToast() {
+		Toast.makeText(getContext(), "Sound saved", 4).show();
 	}
 
-	public static String getMimeType(String url) {
-		String type = null;
-		String extension = MimeTypeMap.getFileExtensionFromUrl(url);
-		if (extension != null) {
-			type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-		}
-		return type;
-	}
 }
