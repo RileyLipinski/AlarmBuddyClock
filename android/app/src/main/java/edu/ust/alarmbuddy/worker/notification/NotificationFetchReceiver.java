@@ -58,6 +58,11 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 					Log.i(NotificationFetchReceiver.class.getName(),
 						"User is logged out, not retrying");
 					break;
+				case 500:
+					if (handle500(response)) {
+						scheduleNotificationFetch(context);
+					}
+					break;
 				default:
 					Log.w(NotificationFetchReceiver.class.getName(), String
 						.format("Response code %d not explicitly handled, retrying",
@@ -91,6 +96,41 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 		if (soundsToNotify.size() > 0) {
 			newSoundNotification(context, soundsToNotify);
 		}
+	}
+
+	/**
+	 * Determines whether the server returned 500 due to an expired API key or not. If it did,
+	 * returns false to prevent rescheduling new notification fetches.
+	 *
+	 * @param response The response received from the database
+	 *
+	 * @return whether the app should schedule another poll job
+	 */
+	private boolean handle500(Response response) {
+		String responseBody = "UNABLE TO RETRIEVE RESPONSE BODY";
+
+		try {
+			responseBody = response.body().string();
+
+			boolean result = JsonParser.parseString(responseBody)
+				.getAsJsonObject()
+				.get("auth")
+				.getAsBoolean();
+
+			if (!result) {
+				Log.i(NotificationFetchReceiver.class.getName(),
+					"Server returned 500 due to expired token, not retrying.");
+				return false;
+			}
+		} catch (Exception ignored) {
+			// if an exception is thrown, then the response body does not match what is expected
+			// when the user's API key is expired
+		}
+
+		Log.e(NotificationFetchReceiver.class.getName(),
+			"Server returned 500 for reason other than expired token, retrying.");
+		Log.e(NotificationFetchReceiver.class.getName(), responseBody);
+		return true;
 	}
 
 	/**
