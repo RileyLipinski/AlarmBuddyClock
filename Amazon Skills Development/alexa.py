@@ -296,7 +296,7 @@ def SendFriendRequest(receiver_uname):
     else:
         return statement('Sorry. Failed to send the friend request to ' + receiver_uname)
 
-@ask.intent('AlarmBuddy_AcceptFriendRequest', mapping={'receiver_uname' : 'receiver_uname'})
+@ask.intent('AlarmBuddy_CancelFriendRequest', mapping={'receiver_uname' : 'receiver_uname'})
 def CancelFriendRequest(receiver_uname):
     if(receiver_uname is None):
         speak_output = "Sorry, you must specify a username to cancel a friend request for."
