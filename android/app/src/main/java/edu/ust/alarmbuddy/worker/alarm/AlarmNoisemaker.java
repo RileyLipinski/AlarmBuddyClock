@@ -3,7 +3,6 @@ package edu.ust.alarmbuddy.worker.alarm;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,8 +13,6 @@ import java.util.Date;
 
 public class AlarmNoisemaker extends BroadcastReceiver {
 
-	private static MediaPlayer mediaPlayer;
-
 	/**
 	 * Plays the alarm sound downloaded by AlarmFetchReceiver, or the default noise if the download
 	 * was not completed successfully.
@@ -25,11 +22,6 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		if (mediaPlayer != null) {
-			mediaPlayer.release();
-			mediaPlayer = null;
-		}
-
 		Log.i(AlarmNoisemaker.class.getName(), "Playing noise at " + new Date());
 		Log.i(AlarmNoisemaker.class.getName(),
 			"Default noise: " + intent.getBooleanExtra("useDefaultNoise", true));
@@ -64,17 +56,5 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 
 	public static void makeDefaultNoise(Context context) {
 		makeNoise(context, Uri.parse("android.resource://edu.ust.alarmbuddy/" + R.raw.alarm_buddy));
-	}
-
-	// TODO delete in production
-	public static void demoButton(Context context) {
-		makeDefaultNoise(context);
-	}
-
-	private static void releaseMediaPlayer() {
-		if (mediaPlayer != null) {
-			mediaPlayer.release();
-			mediaPlayer = null;
-		}
 	}
 }

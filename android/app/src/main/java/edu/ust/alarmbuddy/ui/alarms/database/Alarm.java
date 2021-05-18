@@ -1,4 +1,4 @@
-package edu.ust.alarmbuddy.ui.alarm;
+package edu.ust.alarmbuddy.ui.alarms.database;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -7,12 +7,19 @@ import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import edu.ust.alarmbuddy.ui.alarm.AlarmPublisher;
 import edu.ust.alarmbuddy.worker.alarm.AlarmNoisemaker;
+
 import java.util.Calendar;
 
+@Entity(tableName = "alarms")
 public class Alarm {
-
+	@PrimaryKey
+	@NonNull
 	private int alarmId;
 	private int hour;
 	private int minute;
@@ -25,6 +32,11 @@ public class Alarm {
 	private boolean saturday;
 	private String name;
 	private long created;
+
+	public boolean isScheduled() {
+		return scheduled;
+	}
+
 	private boolean scheduled;
 
 	/**
@@ -124,12 +136,6 @@ public class Alarm {
 	 */
 	@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 	public void setAlarm(Context context) {
-//		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-//
-//		Intent intent = new Intent(context, AlarmPublisher.class);
-//
-//		PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(System.currentTimeMillis());
 		calendar.set(Calendar.MILLISECOND, 0);
@@ -154,12 +160,19 @@ public class Alarm {
 			dayOfWeek = "Saturday";
 		}
 
-		String toastCreateAlarm = String
-			.format("Alarm (%s) set for %s at %02d:%02d", name, dayOfWeek, hour, minute);
+		String toastCreateAlarm;
+		if(name.length() != 0) {
+			toastCreateAlarm = String
+					.format("Alarm (%s) set for %s at %02d:%02d", name, dayOfWeek, hour, minute);
+		} else {
+			toastCreateAlarm = String
+					.format("Alarm set for %s at %02d:%02d", dayOfWeek, hour, minute);
+		}
+
 		Toast toast = Toast.makeText(context, toastCreateAlarm, Toast.LENGTH_LONG);
 		toast.show();
 
-		AlarmPublisher.publishAlarm(context, calendar.getTimeInMillis());
+		AlarmPublisher.publishAlarm(context, calendar.getTimeInMillis(), alarmId);
 	}
 
 	/**

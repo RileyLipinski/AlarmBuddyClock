@@ -97,4 +97,7 @@
   <string name="dialog_failed_login">"Incorrect username or password"</string>
   <string name="fire">"Try Again"</string>
   <string name="cancel">"Forgot My Password"</string>
+    <string name="username">username</string>
+      <string name="first_name">first name</string>
+      <string name="last_name">last name</string>
 </resources>

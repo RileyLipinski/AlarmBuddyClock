@@ -19,23 +19,10 @@ public class AlarmPublisher {
 	 * Receives a request to schedule an alarm and sets up a listener to either fetch an alarm from
 	 * the API or play a default alarm.
 	 *
-	 * @param context The application context
-	 * @param hours   The hours value for the scheduled alarm time
-	 * @param minutes The minutes value for the scheduled alarm time
-	 */
-	public static void publishAlarm(Context context, int hours, int minutes) {
-		long wakeupTime = wakeupTime(hours, minutes, System.currentTimeMillis());
-		publishAlarm(context, wakeupTime);
-	}
-
-	/**
-	 * Receives a request to schedule an alarm and sets up a listener to either fetch an alarm from
-	 * the API or play a default alarm.
-	 *
 	 * @param context    The application context
 	 * @param wakeupTime The system time in millis when the alarm should sound
 	 */
-	public static void publishAlarm(Context context, long wakeupTime) {
+	public static void publishAlarm(Context context, long wakeupTime, int alarmId) {
 		Intent intent;
 		PendingIntent pendingIntent;
 		AlarmManager alarmManager = getAlarmManager(context);
@@ -46,14 +33,14 @@ public class AlarmPublisher {
 			intent = new Intent(context, AlarmNoisemaker.class);
 			intent.putExtra("useDefaultNoise", true);
 			pendingIntent = PendingIntent
-				.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+				.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 			alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeupTime, pendingIntent);
 		} else {
 			Log.i(CLASS, "Scheduling alarm fetch");
 			intent = new Intent(context, AlarmFetchReceiver.class);
 			intent.putExtra("wakeupTime", wakeupTime);
 			pendingIntent = PendingIntent
-				.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+				.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 			alarmManager
 				.setExact(AlarmManager.RTC_WAKEUP, wakeupTime - TWO_MINUTES, pendingIntent);
 		}
