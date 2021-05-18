@@ -1,30 +1,28 @@
 package edu.ust.alarmbuddy;
 
 import android.content.Context;
-import android.widget.ImageView;
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import com.google.gson.JsonParser;
+import android.util.Log;
+import android.widget.ImageView;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProviders;
+import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import edu.ust.alarmbuddy.common.ProfilePictures;
 import edu.ust.alarmbuddy.common.UserData;
 import edu.ust.alarmbuddy.ui.user_information.UserInformationViewModel;
-import android.util.Log;
-import android.widget.TextView;
-import androidx.lifecycle.ViewModelProviders;
-import okhttp3.*;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.FileReader;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 
 public class UserInformationActivity extends AppCompatActivity {
@@ -79,7 +77,7 @@ public class UserInformationActivity extends AppCompatActivity {
         }
 
         Request request = new Request.Builder()
-                .url("https://alarmbuddy-312620.uc.r.appspot.com/users/" + username)
+                .url(AlarmBuddyHttp.API_URL + "/users/" + username)
                 .header("Authorization", token)
                 .build();
 

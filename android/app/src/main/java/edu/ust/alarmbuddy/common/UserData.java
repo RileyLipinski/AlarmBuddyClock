@@ -120,10 +120,6 @@ public class UserData {
 	 *
 	 * @return The preferences value associated with the parameter key, or -1 if the key does not
 	 * have an associated value.
-	 *
-	 * @throws GeneralSecurityException when the MasterKey cannot successfully decrypt the
-	 *                                  preferences file
-	 * @throws IOException              when the preferences file cannot be read
 	 */
 	public static int getInt(Context context, String key, int defaultValue) {
 		try {

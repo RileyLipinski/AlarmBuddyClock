@@ -33,7 +33,8 @@ import org.jetbrains.annotations.NotNull;
 public class NotificationFetchReceiver extends BroadcastReceiver {
 
 	private static final String TAG = NotificationFetchReceiver.class.getName();
-	/** The amount of time (millseconds) between polls for new sounds */
+
+	/** The amount of time between polls for new sounds */
 	public static final long INTERVAL = 6000000L;
 
 	/**
@@ -82,7 +83,7 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 		String json;
 		try {
 			json = response.body().string();
-			Log.i(TAG, "Response from server: " + json);
+//			Log.i(TAG, "Response from server: " + json);
 		} catch (IOException e) {
 			e.printStackTrace();
 			json = "";

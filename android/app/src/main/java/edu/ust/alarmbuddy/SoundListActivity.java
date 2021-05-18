@@ -56,13 +56,13 @@ public class SoundListActivity extends Activity {
 		for (JsonElement x : json) {
 			String title = x.getAsJsonObject().get("soundName").getAsString();
 			String sender = x.getAsJsonObject().get("sharedBy").getAsString();
-			int soundId = x.getAsJsonObject().get("soundID").getAsInt();
 
 			if (sender.equals("")) {
-				sender = "LEGACY";
+				// replaces blank sender names
+				sender = "UNKNOWN";
 			}
-			String newSound = soundId + ": \"" + title + "\" from " + sender;
-//			String newSound = ++i + ": \"" + title + "\" from " + sender;
+
+			String newSound = "\"" + title + "\" from " + sender;
 			soundList.add(newSound);
 		}
 		SoundListAdapter soundListAdapter = new SoundListAdapter(soundList);

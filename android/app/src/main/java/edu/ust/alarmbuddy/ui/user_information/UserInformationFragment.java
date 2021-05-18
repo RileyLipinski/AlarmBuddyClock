@@ -130,7 +130,7 @@ public class UserInformationFragment extends Fragment {
         }
 
         Request request = new Request.Builder()
-                .url("https://alarmbuddy-312620.uc.r.appspot.com/users/" + username)
+                .url(AlarmBuddyHttp.API_URL + "/users/" + username)
                 .header("Authorization", token)
                 .build();
 

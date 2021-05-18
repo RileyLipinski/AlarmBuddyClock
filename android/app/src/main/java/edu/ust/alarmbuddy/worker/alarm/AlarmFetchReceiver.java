@@ -48,6 +48,15 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 		downloadSound(context, wakeupTime, username, token, soundId, alarmId);
 	}
 
+
+	/**
+	 * Retrieves the ID of the latest shared sound from the database
+	 *
+	 * @param username Logged in user's username
+	 * @param token    Logged in user's token
+	 *
+	 * @return the sound ID of the last shared sound, or -1 if something went wrong
+	 */
 	private int getSoundId(String username, String token) {
 		final int[] result = new int[]{-1};
 		String url = AlarmBuddyHttp.API_URL + "/sounds/" + username;
@@ -97,6 +106,17 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 		return result[0];
 	}
 
+	/**
+	 * Downloads the sound specified by the sound ID, saves it to disk, and schedules an
+	 * AlarmNoisemaker to go off at the wakeupTime
+	 *
+	 * @param context    Application context
+	 * @param wakeupTime Time that the AlarmNoisemaker should be scheduled for
+	 * @param username   Logged in user's username
+	 * @param token      Logged in user's API key
+	 * @param soundId    ID of the sound that should be downloaded
+	 * @param alarmId    The alarm's ID
+	 */
 	private void downloadSound(Context context, long wakeupTime, String username, String token,
 		int soundId, int alarmId) {
 		String url = AlarmBuddyHttp.API_URL + "/download/" + username + "/" + soundId;
@@ -130,7 +150,12 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 					Log.e(TAG, response.body().string());
 
 				} else {
-					saveDownloadedSound(context, response.body().bytes(), alarmId, soundId);
+					try {
+						saveDownloadedSound(context, response.body().bytes(), alarmId, soundId);
+					} catch (IOException e) {
+						e.printStackTrace();
+						scheduleAlarm(context, wakeupTime, true, alarmId);
+					}
 					useDefaultNoise = false;
 				}
 
@@ -146,6 +171,16 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 		});
 	}
 
+	/**
+	 * Saves the downloaded sound to disk
+	 *
+	 * @param context Application context
+	 * @param bytes   The bytes of the file downloaded from the database
+	 * @param alarmId The ID of the alarm being set
+	 * @param soundId The sound ID of the downloaded sound
+	 *
+	 * @throws IOException
+	 */
 	private void saveDownloadedSound(Context context, byte[] bytes, int alarmId, int soundId)
 		throws IOException {
 		File file = new File(context.getExternalFilesDir(""), "databaseAlarm" + alarmId + ".mp3");
@@ -196,6 +231,14 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 		});
 	}
 
+	/**
+	 * Schedules an AlarmNoisemaker to sound at the wakeupTime
+	 *
+	 * @param context         Application context
+	 * @param wakeupTime      Time to sound the alarm
+	 * @param useDefaultNoise Whether the alarm used should be the default noise
+	 * @param alarmId         ID of the alarm being set
+	 */
 	private void scheduleAlarm(Context context, long wakeupTime, boolean useDefaultNoise,
 		int alarmId) {
 		Log.i(TAG, "Scheduling alarm. Default: " + useDefaultNoise);
