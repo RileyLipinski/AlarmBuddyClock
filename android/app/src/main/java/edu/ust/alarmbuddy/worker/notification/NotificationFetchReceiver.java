@@ -32,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class NotificationFetchReceiver extends BroadcastReceiver {
 
+	private static final String TAG = NotificationFetchReceiver.class.getName();
 	/** The amount of time (millseconds) between polls for new sounds */
 	public static final long INTERVAL = 6000000L;
 
@@ -45,8 +46,7 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		Response response = pollForSounds(context);
 		if (response == null) {
-			Log.e(NotificationFetchReceiver.class.getName(),
-				"Could not get a response from database, retrying fetch");
+			Log.e(TAG, "Could not get a response from database, retrying fetch");
 			scheduleNotificationFetch(context);
 		} else {
 			switch (response.code()) {
@@ -55,8 +55,7 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 					scheduleNotificationFetch(context);
 					break;
 				case 401: // user is no longer authenticated, stop polling
-					Log.i(NotificationFetchReceiver.class.getName(),
-						"User is logged out, not retrying");
+					Log.i(TAG, "User is logged out, not retrying");
 					break;
 				case 500:
 					if (handle500(response)) {
@@ -64,9 +63,8 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 					}
 					break;
 				default:
-					Log.w(NotificationFetchReceiver.class.getName(), String
-						.format("Response code %d not explicitly handled, retrying",
-							response.code()));
+					Log.w(TAG, String.format("Response code %d not explicitly handled, retrying",
+						response.code()));
 					scheduleNotificationFetch(context);
 			}
 		}
@@ -80,13 +78,11 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 	 * @param response The JSON response body from the server
 	 */
 	private void handle200(Context context, Response response) {
-		Log.i(NotificationFetchReceiver.class.getName(),
-			"Good response, checking for new sounds");
+		Log.i(TAG, "Good response, checking for new sounds");
 		String json;
 		try {
 			json = response.body().string();
-			Log.i(NotificationFetchReceiver.class.getName(),
-				"Response from server: " + json);
+			Log.i(TAG, "Response from server: " + json);
 		} catch (IOException e) {
 			e.printStackTrace();
 			json = "";
@@ -118,8 +114,7 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 				.getAsBoolean();
 
 			if (!result) {
-				Log.i(NotificationFetchReceiver.class.getName(),
-					"Server returned 500 due to expired token, not retrying.");
+				Log.i(TAG, "Server returned 500 due to expired token, not retrying.");
 				return false;
 			}
 		} catch (Exception ignored) {
@@ -127,9 +122,8 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 			// when the user's API key is expired
 		}
 
-		Log.e(NotificationFetchReceiver.class.getName(),
-			"Server returned 500 for reason other than expired token, retrying.");
-		Log.e(NotificationFetchReceiver.class.getName(), responseBody);
+		Log.e(TAG, "Server returned 500 for reason other than expired token, retrying.");
+		Log.e(TAG, responseBody);
 		return true;
 	}
 
@@ -142,7 +136,8 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 	public static void scheduleNotificationFetch(Context context) {
 		AlarmPublisher.getAlarmManager(context).set(AlarmManager.ELAPSED_REALTIME_WAKEUP, INTERVAL,
 			PendingIntent
-				.getBroadcast(context, 0, new Intent(context, NotificationFetchReceiver.class), 0));
+				.getBroadcast(context, 0, new Intent(context, NotificationFetchReceiver.class),
+					PendingIntent.FLAG_CANCEL_CURRENT));
 	}
 
 	/**
@@ -167,7 +162,7 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 			}
 			String url = AlarmBuddyHttp.API_URL + "/sounds/" + username;
 
-			Log.i(NotificationFetchReceiver.class.getName(), "Polling url " + url);
+			Log.i(TAG, "Polling url " + url);
 
 			Request request = new Request.Builder()
 				.url(url)
@@ -179,7 +174,7 @@ public class NotificationFetchReceiver extends BroadcastReceiver {
 			new OkHttpClient().newCall(request).enqueue(new Callback() {
 				@Override
 				public void onFailure(@NotNull Call call, @NotNull IOException e) {
-					Log.e(NotificationFetchReceiver.class.getName(), "Failed request to " + url);
+					Log.e(TAG, "Failed request to " + url);
 					call.cancel();
 					result[0] = null;
 					latch.countDown();
