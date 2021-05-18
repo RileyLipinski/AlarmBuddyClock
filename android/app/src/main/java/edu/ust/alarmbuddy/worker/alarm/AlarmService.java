@@ -15,6 +15,9 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import edu.ust.alarmbuddy.AlarmActivity;
 import edu.ust.alarmbuddy.R;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 
 public class AlarmService extends Service {
@@ -48,14 +51,24 @@ public class AlarmService extends Service {
 		mediaPlayer.setOnCompletionListener(x -> {
 			mediaPlayer.release();
 			mediaPlayer = null;
+
 			String uriString = intent.getStringExtra("uri");
 
 			if (uriString == null) {
 				mediaPlayer = MediaPlayer.create(this, R.raw.alarm_buddy);
 			} else {
-				mediaPlayer = MediaPlayer.create(this, Uri.parse(uriString));
+				Uri uri = Uri.parse(uriString);
+				mediaPlayer = MediaPlayer.create(this, uri);
 				if (mediaPlayer == null) {
 					mediaPlayer = MediaPlayer.create(this, R.raw.alarm_buddy);
+				} else {
+					try {
+						Files.deleteIfExists(Paths.get(uri.getPath()));
+					} catch (IOException e) {
+						e.printStackTrace();
+						mediaPlayer.release();
+						mediaPlayer = MediaPlayer.create(this, R.raw.alarm_buddy);
+					}
 				}
 			}
 			mediaPlayer.setLooping(true);

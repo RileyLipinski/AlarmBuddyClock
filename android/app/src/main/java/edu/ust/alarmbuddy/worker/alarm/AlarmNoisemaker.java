@@ -28,8 +28,14 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 		if (intent.getBooleanExtra("useDefaultNoise", true)) {
 			makeDefaultNoise(context);
 		} else {
-			makeNoise(context,
-				Uri.fromFile(new File(context.getExternalFilesDir(""), "databaseAlarm.mp3")));
+			int alarmId = intent.getIntExtra("alarmId", -1);
+			if (alarmId > 0) {
+				makeNoise(context,
+					Uri.fromFile(new File(context.getExternalFilesDir(""),
+						"databaseAlarm" + alarmId + ".mp3")));
+			} else {
+				makeDefaultNoise(context);
+			}
 		}
 
 		intent.removeExtra("useDefaultNoise");

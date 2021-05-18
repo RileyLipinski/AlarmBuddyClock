@@ -42,8 +42,9 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 		String token = UserData.getStringNotNull(context, "token");
 		String username = UserData.getStringNotNull(context, "username");
 		int soundId = getSoundId(username, token);
+		int alarmId = intent.getIntExtra("alarmId", 0);
 
-		downloadSound(context, wakeupTime, username, token, soundId);
+		downloadSound(context, wakeupTime, username, token, soundId, alarmId);
 	}
 
 	private int getSoundId(String username, String token) {
@@ -96,7 +97,7 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 	}
 
 	private void downloadSound(Context context, long wakeupTime, String username, String token,
-		int soundId) {
+		int soundId, int alarmId) {
 		String url = AlarmBuddyHttp.API_URL + "/download/" + username + "/" + soundId;
 		Log.i(AlarmFetchReceiver.class.getName(), "Sending request to " + url);
 
@@ -128,11 +129,11 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 					logHttpError(response.body().string());
 
 				} else {
-					saveDownloadedSound(context, response.body().bytes());
+					saveDownloadedSound(context, response.body().bytes(), alarmId);
 					useDefaultNoise = false;
 				}
 
-				scheduleAlarm(context, wakeupTime, useDefaultNoise);
+				scheduleAlarm(context, wakeupTime, useDefaultNoise, alarmId);
 			}
 
 			@Override
@@ -140,13 +141,14 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 				call.cancel();
 				Log.e(AlarmFetchReceiver.class.getName(),
 					"No response when downloading sound from database");
-				scheduleAlarm(context, wakeupTime, true);
+				scheduleAlarm(context, wakeupTime, true, alarmId);
 			}
 		});
 	}
 
-	private void saveDownloadedSound(Context context, byte[] bytes) throws IOException {
-		File file = new File(context.getExternalFilesDir(""), "databaseAlarm.mp3");
+	private void saveDownloadedSound(Context context, byte[] bytes, int alarmId)
+		throws IOException {
+		File file = new File(context.getExternalFilesDir(""), "databaseAlarm" + alarmId + ".mp3");
 
 		FileOutputStream outputStream = new FileOutputStream(file);
 		outputStream.write(bytes);
@@ -157,16 +159,17 @@ public class AlarmFetchReceiver extends BroadcastReceiver {
 			"File successfully downloaded from database: " + file.getAbsolutePath());
 	}
 
-	private void scheduleAlarm(Context context, long wakeupTime, boolean useDefaultNoise) {
+	private void scheduleAlarm(Context context, long wakeupTime, boolean useDefaultNoise,
+		int alarmId) {
 		Log.i(AlarmFetchReceiver.class.getName(),
 			"Scheduling alarm. Default: " + useDefaultNoise);
 
 		Intent intent = new Intent(context, AlarmNoisemaker.class);
-		intent.replaceExtras(new Bundle());
 		intent.putExtra("useDefaultNoise", useDefaultNoise);
+		intent.putExtra("alarmId", alarmId);
 
 		PendingIntent pendingIntent = PendingIntent
-			.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+			.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 		AlarmManager alarmManager = AlarmPublisher.getAlarmManager(context);
 		alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeupTime, pendingIntent);
 	}

@@ -32,6 +32,7 @@ public class AlarmPublisher {
 			Log.i(CLASS, "Setting default alarm");
 			intent = new Intent(context, AlarmNoisemaker.class);
 			intent.putExtra("useDefaultNoise", true);
+			intent.putExtra("alarmId", alarmId);
 			pendingIntent = PendingIntent
 				.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 			alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeupTime, pendingIntent);
@@ -39,6 +40,7 @@ public class AlarmPublisher {
 			Log.i(CLASS, "Scheduling alarm fetch");
 			intent = new Intent(context, AlarmFetchReceiver.class);
 			intent.putExtra("wakeupTime", wakeupTime);
+			intent.putExtra("alarmId", alarmId);
 			pendingIntent = PendingIntent
 				.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 			alarmManager

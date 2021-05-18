@@ -12,15 +12,12 @@ import androidx.lifecycle.ViewModelProviders;
 import com.google.gson.JsonParser;
 import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import edu.ust.alarmbuddy.common.UserData;
-import edu.ust.alarmbuddy.ui.login.FailedLoginDialogFragment;
 import edu.ust.alarmbuddy.ui.login.LoginViewModel;
 import edu.ust.alarmbuddy.worker.notification.NotificationFetchReceiver;
-
 import java.io.IOException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.CountDownLatch;
-
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -185,22 +182,20 @@ public class LoginActivity extends AppCompatActivity {
                     .get("token")
                     .getAsString();
 
-            try {
-                UserData.getSharedPreferences(getApplicationContext()).edit()
-                        .putString("username", username)
-                        .putString("token", token)
-                        .apply();
+			try {
+				UserData.getSharedPreferences(getApplicationContext()).edit()
+					.putString("username", username)
+					.putString("token", token)
+					.remove("maxIdSeen")
+					.apply();
 
-            } catch (GeneralSecurityException e) {
-                //TODO verify that this is acceptable behavior
-                return false;
-            }
-        }
-
-
-        else {
-            loginErrorText.setText("Username or password is incorrect");
-        }
+			} catch (GeneralSecurityException e) {
+				//TODO verify that this is acceptable behavior
+				return false;
+			}
+		} else {
+			loginErrorText.setText("Username or password is incorrect");
+		}
 
         return stringResponse[0] != null && trueResponse;
     }
