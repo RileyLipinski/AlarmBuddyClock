@@ -46,16 +46,15 @@ public class RecordAudioFragment extends Fragment {
 	private final int MY_PERMISSIONS_RECORD_AUDIO = 1;
 	private final int MY_PERMISSIONS_WRITE_EXTERNAL_STORAGE = 2;
 
-	private File audioFile = null;
-	private File formattedAudioFile = null;
+	private File audioFile;
 
-	private Button recordButton = null;
-	private Button playButton = null;
-	private Button sendButton = null;
+	private Button recordButton;
+	private Button playButton;
+	private Button sendButton;
 	private Button uploadButton;
 
-	private MediaRecorder recorder = null;
-	private MediaPlayer player = null;
+	private MediaRecorder recorder;
+	private MediaPlayer player;
 
 	private boolean micPermission = false;
 	private boolean mStartRecording = true;
@@ -68,8 +67,8 @@ public class RecordAudioFragment extends Fragment {
 		root = inflater.inflate(R.layout.fragment_record_audio, container, false);
 
 		// where to store recorded audio file
-		audioFile = new File(Environment.getExternalStorageDirectory(),
-			"android_test.3gpp");
+		audioFile = new File(getContext().getExternalFilesDir(""),
+			"raw_recording.3gpp");
 
 		// set buttons
 		recordButton = root.findViewById(R.id.recordButton);
@@ -84,13 +83,9 @@ public class RecordAudioFragment extends Fragment {
 		requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO,
 			Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
 
-		uploadButton.setOnClickListener(v -> {
-			ProfilePictures.getProfilePic(getContext(), "Don2");
-			ProfilePictures.getProfilePicPath(getContext(), "Don2");
-		});
 
 		// set listeners for record, play, and upload
-		View.OnClickListener recordClicker = v -> {
+		recordButton.setOnClickListener(v -> {
 			// only starts recording if mic can be used
 			if (micPermission == true) {
 				// when clicked, start or stop recording
@@ -102,10 +97,9 @@ public class RecordAudioFragment extends Fragment {
 				}
 				mStartRecording = !mStartRecording;
 			}
-		};
-		recordButton.setOnClickListener(recordClicker);
+		});
 
-		View.OnClickListener playClicker = v -> {
+		playButton.setOnClickListener(v -> {
 			// check if there is a recorded file to play
 			if (audioFile.exists()) {
 				// when clicked, start or stop playing sound
@@ -117,8 +111,7 @@ public class RecordAudioFragment extends Fragment {
 				}
 				mStartPlaying = !mStartPlaying;
 			}
-		};
-		playButton.setOnClickListener(playClicker);
+		});
 
 		sendButton.setOnClickListener(v -> {
 			Intent intent = new Intent(getActivity(), SelectableActivity.class);
@@ -243,92 +236,4 @@ public class RecordAudioFragment extends Fragment {
 		recorder = null;
 	}
 
-	public void uploadSound(Context context, String sound_path) {
-		if (FFmpeg.getInstance(context).isSupported()) {
-
-			OkHttpClient client = new OkHttpClient();
-			FFmpeg ffmpeg = FFmpeg.getInstance(context);
-
-			formattedAudioFile = new File(Environment.getExternalStorageDirectory(), "a.mp3");
-			try {
-				String[] cmd = new String[]{"-y", "-i", sound_path,
-					formattedAudioFile.getAbsolutePath()};
-				ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
-					@Override
-					public void onFailure(String message) {
-						Log.i("Convert to mp3", "Failure " + message);
-					}
-
-					@Override
-					public void onSuccess(String message) {
-						Log.i("Convert to mp3", "Success " + message);
-
-						String mime = getMimeType(formattedAudioFile.getAbsolutePath());
-
-						String username = "";
-						String token = "";
-						try {
-							username = UserData.getString(context, "username");
-							token = UserData.getString(context, "token");
-						} catch (Exception e) {
-							Log.e("Upload Sound", "Could not retrieve username or token");
-						}
-
-						RequestBody fileContent = RequestBody
-							.create(new File(formattedAudioFile.getAbsolutePath()),
-								MediaType.parse("audio/mpeg"));
-
-						RequestBody body = new MultipartBody.Builder()
-							.setType(MultipartBody.FORM)
-							.addFormDataPart("file", formattedAudioFile.getName(), fileContent)
-							.addFormDataPart("soundDescription", "alarm sound")
-							.build();
-
-						//RequestBody body = RequestBody.create(data, QUERYSTRING);
-						Request request = new Request.Builder()
-							.url(AlarmBuddyHttp.API_URL + "/upload/" + username)
-							.header("Authorization", token)
-							.post(body)
-							.build();
-
-						Log.i("Upload Sound", request.toString());
-						try {
-							Log.i("Upload Sound",
-								fileContent.toString() + " " + fileContent.contentLength()
-									+ " " + fileContent.contentType());
-						} catch (IOException e) {
-							Log.e("upload", "contentLength " + e);
-						}
-
-						client.newCall(request).enqueue(new Callback() {
-							@Override
-							public void onFailure(@NotNull Call call, @NotNull IOException e) {
-								Log.i("Failure", e.toString());
-							}
-
-							@Override
-							public void onResponse(@NotNull Call call, @NotNull Response response)
-								throws IOException {
-								Log.i("Response",
-									response.toString() + " / " + response.body().string());
-							}
-						});
-					}
-				});
-			} catch (Exception e) {
-				Log.e("Convert from wav to mp3", "Exception: " + e);
-			}
-
-			Log.i("Upload Sound", sound_path + "  " + formattedAudioFile.getAbsolutePath());
-		}
-	}
-
-	public static String getMimeType(String url) {
-		String type = null;
-		String extension = MimeTypeMap.getFileExtensionFromUrl(url);
-		if (extension != null) {
-			type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-		}
-		return type;
-	}
 }
