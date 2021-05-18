@@ -98,6 +98,11 @@ public class UserInformationFragment extends Fragment {
             }
         });
 
+        final Button blockedUsers = v.findViewById(R.id.blockedusers);
+        blockedUsers.setOnClickListener(view ->
+        {Intent intent = new Intent(getActivity(), BlockedUsers.class);
+        startActivity(intent);} );
+
 
         return v;
         //return inflater.inflate(R.layout.user_information_fragment, container, false);

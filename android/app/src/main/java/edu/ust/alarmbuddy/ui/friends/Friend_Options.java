@@ -85,22 +85,38 @@ public class Friend_Options extends AppCompatActivity {
 		String username = username = UserData.getStringNotNull(this, "username");
 
 		String action = "";
+
+		Request request;
 		if (command.compareTo("remove") == 0) {
 			action = "deleteFriend";
-		} else if (command.compareTo("block") == 0) {
+
+			String url =
+					AlarmBuddyHttp.API_URL + "/" + action + "/" + username + "/" + name.getText().toString()
+							.trim();
+			Log.i(Friend_Options.class.getName(), "URL: " + url);
+
+			request = new Request.Builder()
+					.delete(RequestBody.create("", MediaType.parse("text/plain")))
+					.url(url)
+					.header("Authorization", token)
+					.build();
+
+		} else{
 			action = "blockUser";
+			String url =
+					AlarmBuddyHttp.API_URL + "/" + action + "/" + username + "/" + name.getText().toString()
+							.trim();
+			Log.i(Friend_Options.class.getName(), "URL: " + url);
+
+			request = new Request.Builder()
+					.post(RequestBody.create("", MediaType.parse("text/plain")))
+					.url(url)
+					.header("Authorization", token)
+					.build();
+
 		}
 
-		String url =
-			AlarmBuddyHttp.API_URL + "/" + action + "/" + username + "/" + name.getText().toString()
-				.trim();
-		Log.i(Friend_Options.class.getName(), "URL: " + url);
 
-		Request request = new Request.Builder()
-			.delete(RequestBody.create("", MediaType.parse("text/plain")))
-			.url(url)
-			.header("Authorization", token)
-			.build();
 		CountDownLatch countDownLatch = new CountDownLatch(1);
 		client.newCall(request).enqueue(new Callback() {
 			@Override
@@ -146,7 +162,7 @@ public class Friend_Options extends AppCompatActivity {
 		text.setText(input);
 
 		Toast toast = new Toast(this);
-		toast.setGravity(Gravity.CENTER, 0, 0);
+		toast.setGravity(Gravity.CENTER, 0, 200);
 		toast.setDuration(Toast.LENGTH_SHORT);
 		toast.setView(layout);
 		toast.show();

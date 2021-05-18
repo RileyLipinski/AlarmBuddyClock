@@ -1,4 +1,4 @@
-package edu.ust.alarmbuddy.ui.friends;
+package edu.ust.alarmbuddy.ui.user_information;
 
 import android.app.Activity;
 import android.content.Context;
@@ -12,12 +12,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
+import edu.ust.alarmbuddy.common.ProfilePictures;
 import edu.ust.alarmbuddy.common.UserData;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import edu.ust.alarmbuddy.ui.friends.Profile;
+import edu.ust.alarmbuddy.ui.friends.ProfileAdapter;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -44,7 +48,7 @@ public class BlockedUsers extends AppCompatActivity {
 		setContentView(R.layout.activity_blocked_users);
 
 		ActionBar actionBar = getSupportActionBar();
-		actionBar.setTitle("Unblock User");
+		actionBar.setTitle("Blocked Users");
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
 		int flag;
@@ -61,7 +65,7 @@ public class BlockedUsers extends AppCompatActivity {
 			TextView text = findViewById(R.id.text_blocked);
 			text.setText("You haven't blocked any users");
 		}
-		mAdapter = new ProfileAdapter(getMProfileList(), 1);
+		mAdapter = new ProfileAdapter(getMProfileList(), 2);
 		mRecyclerView.setLayoutManager(mLayoutManager);
 		mRecyclerView.setAdapter(mAdapter);
 	}
@@ -82,7 +86,9 @@ public class BlockedUsers extends AppCompatActivity {
 
 		//uses the sorted names to create Profile objects
 		for (String s : nameList) {
-			profileList.add(new Profile(R.drawable.ic_baseline_account_box, s, "details"));
+			profileList.add(
+					new Profile(ProfilePictures.getProfilePic(getApplicationContext(), s),
+							s, "details"));
 		}
 
 		setMProfileList(profileList);
@@ -163,7 +169,7 @@ public class BlockedUsers extends AppCompatActivity {
 			TextView text = findViewById(R.id.text_blocked);
 			text.setText("");
 		}
-		mAdapter = new ProfileAdapter(getMProfileList(), 1);
+		mAdapter = new ProfileAdapter(getMProfileList(), 2);
 		mRecyclerView.setLayoutManager(mLayoutManager);
 		mRecyclerView.setAdapter(mAdapter);
 	}

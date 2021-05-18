@@ -165,7 +165,7 @@ public class Request_Options extends AppCompatActivity {
 		text.setText(input);
 
 		Toast toast = new Toast(this);
-		toast.setGravity(Gravity.CENTER, 0, 0);
+		toast.setGravity(Gravity.CENTER, 0, 200);
 		toast.setDuration(Toast.LENGTH_SHORT);
 		toast.setView(layout);
 		toast.show();

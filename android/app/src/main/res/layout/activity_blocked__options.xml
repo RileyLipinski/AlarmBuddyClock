@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.user_information.Blocked_Options">
+
+    <ImageView
+            android:id="@+id/BOptionsImage"
+            android:layout_width="400dp"
+            android:layout_height="300dp"
+            android:padding="10dp"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"/>
+
+    <TextView
+            android:id="@+id/BOptionsText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/BOptionsImage"
+            android:paddingTop="5dp"
+            android:textSize="50dp"
+            android:layout_centerHorizontal="true"
+            android:textColor="@android:color/black"/>
+
+    <Button
+            android:id="@+id/UnblockUser"
+            android:text="Unblock User"
+            android:layout_width="200dp"
+            android:layout_height="120dp"
+            android:layout_marginBottom="56dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"/>
+
+</RelativeLayout>

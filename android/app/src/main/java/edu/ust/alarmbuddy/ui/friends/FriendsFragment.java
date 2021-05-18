@@ -82,15 +82,6 @@ public class FriendsFragment extends Fragment {
 			profileList.add(
 				new Profile(ProfilePictures.getProfilePic(getActivity().getApplicationContext(), s),
 					s, "details"));
-			/*getPFP(s, getActivity().getApplicationContext(), PFP);
-
-			if (PFP[0]==null){
-				profileList.add(new Profile(R.drawable.ic_baseline_account_box, s, "details"));
-			}
-			else {
-				profileList.add(new Profile(PFP[0], s, "details"));
-			}
-			PFP[0] = null;*/
 		}
 
 		setMProfileList(profileList);
@@ -143,46 +134,6 @@ public class FriendsFragment extends Fragment {
 		});
 		countDownLatch.await();
 	}
-
-	/*private static void getPFP(String name, Context context, Bitmap[] image) throws InterruptedException {
-		OkHttpClient client = new OkHttpClient();
-
-		String token = "";
-		token = UserData.getStringNotNull(context, "token");
-
-		String username = "";
-		username = UserData.getStringNotNull(context, "username");
-
-		Request request = new Request.Builder()
-				.url(AlarmBuddyHttp.API_URL + "/getProfilePicture/" + username + "/" + name)
-				.header("Authorization", token)
-				.build();
-
-		//insures that the get request is completed before the code continues
-		CountDownLatch countDownLatch = new CountDownLatch(1);
-		client.newCall(request).enqueue(new Callback() {
-			@Override
-			public void onFailure(@NotNull Call call, @NotNull IOException e) {
-				call.cancel();
-				countDownLatch.countDown();
-			}
-
-			@Override
-			public void onResponse(@NotNull Call call, @NotNull Response response)
-					throws IOException {
-				if (response.isSuccessful()) {
-
-					image[0] = BitmapFactory.decodeStream(response.body().byteStream());
-
-				}
-				else{
-					image[0] = null;
-				}
-				countDownLatch.countDown();
-			}
-		});
-		countDownLatch.await();
-	}*/
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

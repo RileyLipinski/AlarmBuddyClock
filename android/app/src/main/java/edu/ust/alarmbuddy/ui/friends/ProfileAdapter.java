@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
 import java.util.ArrayList;
+
+import edu.ust.alarmbuddy.ui.user_information.Blocked_Options;
 import org.jetbrains.annotations.NotNull;
 
 /***
@@ -60,7 +62,13 @@ public class ProfileAdapter extends
 				Intent intent = new Intent(itemView.getContext(), Friend_Options.class);
 				intent.putExtra("name", mTextView1.getText().toString());
 				itemView.getContext().startActivity(intent);
-			} else {
+
+			} else if(flag==2){
+				Intent intent = new Intent(itemView.getContext(), Blocked_Options.class);
+				intent.putExtra("name", mTextView1.getText().toString());
+				itemView.getContext().startActivity(intent);
+
+			}else {
 				Intent intent = new Intent(itemView.getContext(), Request_Options.class);
 				intent.putExtra("name", mTextView1.getText().toString());
 				itemView.getContext().startActivity(intent);
