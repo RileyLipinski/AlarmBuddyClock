@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
@@ -48,28 +49,18 @@ public class SelectableActivity extends AppCompatActivity implements SelectableV
     private Button sendButton;
     private File formattedAudioFile;
     private OkHttpClient client;
+    private List<String> selectedUsernames;
+    private EditText soundNameText;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_friends);
         client = new OkHttpClient();
+        client.dispatcher().setMaxRequests(1);
 
-        // set up listener for send button
+        soundNameText = findViewById(R.id.sound_name);
         sendButton = findViewById(R.id.send_sound);
-        sendButton.setOnClickListener(v -> {
-            try {
-                if (sendSound()) {
-                    Toast.makeText(this, "Sound sent successfully", 3);
-                } else {
-                    Toast.makeText(this, "Sound could not be sent, try again", 3);
-                }
-            }
-            catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-
 
         List<String> friends = null;
         try {
@@ -88,6 +79,37 @@ public class SelectableActivity extends AppCompatActivity implements SelectableV
         recyclerView = (RecyclerView)findViewById(R.id.selection_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
+
+        // set up listener for send button
+        sendButton.setOnClickListener(v -> {
+            try {
+                sendSound();
+            }
+            catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            // hide keyboard
+            InputMethodManager imm = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+            View view = this.getCurrentFocus();
+            if (view == null) {
+                view = new View(this);
+            }
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            // reset text
+            soundNameText.setText("");
+
+            Toast.makeText(this, "Sound sent successfully", 5).show();
+
+            // unselect all friends
+            adapter.unselectAll();
+
+        });
+
+        soundNameText.setOnClickListener(v -> {
+            soundNameText.setText("");
+        });
+
 
     }
 
@@ -165,47 +187,28 @@ public class SelectableActivity extends AppCompatActivity implements SelectableV
     public void onItemSelected(SelectableProfile selectableProfile) { }
 
     // makes database calls to send sound, returns whether it was successful
-    private boolean sendSound() throws InterruptedException {
+    private void sendSound() throws InterruptedException {
         boolean result = true;
         List<Profile> selectedProfiles = adapter.getSelectedItems();
-        List<String> selectedUsernames = new ArrayList<>();
+        selectedUsernames = new ArrayList<>();
 
         // fill selectedUsernames with names of all selected friends
         for (Profile p : selectedProfiles) {
             selectedUsernames.add(p.getText1());
+            Log.i("friend", p.getText1());
         }
 
-        EditText soundNameText = findViewById(R.id.sound_name);
         String soundName = soundNameText.getText().toString();
-        // upload sound
+
+        // methods chain together because otherwise calls were being made in parallel
+        // uploadSound -> getSoundID -> shareSound (for all friends) -> deleteSound
         uploadSound(soundName);
-        Log.i("done uploading", "now sharing");
-        String soundID = getSoundID(soundName);
-
-        Log.i("SoundID", soundID);
-        // share sound
-        Log.i("friends", selectedUsernames.get(0));
-
-        for (String friend : selectedUsernames) {
-            Log.i("friends", friend);
-            if (!shareSound(friend, soundID)) {
-                result = false;
-            }
-        }
-
-        Log.i("Done sharing", "now deleting");
-        // delete sound
-        if (!deleteSound(soundID)) {
-            result = false;
-        }
-
-        return result;
     }
 
 
-    public void uploadSound(String soundName) {
+    private void uploadSound(String soundName) {
         if (FFmpeg.getInstance(this).isSupported()) {
-
+            boolean[] result = {true};
             FFmpeg ffmpeg = FFmpeg.getInstance(this);
 
             String rawAudioPath = getExternalFilesDir("") + "/raw_recording.3gpp";
@@ -218,11 +221,12 @@ public class SelectableActivity extends AppCompatActivity implements SelectableV
                     @Override
                     public void onFailure(String message) {
                         Log.i("Convert to mp3", "Failure " + message);
+                        makeErrorToast();
                     }
 
                     @Override
                     public void onSuccess(String message) {
-
+                        Log.i("Convert", "Success");
                         String username = UserData.getString(SelectableActivity.this, "username");
                         String token = UserData.getString(SelectableActivity.this, "token");
 
@@ -247,6 +251,7 @@ public class SelectableActivity extends AppCompatActivity implements SelectableV
                             @Override
                             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                                 Log.i("Failure", e.toString());
+                                makeErrorToast();
                                 countDownLatch.countDown();
                             }
 
@@ -256,12 +261,14 @@ public class SelectableActivity extends AppCompatActivity implements SelectableV
                                 Log.i("Response",
                                         response.toString() + " / " + response.body().string());
                                 response.close();
+
+
                                 countDownLatch.countDown();
                             }
                         });
-
                         try {
                             countDownLatch.await();
+                            getSoundID(soundName);
                         } catch (InterruptedException e) {
                             Log.i("Upload", e.toString());
                         }
@@ -273,31 +280,27 @@ public class SelectableActivity extends AppCompatActivity implements SelectableV
         }
     }
 
-    /**
-     * Shares the given sound file with the given friend.
-     *
-     * @param friendName User to share the sound with. Must be friends with given user.
-     * @param soundID Sound ID of the sound to be shared.
-     */
-    public boolean shareSound(String friendName, String soundID) {
-        final boolean[] result = {true};
-        String username = UserData.getString(SelectableActivity.this, "username");
-        String token = UserData.getString(SelectableActivity.this, "token");
+    private void shareSound(String friendName, String soundID, boolean last) {
+
+        Log.i("vars", friendName + soundID);
+        String username = UserData.getString(this, "username");
+        String token = UserData.getString(this, "token");
 
         String URL = String.format("%s/shareSound/%s/%s/%s", AlarmBuddyHttp.API_URL, username, friendName, soundID);
 
         Request request = new Request.Builder()
                 .url(URL)
                 .header("Authorization", token)
-                .post(RequestBody.create(null, ""))
+                .post(RequestBody.create("", MediaType.get("application/x-www-form-urlencoded")))
                 .build();
 
+        OkHttpClient client1 = new OkHttpClient();
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        client.newCall(request).enqueue(new Callback() {
+        client1.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 Log.i("Failure", e.toString());
-                result[0] = false;
+                makeErrorToast();
                 countDownLatch.countDown();
             }
 
@@ -307,30 +310,29 @@ public class SelectableActivity extends AppCompatActivity implements SelectableV
                 if (response.isSuccessful()) {
                     Log.i("Response",
                             response.toString() + " / " + response.body().string());
+                    if (last) {
+                        deleteSound(soundID);
+                    }
                 }
                 else {
-                    result[0] = false;
+                    Log.i("Response",
+                            response.toString() + " / " + response.body().string());
+                    makeErrorToast();
                 }
                 countDownLatch.countDown();
             }
         });
         try {
             countDownLatch.await();
+            //shareLatch.countDown();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return result[0];
     }
 
-    /**
-     * Retrieves the soundID of the provided sound.
-     * If there are multiple sounds with the same name, returns the last sound (highest soundID).
-     *
-     * @param soundName Name of sound to be retrieved.
-     *
-     * @return The soundID of the sound, if found, otherwise returns null
-     */
-    public String getSoundID(String soundName) {
+
+    private String getSoundID(String soundName) {
+
         final String[] soundID = {null};
 
         String username = UserData.getString(this, "username");
@@ -349,6 +351,7 @@ public class SelectableActivity extends AppCompatActivity implements SelectableV
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 Log.i("Failure", e.toString());
+                makeErrorToast();
                 countDownLatch.countDown();
             }
 
@@ -361,21 +364,28 @@ public class SelectableActivity extends AppCompatActivity implements SelectableV
 
                     Pattern idPattern = Pattern.compile("\"soundID\":[0-9]*");
                     Matcher idMatcher = idPattern.matcher(myResponse);
-                    Pattern namePattern = Pattern.compile("\"soundName\":\"[^\":]*");
+                    Pattern namePattern = Pattern.compile("\"soundName\":\"[^.\":]*");
                     Matcher nameMatcher = namePattern.matcher(myResponse);
 
                     // check each sound to see if it matches sound name
                     // if name matches, return sound ID
                     while (idMatcher.find() && nameMatcher.find()) {
+                        Log.i(idMatcher.group().substring(10), nameMatcher.group().substring(13));
                         if (nameMatcher.group().substring(13).equals(soundName)) {
                             soundID[0] = idMatcher.group().substring(10);
                             Log.i("Sound", soundID[0]);
+
                         }
                     }
+                    for (int i=0; i<selectedUsernames.size()-1; i++) {
+                        Log.i("friends", selectedUsernames.get(i));
+                        shareSound(selectedUsernames.get(i), soundID[0], false);
+                    }
+                    shareSound(selectedUsernames.get(selectedUsernames.size()-1), soundID[0], true);
                 }
                 else {
                     Log.i("Failure", response.toString());
-
+                    makeErrorToast();
                 }
                 countDownLatch.countDown();
             }
@@ -389,8 +399,8 @@ public class SelectableActivity extends AppCompatActivity implements SelectableV
         return soundID[0];
     }
 
-    public boolean deleteSound(String soundID) {
-        boolean[] success = {true};
+    private void deleteSound(String soundID) {
+
         String username = UserData.getString(this, "username");
         String token = UserData.getString(this, "token");
 
@@ -402,11 +412,12 @@ public class SelectableActivity extends AppCompatActivity implements SelectableV
                 .build();
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        client.newCall(request).enqueue(new Callback() {
+        OkHttpClient client1 = new OkHttpClient();
+        client1.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 Log.i("Delete Failure", e.toString());
-                success[0] = false;
+                makeErrorToast();
                 countDownLatch.countDown();
             }
 
@@ -416,7 +427,7 @@ public class SelectableActivity extends AppCompatActivity implements SelectableV
                     Log.i("Delete", response.toString());
                 }
                 else {
-                    success[0] = false;
+                    makeErrorToast();
                 }
                 countDownLatch.countDown();
             }
@@ -427,6 +438,10 @@ public class SelectableActivity extends AppCompatActivity implements SelectableV
         catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return success[0];
+    }
+
+
+    private void makeErrorToast() {
+        Toast.makeText(this, "Could not send alarm, try again", 5).show();
     }
 }

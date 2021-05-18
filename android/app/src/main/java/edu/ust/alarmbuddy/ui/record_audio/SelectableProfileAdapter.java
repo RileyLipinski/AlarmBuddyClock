@@ -90,4 +90,12 @@ public class SelectableProfileAdapter extends RecyclerView.Adapter implements
         */
 		listener.onItemSelected(item);
 	}
+
+	public void unselectAll() {
+		for (int i = 0; i < mProfiles.size(); i++) {
+			SelectableProfile currProfile = mProfiles.get(i);
+			currProfile.setSelected(false);
+		}
+		notifyDataSetChanged();
+	}
 }
