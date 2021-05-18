@@ -86,8 +86,7 @@ public class FriendRequests extends AppCompatActivity {
 		//uses the sorted names to create Profile objects
 		for (String s : nameList) {
 			profileList.add(
-				new Profile(ProfilePictures.getProfilePic(getApplicationContext(), s), s,
-					"details"));
+				new Profile(ProfilePictures.getProfilePic(getApplicationContext(), s), s));
 		}
 
 		setMProfileList(profileList);

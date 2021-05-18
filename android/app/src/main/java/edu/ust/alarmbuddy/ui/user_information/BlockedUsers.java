@@ -88,7 +88,7 @@ public class BlockedUsers extends AppCompatActivity {
 		for (String s : nameList) {
 			profileList.add(
 					new Profile(ProfilePictures.getProfilePic(getApplicationContext(), s),
-							s, "details"));
+							s));
 		}
 
 		setMProfileList(profileList);

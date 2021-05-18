@@ -8,7 +8,7 @@ public class SelectableProfile extends Profile {
 
 	// no image resource
 	public SelectableProfile(String name) {
-		super(-1, name, "");
+		super(-1, name);
 		isSelected = false;
 	}
 

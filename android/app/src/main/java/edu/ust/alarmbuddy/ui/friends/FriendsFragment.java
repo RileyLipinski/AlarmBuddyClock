@@ -81,7 +81,7 @@ public class FriendsFragment extends Fragment {
 		for (String s : nameList) {
 			profileList.add(
 				new Profile(ProfilePictures.getProfilePic(getActivity().getApplicationContext(), s),
-					s, "details"));
+					s));
 		}
 
 		setMProfileList(profileList);

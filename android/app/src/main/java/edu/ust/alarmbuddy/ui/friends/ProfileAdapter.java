@@ -1,7 +1,6 @@
 package edu.ust.alarmbuddy.ui.friends;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +11,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
-import java.util.ArrayList;
-
 import edu.ust.alarmbuddy.ui.user_information.Blocked_Options;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
 
 /***
  * @author Keghan Halloran
@@ -27,7 +26,7 @@ public class ProfileAdapter extends
 
 	private final ArrayList<Profile> mProfileList;
 	private final ArrayList<Profile> mProfileListFull;
-	private int flag = 1;
+	private int flag;
 
 	/***
 	 * @author Keghan Halloran
@@ -37,8 +36,6 @@ public class ProfileAdapter extends
 
 		private ImageView mImageView;
 		private TextView mTextView1;
-		private TextView mTextView2;
-		private Bitmap picture;
 		private View view;
 		private Profile currentProfile;
 		private int flag;
@@ -51,7 +48,6 @@ public class ProfileAdapter extends
 
 			mImageView = itemView.findViewById(R.id.imageView);
 			mTextView1 = itemView.findViewById(R.id.textView);
-			mTextView2 = itemView.findViewById(R.id.textView2);
 			currentProfile = null;
 
 		}
@@ -102,7 +98,6 @@ public class ProfileAdapter extends
 		}
 
 		holder.mTextView1.setText(holder.currentProfile.getText1());
-		holder.mTextView2.setText(holder.currentProfile.getText2());
 
 	}
 

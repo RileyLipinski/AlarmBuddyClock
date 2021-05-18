@@ -11,19 +11,16 @@ public class Profile {
 	private final int mImageResource;
 	private final Bitmap picture;
 	private String mText1;
-	private final String mText2;
 
-	public Profile(int imageResource, String text1, String text2) {
+	public Profile(int imageResource, String text1) {
 		mImageResource = imageResource;
 		mText1 = text1;
-		mText2 = text2;
 		picture = null;
 	}
 
-	public Profile(Bitmap PFP, String text1, String text2) {
+	public Profile(Bitmap PFP, String text1) {
 		picture = PFP;
 		mText1 = text1;
-		mText2 = text2;
 		mImageResource = 0;
 	}
 
@@ -35,9 +32,6 @@ public class Profile {
 		return mText1;
 	}
 
-	public String getText2() {
-		return mText2;
-	}
 
 	public Bitmap getPicture() {
 		return picture;

@@ -30,17 +30,5 @@
       android:layout_toEndOf="@+id/imageView"
       android:layout_toRightOf="@+id/imageView"/>
 
-    <TextView
-      android:id="@+id/textView2"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="line 2"
-      android:textSize="15sp"
-      android:layout_below="@+id/textView"
-      android:layout_toEndOf="@+id/imageView"
-      android:layout_toRightOf="@+id/imageView"
-      android:layout_marginStart="8dp"
-      android:layout_marginLeft="8dp"/>
-
   </RelativeLayout>
 </androidx.cardview.widget.CardView>
