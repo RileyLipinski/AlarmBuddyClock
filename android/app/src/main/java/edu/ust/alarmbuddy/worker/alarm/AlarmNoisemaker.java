@@ -13,6 +13,8 @@ import java.util.Date;
 
 public class AlarmNoisemaker extends BroadcastReceiver {
 
+	private static String TAG = AlarmNoisemaker.class.getName();
+
 	/**
 	 * Plays the alarm sound downloaded by AlarmFetchReceiver, or the default noise if the download
 	 * was not completed successfully.
@@ -22,9 +24,8 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		Log.i(AlarmNoisemaker.class.getName(), "Playing noise at " + new Date());
-		Log.i(AlarmNoisemaker.class.getName(),
-			"Default noise: " + intent.getBooleanExtra("useDefaultNoise", true));
+		Log.i(TAG, "Playing noise at " + new Date());
+		Log.i(TAG, "Default noise: " + intent.getBooleanExtra("useDefaultNoise", true));
 		if (intent.getBooleanExtra("useDefaultNoise", true)) {
 			makeDefaultNoise(context);
 		} else {
@@ -48,7 +49,7 @@ public class AlarmNoisemaker extends BroadcastReceiver {
 	 * @param uri     Uri of file to be played
 	 */
 	public static void makeNoise(Context context, Uri uri) {
-		Log.i(AlarmNoisemaker.class.getName(), "Making noise using file " + uri.getPath());
+		Log.i(TAG, "Making noise using file " + uri.getPath());
 		Intent intentService = new Intent(context, AlarmService.class);
 		intentService.replaceExtras(new Bundle());
 		intentService.putExtra("uri", uri.toString());
