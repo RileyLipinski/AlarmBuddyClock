@@ -30,157 +30,157 @@ import org.jetbrains.annotations.NotNull;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private LoginViewModel loginViewModel;
-    int loginAttempts = 0;
-    TextView loginErrorText;
+	private LoginViewModel loginViewModel;
+	int loginAttempts = 0;
+	TextView loginErrorText;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.login);
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.login);
 
-        // if the user is logged in, redirect to the homepage
-        if (userCurrentlyLoggedIn()) {
-            loginToHome();
-            return;
-        }
+		// if the user is logged in, redirect to the homepage
+		if (userCurrentlyLoggedIn()) {
+			loginToHome();
+			return;
+		}
 
-        // for app link, is this necessary?
-        Intent appLinkIntent = getIntent();
-        String appLinkAction = appLinkIntent.getAction();
-        Uri appLinkData = appLinkIntent.getData();
+		// for app link, is this necessary?
+		Intent appLinkIntent = getIntent();
+		String appLinkAction = appLinkIntent.getAction();
+		Uri appLinkData = appLinkIntent.getData();
 
-        LoginViewModel viewModel = ViewModelProviders.of(this).get(LoginViewModel.class);
+		LoginViewModel viewModel = ViewModelProviders.of(this).get(LoginViewModel.class);
 
-        loginErrorText = findViewById(R.id.loginErrorText);
-        final Button loginButton = findViewById(R.id.loginButton);
-        final Button goToCreateAccountButton = findViewById(R.id.goToCreateAccountButton);
+		loginErrorText = findViewById(R.id.loginErrorText);
+		final Button loginButton = findViewById(R.id.loginButton);
+		final Button goToCreateAccountButton = findViewById(R.id.goToCreateAccountButton);
 
-        loginButton.setOnClickListener(v -> {
-            // get username/password from input
-            TextView username1 = findViewById(R.id.textUsername);
-            TextView password = findViewById(R.id.textPassword);
+		loginButton.setOnClickListener(v -> {
+			// get username/password from input
+			TextView username1 = findViewById(R.id.textUsername);
+			TextView password = findViewById(R.id.textPassword);
 
-            // convert TextView to strings for comparison
-            String stringUsername = username1.getText().toString();
-            String stringPassword = password.getText().toString();
+			// convert TextView to strings for comparison
+			String stringUsername = username1.getText().toString();
+			String stringPassword = password.getText().toString();
 
-            try {
-                if (authenticateLogin(stringUsername, stringPassword)
-                        && loginAttempts < 4) {
-                    loginToHome();
-                } else {
-                    loginAttempts++;
-                }
-            } catch (Exception e) {
-                Log.d("TAG", e.toString());
-            }
-        });
+			try {
+				if (authenticateLogin(stringUsername, stringPassword)
+					&& loginAttempts < 4) {
+					loginToHome();
+				} else {
+					loginAttempts++;
+				}
+			} catch (Exception e) {
+				Log.d("TAG", e.toString());
+			}
+		});
 
-        //final Button forgotPasswordButton = findViewById(R.id.loginButton)
-        // TODO: forgot password action
+		//final Button forgotPasswordButton = findViewById(R.id.loginButton)
+		// TODO: forgot password action
 
-        goToCreateAccountButton.setOnClickListener(v -> moveToCreateAccount());
-    }
+		goToCreateAccountButton.setOnClickListener(v -> moveToCreateAccount());
+	}
 
-    /**
-     * @return whether the user has valid login credentials
-     */
-    private boolean userCurrentlyLoggedIn() {
-        Context context = getApplicationContext();
+	/**
+	 * @return whether the user has valid login credentials
+	 */
+	private boolean userCurrentlyLoggedIn() {
+		Context context = getApplicationContext();
 
-        String username = UserData.getString(context, "username");
-        String token = UserData.getString(context, "token");
+		String username = UserData.getString(context, "username");
+		String token = UserData.getString(context, "token");
 
-        if (username == null || token == null) {
-            return false;
-        }
+		if (username == null || token == null) {
+			return false;
+		}
 
-        OkHttpClient client = new OkHttpClient();
-        CountDownLatch latch = new CountDownLatch(1);
-        final int[] code = new int[1];
+		OkHttpClient client = new OkHttpClient();
+		CountDownLatch latch = new CountDownLatch(1);
+		final int[] code = new int[1];
 
-        Request request = new Request.Builder()
-                .get()
-                .url(AlarmBuddyHttp.API_URL + "/users/" + username)
-                .header("Authorization", token)
-                .build();
+		Request request = new Request.Builder()
+			.get()
+			.url(AlarmBuddyHttp.API_URL + "/users/" + username)
+			.header("Authorization", token)
+			.build();
 
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                call.cancel();
-                code[0] = 500;
-                latch.countDown();
-            }
+		client.newCall(request).enqueue(new Callback() {
+			@Override
+			public void onFailure(@NotNull Call call, @NotNull IOException e) {
+				call.cancel();
+				code[0] = 500;
+				latch.countDown();
+			}
 
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) {
-                code[0] = response.code();
-                latch.countDown();
-            }
-        });
+			@Override
+			public void onResponse(@NotNull Call call, @NotNull Response response) {
+				code[0] = response.code();
+				latch.countDown();
+			}
+		});
 
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            return false;
-        }
+		try {
+			latch.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return false;
+		}
 
-        return code[0] == 200;
-    }
+		return code[0] == 200;
+	}
 
-    private void loginToHome() {
-        NotificationFetchReceiver.scheduleNotificationFetch(getApplicationContext());
-        startActivity(new Intent(this, MainActivity.class));
-    }
+	private void loginToHome() {
+		NotificationFetchReceiver.scheduleNotificationFetch(getApplicationContext());
+		startActivity(new Intent(this, MainActivity.class));
+	}
 
-    private void moveToCreateAccount() {
-        startActivity(new Intent(this, CreateAccountActivity.class));
-    }
+	private void moveToCreateAccount() {
+		startActivity(new Intent(this, CreateAccountActivity.class));
+	}
 
-    private boolean authenticateLogin(String username, String password)
-            throws IOException {
-        //build the request
-        String data = "username=" + username + "&password=" + password;
-        URL url = new URL(AlarmBuddyHttp.API_URL + "/login");
-        RequestBody body = RequestBody.create(data, MediaType
-                .parse("application/x-www-form-urlencoded"));
-        Request request = new Request.Builder()
-                .url(url)
-                .post(body)
-                .build();
+	private boolean authenticateLogin(String username, String password)
+		throws IOException {
+		//build the request
+		String data = "username=" + username + "&password=" + password;
+		URL url = new URL(AlarmBuddyHttp.API_URL + "/login");
+		RequestBody body = RequestBody.create(data, MediaType
+			.parse("application/x-www-form-urlencoded"));
+		Request request = new Request.Builder()
+			.url(url)
+			.post(body)
+			.build();
 
-        //execute the request and wait for a response
-        final String[] stringResponse = new String[1];
-        final CountDownLatch latch = new CountDownLatch(1);
-        AlarmBuddyHttp.client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                call.cancel();
-                latch.countDown();
-            }
+		//execute the request and wait for a response
+		final String[] stringResponse = new String[1];
+		final CountDownLatch latch = new CountDownLatch(1);
+		AlarmBuddyHttp.client.newCall(request).enqueue(new Callback() {
+			@Override
+			public void onFailure(Call call, IOException e) {
+				call.cancel();
+				latch.countDown();
+			}
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                stringResponse[0] = response.body().string();
-                latch.countDown();
-            }
-        });
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				stringResponse[0] = response.body().string();
+				latch.countDown();
+			}
+		});
+		try {
+			latch.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
-        boolean trueResponse = stringResponse[0].substring(8, 12).equals("true");
+		boolean trueResponse = stringResponse[0].substring(8, 12).equals("true");
 
-        if (trueResponse) {
-            String token = JsonParser.parseString(stringResponse[0])
-                    .getAsJsonObject()
-                    .get("token")
-                    .getAsString();
+		if (trueResponse) {
+			String token = JsonParser.parseString(stringResponse[0])
+				.getAsJsonObject()
+				.get("token")
+				.getAsString();
 
 			try {
 				UserData.getSharedPreferences(getApplicationContext()).edit()
@@ -197,23 +197,23 @@ public class LoginActivity extends AppCompatActivity {
 			loginErrorText.setText("Username or password is incorrect");
 		}
 
-        return stringResponse[0] != null && trueResponse;
-    }
+		return stringResponse[0] != null && trueResponse;
+	}
 
-    @Override
-    protected void onDestroy() {
-        // TODO: does not clear info on force quitting app
-        // when app is destroyed, also destroy user info
-        // this only works when called from the same context that it was created in (LoginActivity)
-        super.onDestroy();
-        try {
-            UserData.clearSharedPreferences(getApplicationContext());
-        } catch (GeneralSecurityException e) {
-            Log.e("ClearSharedPreferences", e.toString());
-        } catch (IOException e) {
-            Log.e("ClearSharedPreferences", e.toString());
-        }
-    }
+	@Override
+	protected void onDestroy() {
+		// TODO: does not clear info on force quitting app
+		// when app is destroyed, also destroy user info
+		// this only works when called from the same context that it was created in (LoginActivity)
+		super.onDestroy();
+		try {
+			UserData.clearSharedPreferences(getApplicationContext());
+		} catch (GeneralSecurityException e) {
+			Log.e("ClearSharedPreferences", e.toString());
+		} catch (IOException e) {
+			Log.e("ClearSharedPreferences", e.toString());
+		}
+	}
 }
 
 

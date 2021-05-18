@@ -13,11 +13,11 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import edu.ust.alarmbuddy.ui.alarm.AlarmPublisher;
 import edu.ust.alarmbuddy.worker.alarm.AlarmNoisemaker;
-
 import java.util.Calendar;
 
 @Entity(tableName = "alarms")
 public class Alarm {
+
 	@PrimaryKey
 	@NonNull
 	private int alarmId;
@@ -161,12 +161,12 @@ public class Alarm {
 		}
 
 		String toastCreateAlarm;
-		if(name.length() != 0) {
+		if (name.length() != 0) {
 			toastCreateAlarm = String
-					.format("Alarm (%s) set for %s at %02d:%02d", name, dayOfWeek, hour, minute);
+				.format("Alarm (%s) set for %s at %02d:%02d", name, dayOfWeek, hour, minute);
 		} else {
 			toastCreateAlarm = String
-					.format("Alarm set for %s at %02d:%02d", dayOfWeek, hour, minute);
+				.format("Alarm set for %s at %02d:%02d", dayOfWeek, hour, minute);
 		}
 
 		Toast toast = Toast.makeText(context, toastCreateAlarm, Toast.LENGTH_LONG);

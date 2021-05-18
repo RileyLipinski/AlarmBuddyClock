@@ -33,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 public class NotificationFetchReceiver extends BroadcastReceiver {
 
 	/** The amount of time (millseconds) between polls for new sounds */
-	public static final long INTERVAL = 60 * 1000;
+	public static final long INTERVAL = 6000000L;
 
 	/**
 	 * Upon receiving an Intent, polls the database for new sounds and takes the appropriate action
