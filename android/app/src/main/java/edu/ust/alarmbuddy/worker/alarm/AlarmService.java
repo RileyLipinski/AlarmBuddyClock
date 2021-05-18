@@ -86,14 +86,9 @@ public class AlarmService extends Service {
 
 		startForeground(1, alarmNotification);
 
-		//String alarmName = String.format("%s Alarm", intent.getStringExtra(name));
-
 		return START_STICKY;
 	}
 
-	/**
-	 * This method is used to stop the alarm service.
-	 */
 	@Override
 	public void onDestroy() {
 		mediaPlayer.stop();
