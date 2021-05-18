@@ -1,0 +1,39 @@
+.top-container {
+    height: 2.80rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    object-fit: contains;
+}
+
+.top-container > h3 {
+	font-size: 1rem; 
+	margin: 4rem; 
+	color: #black;
+}
+
+.top-container > p {
+	font-size: 2.65rem; 
+	margin-bottom: -4rem; 
+	color: #black;
+	font-weight: 720;
+}
+
+@media screen and (max-width: 60rem){
+    .top-container > h1 {
+        font-size: 4.375rem;
+        margin-top: 9.375rem;
+    }
+}
+@media screen and (max-width: 768px){
+    .top-container > h1 {
+        font-size: 1rem;
+        margin-top: -6.25rem;
+    }
+
+    .top-container > p {
+        font-size: 1.5rem;
+    }
+}

@@ -1,0 +1,15 @@
+
+img {
+    width: 50.25vh;
+    height: 50.25vh;
+    object-fit: center;
+  }
+  
+
+@media screen and (max-width: 70rem) {
+   .card {
+    margin: .5rem;
+    width: 10.25rem;
+    height: 10.25rem;
+  }
+}

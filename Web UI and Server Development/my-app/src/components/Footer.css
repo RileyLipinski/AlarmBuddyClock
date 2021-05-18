@@ -1,0 +1,13 @@
+.footer {
+	background-color: linear-gradient(90deg, rgb(28, 27, 27), 0%, rgb(26, 23, 23) 100%);	
+  }
+  
+a:active{
+text-decoration: none; 
+color: white; 
+}
+
+a:visited{
+text-decoration: none; 
+color: white; 
+}
