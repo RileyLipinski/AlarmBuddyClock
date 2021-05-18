@@ -13,7 +13,7 @@ import java.util.Date;
 
 public class AlarmNoisemaker extends BroadcastReceiver {
 
-	private static String TAG = AlarmNoisemaker.class.getName();
+	private static final String TAG = AlarmNoisemaker.class.getName();
 
 	/**
 	 * Plays the alarm sound downloaded by AlarmFetchReceiver, or the default noise if the download
