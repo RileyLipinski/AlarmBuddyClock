@@ -50,19 +50,21 @@
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:text="Sign In"
-    app:layout_constraintBottom_toTopOf="@+id/forgotPasswordButton"
+    app:layout_constraintBottom_toTopOf="@+id/goToCreateAccountButton"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintHorizontal_bias="0.0"
     app:layout_constraintStart_toStartOf="parent"/>
 
-  <Button
-    android:id="@+id/forgotPasswordButton"
-    android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:text="Forgot My Password"
-    app:layout_constraintBottom_toTopOf="@+id/goToCreateAccountButton"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"/>
+  <TextView
+          android:id="@+id/loginErrorText"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="4dp"
+          android:textColor="#F00000"
+          app:layout_constraintBottom_toTopOf="@id/loginButton"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"/>
+
 
   <ImageView
     android:id="@+id/imageView3"
