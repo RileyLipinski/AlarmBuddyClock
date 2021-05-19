@@ -1,0 +1,204 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "demo alarm buddy",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.FallbackIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AlarmBuddy_CreateAlarm",
+                    "slots": [
+                        {
+                            "name": "day",
+                            "type": "AMAZON.DATE"
+                        },
+                        {
+                            "name": "timeofday",
+                            "type": "AMAZON.TIME"
+                        }
+                    ],
+                    "samples": [
+                        "create alarm {day} at {timeofday}",
+                        "create me an alart {day} at {timeofday}",
+                        "create an alarm {day} at {timeofday}",
+                        "create alarm for {day} at {timeofday}",
+                        "create me an alarm for {day} at {timeofday}",
+                        "create an alarm for {day} at {timeofday}"
+                    ]
+                },
+                {
+                    "name": "AlarmBuddy_Record",
+                    "slots": [],
+                    "samples": [
+                        "record an alarm",
+                        "record a sound",
+                        "record sound",
+                        "record audio"
+                    ]
+                },
+                {
+                    "name": "AlarmBuddy_GetFriendRequests",
+                    "slots": [],
+                    "samples": [
+                        "what are my friend requests"
+                    ]
+                },
+                {
+                    "name": "AlarmBuddy_SendFriendRequest",
+                    "slots": [
+                        {
+                            "name": "receiver_uname",
+                            "type": "AMAZON.FirstName"
+                        }
+                    ],
+                    "samples": [
+                        "send a friend request to {receiver_uname}",
+                        "send friend request to {receiver_uname}"
+                    ]
+                },
+                {
+                    "name": "AlarmBuddy_GetFriends",
+                    "slots": [],
+                    "samples": [
+                        "who am I friends with on alarm buddy",
+                        "tell me my alarm buddy friends",
+                        "get my friends list"
+                    ]
+                },
+                {
+                    "name": "AlarmBuddy_GetBlockList",
+                    "slots": [],
+                    "samples": [
+                        "who is blocked on my account",
+                        "get block list",
+                        "get my block list",
+                        "who do I have blocked"
+                    ]
+                },
+                {
+                    "name": "AlarmBuddy_SendSounds",
+                    "slots": [
+                        {
+                            "name": "friend_uname",
+                            "type": "AMAZON.FirstName"
+                        },
+                        {
+                            "name": "sound_id",
+                            "type": "AMAZON.NUMBER"
+                        }
+                    ],
+                    "samples": [
+                        "send {friend_uname} sound {sound_id}",
+                        "send the sound {sound_id} to {friend_uname}",
+                        "Send sound {sound_id} to {friend_uname}"
+                    ]
+                },
+                {
+                    "name": "AlarmBuddy_GetSounds",
+                    "slots": [],
+                    "samples": [
+                        "get my sounds",
+                        "what sounds are on my account",
+                        "get my sound list"
+                    ]
+                },
+                {
+                    "name": "AlarmBuddy_BlockUser",
+                    "slots": [
+                        {
+                            "name": "block_uname",
+                            "type": "AMAZON.FirstName"
+                        }
+                    ],
+                    "samples": [
+                        "block alarm buddy user {block_uname}",
+                        "block {block_uname}",
+                        "block user {block_uname}"
+                    ]
+                },
+                {
+                    "name": "AlarmBuddy_UnblockUser",
+                    "slots": [
+                        {
+                            "name": "unblock_uname",
+                            "type": "AMAZON.FirstName"
+                        }
+                    ],
+                    "samples": [
+                        "unblock alarm buddy user {unblock_uname}",
+                        "unblock {unblock_uname}",
+                        "unblock user {unblock_uname}"
+                    ]
+                },
+                {
+                    "name": "AmazonBuddy_DeleteFriend",
+                    "slots": [
+                        {
+                            "name": "friend_uname",
+                            "type": "AMAZON.FirstName"
+                        }
+                    ],
+                    "samples": [
+                        "delete my friend {friend_uname}",
+                        "delete friend {friend_uname}"
+                    ]
+                },
+                {
+                    "name": "AlarmBuddy_CancelFriendRequest",
+                    "slots": [
+                        {
+                            "name": "receiver_uname",
+                            "type": "AMAZON.FirstName"
+                        }
+                    ],
+                    "samples": [
+                        "cancel my friend request to {receiver_uname}"
+                    ]
+                },
+                {
+                    "name": "AlarmBuddy_DenyFriendRequest",
+                    "slots": [
+                        {
+                            "name": "sender_uname",
+                            "type": "AMAZON.FirstName"
+                        }
+                    ],
+                    "samples": [
+                        "Deny friend request from {sender_uname}"
+                    ]
+                },
+                {
+                    "name": "AlarmBuddy_AcceptFriendRequest",
+                    "slots": [
+                        {
+                            "name": "sender_uname",
+                            "type": "AMAZON.FirstName"
+                        }
+                    ],
+                    "samples": [
+                        "accept friend request from {sender_uname}"
+                    ]
+                }
+            ],
+            "types": []
+        }
+    }
+}
