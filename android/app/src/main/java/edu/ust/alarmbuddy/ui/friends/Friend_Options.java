@@ -33,9 +33,8 @@ import org.jetbrains.annotations.NotNull;
 
 
 /**
- * @author Keghan Halloran
- * This class handles the activity that is shown when a user selects one of the profiles in their friends list.
- * This includes the functionality to block or remove friends.
+ * @author Keghan Halloran This class handles the activity that is shown when a user selects one of
+ * the profiles in their friends list. This includes the functionality to block or remove friends.
  */
 public class Friend_Options extends AppCompatActivity {
 
@@ -73,33 +72,32 @@ public class Friend_Options extends AppCompatActivity {
 		r = "remove";
 		b = "block";
 
+		remove.setOnClickListener(v -> {
+			try {
+				Post(r);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
 
-			remove.setOnClickListener(v -> {
-				try {
-					Post(r);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			});
-
-			block.setOnClickListener(v -> {
-				try {
-					Post(b);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			});
+		block.setOnClickListener(v -> {
+			try {
+				Post(b);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
 	}
 
 	private void Post(String command) throws InterruptedException {
 		OkHttpClient client = new OkHttpClient();
 
-		if(command.compareTo("")==0){
+		if (command.compareTo("") == 0) {
 			return;
 		}
 		flag = 0;
 
-		String token  = UserData.getStringNotNull(this, "token");
+		String token = UserData.getStringNotNull(this, "token");
 		String username = UserData.getStringNotNull(this, "username");
 
 		String action = "";
@@ -109,31 +107,32 @@ public class Friend_Options extends AppCompatActivity {
 			action = "deleteFriend";
 
 			String url =
-					AlarmBuddyHttp.API_URL + "/" + action + "/" + username + "/" + name.getText().toString()
-							.trim();
+				AlarmBuddyHttp.API_URL + "/" + action + "/" + username + "/" + name.getText()
+					.toString()
+					.trim();
 			Log.i(Friend_Options.class.getName(), "URL: " + url);
 
 			request = new Request.Builder()
-					.delete(RequestBody.create("", MediaType.parse("text/plain")))
-					.url(url)
-					.header("Authorization", token)
-					.build();
+				.delete(RequestBody.create("", MediaType.parse("text/plain")))
+				.url(url)
+				.header("Authorization", token)
+				.build();
 
-		} else{
+		} else {
 			action = "blockUser";
 			String url =
-					AlarmBuddyHttp.API_URL + "/" + action + "/" + username + "/" + name.getText().toString()
-							.trim();
+				AlarmBuddyHttp.API_URL + "/" + action + "/" + username + "/" + name.getText()
+					.toString()
+					.trim();
 			Log.i(Friend_Options.class.getName(), "URL: " + url);
 
 			request = new Request.Builder()
-					.post(RequestBody.create("", MediaType.parse("text/plain")))
-					.url(url)
-					.header("Authorization", token)
-					.build();
+				.post(RequestBody.create("", MediaType.parse("text/plain")))
+				.url(url)
+				.header("Authorization", token)
+				.build();
 
 		}
-
 
 		CountDownLatch countDownLatch = new CountDownLatch(1);
 		client.newCall(request).enqueue(new Callback() {
@@ -151,8 +150,8 @@ public class Friend_Options extends AppCompatActivity {
 				Log.i(Friend_Options.class.getName(), "Message: " + response.body().string());
 				if (response.isSuccessful()) {
 					flag = 1;
-					r ="";
-					b="";
+					r = "";
+					b = "";
 					countDownLatch.countDown();
 				}
 			}

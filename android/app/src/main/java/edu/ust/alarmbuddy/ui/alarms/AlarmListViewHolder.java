@@ -6,9 +6,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import edu.ust.alarmbuddy.ui.alarms.database.Alarm;
-
 import edu.ust.alarmbuddy.R;
+import edu.ust.alarmbuddy.ui.alarms.database.Alarm;
 
 public class AlarmListViewHolder extends RecyclerView.ViewHolder {
 

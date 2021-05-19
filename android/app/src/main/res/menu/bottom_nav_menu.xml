@@ -22,8 +22,8 @@
     android:title="Friends"/>
 
   <item
-          android:id="@+id/navigation_settings"
-          android:icon="@drawable/ic_settings_foreground"
-          android:title="Settings"/>
+    android:id="@+id/navigation_settings"
+    android:icon="@drawable/ic_settings_foreground"
+    android:title="Settings"/>
 
 </menu>

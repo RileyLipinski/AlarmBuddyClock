@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -20,8 +19,6 @@ import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class CreateAccountActivity extends AppCompatActivity {
 
@@ -265,12 +262,15 @@ public class CreateAccountActivity extends AppCompatActivity {
 						phoneNumber.getText().toString(),
 						birthdate)) {
 
-						Toast.makeText(CreateAccountActivity.this, "Account created successfully", 8).show();
+						Toast
+							.makeText(CreateAccountActivity.this, "Account created successfully", 8)
+							.show();
 
 						moveToLogin();
 					} else {
 						// if request unsuccessful, show error text
-						createAccountErrorText.setText("Error: username, email, or phone number already in use");
+						createAccountErrorText
+							.setText("Error: username, email, or phone number already in use");
 					}
 				}
 			}
@@ -298,17 +298,17 @@ public class CreateAccountActivity extends AppCompatActivity {
 
 		// check all fields for their respective requirements
 		if (!password.getText().toString()
-				.equals(confirmPassword.getText().toString())) {
+			.equals(confirmPassword.getText().toString())) {
 			highlightInvalidField(confirmPassword);
 			allFieldsValid = false;
 		}
 		if (!passwordMeetsReqs(password.getText().toString())) {
 			highlightInvalidField(password);
 			createAccountErrorText.setText("Password must contain a lowercase letter, " +
-					"uppercase letter, number, and special character (!#$%*)");
+				"uppercase letter, number, and special character (!#$%*)");
 		}
 		if (password.getText().toString().length() < 8 ||
-				password.getText().toString().length() > 20) {
+			password.getText().toString().length() > 20) {
 			highlightInvalidField(password);
 			createAccountErrorText.setText("Password must be 8-20 characters in length");
 		}
@@ -317,10 +317,10 @@ public class CreateAccountActivity extends AppCompatActivity {
 			allFieldsValid = false;
 		}
 		if (username.getText().toString().length() > 0 &&
-				!isValidUsername(username.getText().toString())) {
+			!isValidUsername(username.getText().toString())) {
 			highlightInvalidField(username);
 			createAccountErrorText
-					.setText("Username can only contain letters, numbers, and underscores");
+				.setText("Username can only contain letters, numbers, and underscores");
 			allFieldsValid = false;
 		}
 		if (!isValidBirthday(birthday.getText().toString())) {
@@ -329,7 +329,7 @@ public class CreateAccountActivity extends AppCompatActivity {
 		} else if (!userIs18(birthday.getText().toString())) {
 			highlightInvalidField(birthday);
 			createAccountErrorText
-					.setText("You must be at least 18 years old to create an account");
+				.setText("You must be at least 18 years old to create an account");
 			allFieldsValid = false;
 		}
 		if (!isValidPhoneNumber(phoneNumber.getText().toString())) {
@@ -337,17 +337,17 @@ public class CreateAccountActivity extends AppCompatActivity {
 			allFieldsValid = false;
 		}
 		if (lastName.getText().toString().length() > 0 &&
-				!isValidName(lastName.getText().toString())) {
+			!isValidName(lastName.getText().toString())) {
 			highlightInvalidField(lastName);
 			createAccountErrorText
-					.setText("Last name can only contain letters, apostrophes, and hyphens");
+				.setText("Last name can only contain letters, apostrophes, and hyphens");
 			allFieldsValid = false;
 		}
 		if (firstName.getText().toString().length() > 0 &&
-				!isValidName(firstName.getText().toString())) {
+			!isValidName(firstName.getText().toString())) {
 			highlightInvalidField(firstName);
 			createAccountErrorText
-					.setText("First name can only contain letters, apostrophes, and hyphens");
+				.setText("First name can only contain letters, apostrophes, and hyphens");
 			allFieldsValid = false;
 		}
 		if (!isValidEmail(email.getText())) {
@@ -462,7 +462,7 @@ public class CreateAccountActivity extends AppCompatActivity {
 	// check that password contains uppercase letter, lowercase letter, number, special character
 	private boolean passwordMeetsReqs(String password) {
 		return password.matches(".*[A-Z].*") && password.matches(".*[a-z].*") &&
-				password.matches(".*[0-9].*") && password.matches(".*[!#$%'()*+,\\-./:;?`{|}~\\]].*");
+			password.matches(".*[0-9].*") && password.matches(".*[!#$%'()*+,\\-./:;?`{|}~\\]].*");
 	}
 
 	private void highlightInvalidField(EditText field) {

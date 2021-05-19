@@ -53,7 +53,7 @@ public class SendRequest extends AppCompatActivity {
 		button = findViewById(R.id.button);
 		entry = findViewById(R.id.textUsername);
 		entry.setText(" ");
-		s="send";
+		s = "send";
 		button.setOnClickListener(v -> {
 			try {
 				send();
@@ -67,7 +67,7 @@ public class SendRequest extends AppCompatActivity {
 
 	private void send() throws InterruptedException {
 		OkHttpClient client = new OkHttpClient();
-		if(s.compareTo("")==0){
+		if (s.compareTo("") == 0) {
 			return;
 		}
 		flag = 0;
@@ -101,7 +101,7 @@ public class SendRequest extends AppCompatActivity {
 				Log.i(SendRequest.class.getName(), "Message: " + response.body().string());
 				if (response.isSuccessful()) {
 					flag = 1;
-					s="";
+					s = "";
 					countDownLatch.countDown();
 				}
 			}
@@ -132,7 +132,8 @@ public class SendRequest extends AppCompatActivity {
 	}
 
 	/**
-	 *Creates the back arrow at the top of the screen that allows a user to go back to the FriendsFragment.
+	 * Creates the back arrow at the top of the screen that allows a user to go back to the
+	 * FriendsFragment.
 	 */
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {

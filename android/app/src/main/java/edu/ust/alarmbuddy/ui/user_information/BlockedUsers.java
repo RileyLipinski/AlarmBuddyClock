@@ -14,14 +14,13 @@ import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import edu.ust.alarmbuddy.common.ProfilePictures;
 import edu.ust.alarmbuddy.common.UserData;
+import edu.ust.alarmbuddy.ui.friends.Profile;
+import edu.ust.alarmbuddy.ui.friends.ProfileAdapter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import edu.ust.alarmbuddy.ui.friends.Profile;
-import edu.ust.alarmbuddy.ui.friends.ProfileAdapter;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -33,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
  * Creates a recyclerview that contains any other users that the user has blocked.
  */
 public class BlockedUsers extends AppCompatActivity {
+
 	private RecyclerView mRecyclerView;
 	private RecyclerView.Adapter mAdapter;
 	private RecyclerView.LayoutManager mLayoutManager;
@@ -90,8 +90,8 @@ public class BlockedUsers extends AppCompatActivity {
 		//uses the sorted names to create Profile objects
 		for (String s : nameList) {
 			profileList.add(
-					new Profile(ProfilePictures.getProfilePic(getApplicationContext(), s),
-							s));
+				new Profile(ProfilePictures.getProfilePic(getApplicationContext(), s),
+					s));
 		}
 
 		setMProfileList(profileList);
@@ -153,8 +153,9 @@ public class BlockedUsers extends AppCompatActivity {
 	}
 
 	/**
-	 * Overridden onResume method that recreates the recyclerview when returning from a different activity.
-	 * this is done to keep the list up to date when the user unblocks a user from a different activity.
+	 * Overridden onResume method that recreates the recyclerview when returning from a different
+	 * activity. this is done to keep the list up to date when the user unblocks a user from a
+	 * different activity.
 	 */
 	@Override
 	protected void onResume() {
@@ -182,7 +183,8 @@ public class BlockedUsers extends AppCompatActivity {
 	}
 
 	/**
-	 * Handles the back arrow at the top of the page that allows the user to go back to the user info page.
+	 * Handles the back arrow at the top of the page that allows the user to go back to the user
+	 * info page.
 	 */
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {

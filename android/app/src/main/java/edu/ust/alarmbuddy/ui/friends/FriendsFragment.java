@@ -207,9 +207,9 @@ public class FriendsFragment extends Fragment {
 	}
 
 	/**
-	 * Overridden onResume method that recreates the recyclerview after returning to the FriendsFragment from
-	 * an activity. This is done so the list stays up to date after a users removes or blocks a friend in a different
-	 * activity.
+	 * Overridden onResume method that recreates the recyclerview after returning to the
+	 * FriendsFragment from an activity. This is done so the list stays up to date after a users
+	 * removes or blocks a friend in a different activity.
 	 */
 	@Override
 	public void onResume() {
@@ -233,7 +233,8 @@ public class FriendsFragment extends Fragment {
 	}
 
 	/**
-	 * Handles updating the friends list in real time as a user searches a user name in their friends list.
+	 * Handles updating the friends list in real time as a user searches a user name in their
+	 * friends list.
 	 */
 	@Override
 	public void onCreateOptionsMenu(@NotNull Menu menu, MenuInflater inflater) {

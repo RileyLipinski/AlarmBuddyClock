@@ -10,11 +10,8 @@ import android.widget.TimePicker;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.ui.alarms.database.Alarm;
-
 import java.util.Random;
 
 public class AlarmFragment extends Fragment {

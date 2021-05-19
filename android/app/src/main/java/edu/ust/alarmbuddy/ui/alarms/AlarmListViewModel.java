@@ -6,7 +6,6 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import edu.ust.alarmbuddy.ui.alarms.database.Alarm;
 import edu.ust.alarmbuddy.ui.alarms.database.AlarmList;
-
 import java.util.List;
 
 public class AlarmListViewModel extends AndroidViewModel {

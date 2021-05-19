@@ -12,9 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import edu.ust.alarmbuddy.R;
 import edu.ust.alarmbuddy.ui.user_information.Blocked_Options;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
+import org.jetbrains.annotations.NotNull;
 
 /***
  * @author Keghan Halloran
@@ -55,7 +54,9 @@ public class ProfileAdapter extends
 		}
 
 		/**
-		 * Redirects user to specific activities when an profile object in a list is clicked depending on the input.
+		 * Redirects user to specific activities when an profile object in a list is clicked
+		 * depending on the input.
+		 *
 		 * @param flag determines the activity that is opened when a item in the list is clicked
 		 */
 		public void Click(int flag) {
@@ -65,12 +66,12 @@ public class ProfileAdapter extends
 				intent.putExtra("name", mTextView1.getText().toString());
 				itemView.getContext().startActivity(intent);
 
-			} else if(flag==2){
+			} else if (flag == 2) {
 				Intent intent = new Intent(itemView.getContext(), Blocked_Options.class);
 				intent.putExtra("name", mTextView1.getText().toString());
 				itemView.getContext().startActivity(intent);
 
-			}else {
+			} else {
 				Intent intent = new Intent(itemView.getContext(), Request_Options.class);
 				intent.putExtra("name", mTextView1.getText().toString());
 				itemView.getContext().startActivity(intent);

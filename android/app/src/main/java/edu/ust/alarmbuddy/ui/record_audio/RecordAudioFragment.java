@@ -72,8 +72,9 @@ public class RecordAudioFragment extends Fragment {
 		timerText = root.findViewById(R.id.timer);
 		recordTimer = new CountDownTimer(totalSeconds * 1000, intervalSeconds * 1000) {
 			public void onTick(long millisUntilFinished) {
-				timerText.setText(String.format(":%02d",(totalSeconds * 1000 - millisUntilFinished) / 1000));
-				duration = (int)((totalSeconds * 1000 - millisUntilFinished) / 1000);
+				timerText.setText(
+					String.format(":%02d", (totalSeconds * 1000 - millisUntilFinished) / 1000));
+				duration = (int) ((totalSeconds * 1000 - millisUntilFinished) / 1000);
 			}
 
 			public void onFinish() {
@@ -89,7 +90,9 @@ public class RecordAudioFragment extends Fragment {
 		playTimer = new CountDownTimer(totalSeconds * 1000, intervalSeconds * 1000) {
 			public void onTick(long millisUntilFinished) {
 				if (duration > 0) {
-					playText.setText(String.format(":%02d/:%02d", (totalSeconds * 1000 - millisUntilFinished) / 1000, duration));
+					playText.setText(String
+						.format(":%02d/:%02d", (totalSeconds * 1000 - millisUntilFinished) / 1000,
+							duration));
 					if (((totalSeconds * 1000 - millisUntilFinished) / 1000) >= duration) {
 						playTimer.cancel();
 						playText.setText(String.format(":%02d/:%02d", duration, duration));
@@ -113,8 +116,6 @@ public class RecordAudioFragment extends Fragment {
 		requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO,
 			Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
 
-
-
 		// set listeners for record, play, and upload
 		recordButton.setOnClickListener(v -> {
 			if (mStartPlaying) {
@@ -132,8 +133,7 @@ public class RecordAudioFragment extends Fragment {
 					}
 					mStartRecording = !mStartRecording;
 				}
-			}
-			else {
+			} else {
 				Toast.makeText(getContext(), "You are playing a sound!", 4).show();
 			}
 		});
@@ -147,8 +147,7 @@ public class RecordAudioFragment extends Fragment {
 					playButton.setText("Stop playing");
 					if (duration > 0) {
 						playTimer.start();
-					}
-					else {
+					} else {
 						Toast.makeText(getContext(), "You haven't recorded a sound yet!", 4).show();
 					}
 				} else {
@@ -156,8 +155,7 @@ public class RecordAudioFragment extends Fragment {
 					playTimer.cancel();
 				}
 				mStartPlaying = !mStartPlaying;
-			}
-			else {
+			} else {
 				Toast.makeText(getContext(), "You are recording a sound!", 4).show();
 			}
 		});
@@ -165,8 +163,7 @@ public class RecordAudioFragment extends Fragment {
 		sendButton.setOnClickListener(v -> {
 			if (!hasRecordedAudio) {
 				Toast.makeText(getContext(), "You have not recorded a sound yet!", 8).show();
-			}
-			else {
+			} else {
 				Intent intent = new Intent(getActivity(), SelectableActivity.class);
 				startActivity(intent);
 			}
@@ -174,7 +171,6 @@ public class RecordAudioFragment extends Fragment {
 
 		return root;
 	}
-
 
 
 	@Override

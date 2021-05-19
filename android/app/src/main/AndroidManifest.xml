@@ -1,57 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="edu.ust.alarmbuddy">
+  package="edu.ust.alarmbuddy">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+  <uses-permission android:name="android.permission.INTERNET"/>
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+  <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 
-    <uses-feature
-            android:name="android.hardware.microphone"
-            android:required="false"/>
+  <uses-feature
+    android:name="android.hardware.microphone"
+    android:required="false"/>
 
-    <application
-            android:name=".ui.alarm.App"
-            android:allowBackup="true"
-            android:icon="@mipmap/alarmbuddy_cropped"
-            android:label="@string/app_name"
-            android:roundIcon="@mipmap/ic_launcher_round"
-            android:supportsRtl="true"
-            android:theme="@style/AppTheme">
-        <activity android:name=".ui.user_information.Blocked_Options">
-        </activity>
-        <activity android:name=".ui.user_information.BlockedUsers">
-        </activity>
-        <activity android:name=".ui.friends.Request_Options">
-        </activity>
-        <activity android:name=".ui.friends.Friend_Options">
-        </activity>
+  <application
+    android:name=".ui.alarm.App"
+    android:allowBackup="true"
+    android:icon="@mipmap/alarmbuddy_cropped"
+    android:label="@string/app_name"
+    android:roundIcon="@mipmap/ic_launcher_round"
+    android:supportsRtl="true"
+    android:theme="@style/AppTheme">
+    <activity android:name=".ui.user_information.Blocked_Options">
+    </activity>
+    <activity android:name=".ui.user_information.BlockedUsers">
+    </activity>
+    <activity android:name=".ui.friends.Request_Options">
+    </activity>
+    <activity android:name=".ui.friends.Friend_Options">
+    </activity>
 
-        <receiver android:name=".worker.alarm.AlarmFetchReceiver"/>
-        <receiver android:name=".worker.alarm.AlarmNoisemaker"/>
-        <receiver android:name=".worker.notification.NotificationFetchReceiver"/>
+    <receiver android:name=".worker.alarm.AlarmFetchReceiver"/>
+    <receiver android:name=".worker.alarm.AlarmNoisemaker"/>
+    <receiver android:name=".worker.notification.NotificationFetchReceiver"/>
 
-        <activity android:name=".ui.friends.SendRequest"/>
-        <activity android:name=".ui.friends.FriendRequests"/>
-        <activity android:name=".MainActivity"/>
-        <activity
-                android:name=".LoginActivity"
-                android:label="@string/app_name">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+    <activity android:name=".ui.friends.SendRequest"/>
+    <activity android:name=".ui.friends.FriendRequests"/>
+    <activity android:name=".MainActivity"/>
+    <activity
+      android:name=".LoginActivity"
+      android:label="@string/app_name">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
-        <activity android:name=".AlarmActivity"/>
-        <activity android:name=".CreateAccountActivity"/>
-        <activity android:name=".SoundListActivity"/>
-        <activity android:name=".ui.record_audio.SelectableActivity"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity>
+    <activity android:name=".AlarmActivity"/>
+    <activity android:name=".CreateAccountActivity"/>
+    <activity android:name=".SoundListActivity"/>
+    <activity android:name=".ui.record_audio.SelectableActivity"/>
 
-        <service android:name=".worker.alarm.AlarmService"/>
-    </application>
+    <service android:name=".worker.alarm.AlarmService"/>
+  </application>
 
 </manifest>

@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 
 
 public class LoginActivity extends AppCompatActivity {
+
 	int loginAttempts = 0;
 	TextView loginErrorText;
 

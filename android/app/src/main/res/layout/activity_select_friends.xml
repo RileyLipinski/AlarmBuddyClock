@@ -1,38 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  tools:context=".ui.record_audio.SelectableActivity">
+
+  <EditText
+    android:id="@+id/sound_name"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom|left"
+    android:layout_marginTop="24dp"
+    android:paddingBottom="16dp"
+    android:paddingLeft="16dp"
+    android:ems="10"
+    android:inputType="textPersonName"
+    android:text="Name your ringtone"/>
+
+  <androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/selection_list"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ui.record_audio.SelectableActivity">
+    android:layout_height="wrap_content"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp">
 
-    <EditText
-        android:id="@+id/sound_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|left"
-        android:layout_marginTop="24dp"
-        android:paddingBottom="16dp"
-        android:paddingLeft="16dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Name your ringtone" />
+  </androidx.recyclerview.widget.RecyclerView>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/selection_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp">
-
-    </androidx.recyclerview.widget.RecyclerView>
-
-    <Button
-        android:id="@+id/send_sound"
-        android:layout_width="100dp"
-        android:layout_height="60dp"
-        android:layout_gravity="bottom|right"
-        android:paddingBottom="16dp"
-        android:text="Send" />
+  <Button
+    android:id="@+id/send_sound"
+    android:layout_width="100dp"
+    android:layout_height="60dp"
+    android:layout_gravity="bottom|right"
+    android:paddingBottom="16dp"
+    android:text="Send"/>
 
 </FrameLayout>

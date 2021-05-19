@@ -27,8 +27,7 @@ import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * @author Keghan Halloran
- * This class handles the incoming friend request inbox for a user.
+ * @author Keghan Halloran This class handles the incoming friend request inbox for a user.
  */
 public class FriendRequests extends AppCompatActivity {
 
@@ -153,9 +152,8 @@ public class FriendRequests extends AppCompatActivity {
 
 
 	/**
-	 * Overridden onResume method that recreates the recyclerview when
-	 * the page is returned to after going to a activity.
-	 * This is done so that the recyclerview is still accurate after a user
+	 * Overridden onResume method that recreates the recyclerview when the page is returned to after
+	 * going to a activity. This is done so that the recyclerview is still accurate after a user
 	 * accepts or denys a friend request in a different activity.
 	 */
 	@Override

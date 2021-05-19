@@ -32,8 +32,9 @@ import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Handles the activity shown to the user when the click on one of the friend requests in their request inbox.
- * Creates "accept", "deny", and "block" buttons and sends those requests to the database.
+ * Handles the activity shown to the user when the click on one of the friend requests in their
+ * request inbox. Creates "accept", "deny", and "block" buttons and sends those requests to the
+ * database.
  */
 public class Request_Options extends AppCompatActivity {
 
@@ -70,43 +71,41 @@ public class Request_Options extends AppCompatActivity {
 
 		//used to prevent buttons being pressed twice which causes an error.
 		//set to empty strings on a successful database request.
-		a="accept";
-		b="block";
-		d="deny";
+		a = "accept";
+		b = "block";
+		d = "deny";
 
+		accept.setOnClickListener(v -> {
+			try {
+				Post(a);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
 
+		deny.setOnClickListener(v -> {
+			try {
+				Post(d);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
 
-			accept.setOnClickListener(v -> {
-				try {
-					Post(a);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			});
-
-			deny.setOnClickListener(v -> {
-				try {
-					Post(d);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			});
-
-			block.setOnClickListener(v -> {
-				try {
-					Post(b);
-					Post(d);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			});
+		block.setOnClickListener(v -> {
+			try {
+				Post(b);
+				Post(d);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
 
 	}
 
 	private void Post(String command) throws InterruptedException {
 		OkHttpClient client = new OkHttpClient();
 
-		if(command.compareTo("")==0){
+		if (command.compareTo("") == 0) {
 			return;
 		}
 		flag = 0;
@@ -151,9 +150,9 @@ public class Request_Options extends AppCompatActivity {
 				Log.i(Friend_Options.class.getName(), "Message: " + response.body().string());
 				if (response.isSuccessful()) {
 					flag = 1;
-					a="";
-					b="";
-					d="";
+					a = "";
+					b = "";
+					d = "";
 					countDownLatch.countDown();
 				}
 			}
@@ -199,7 +198,8 @@ public class Request_Options extends AppCompatActivity {
 
 
 	/**
-	 * Handles creating the back arrow at the top of the screen to return to the previous fragment/activity.
+	 * Handles creating the back arrow at the top of the screen to return to the previous
+	 * fragment/activity.
 	 */
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
