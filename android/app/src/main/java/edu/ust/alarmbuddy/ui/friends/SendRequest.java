@@ -41,6 +41,7 @@ public class SendRequest extends AppCompatActivity {
 	private Button button;
 	private EditText entry;
 	private int flag;
+	private String s;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +55,7 @@ public class SendRequest extends AppCompatActivity {
 		button = findViewById(R.id.button);
 		entry = findViewById(R.id.textUsername);
 		entry.setText(" ");
+		s="send";
 		button.setOnClickListener(v -> {
 			try {
 				send();
@@ -67,6 +69,9 @@ public class SendRequest extends AppCompatActivity {
 
 	private void send() throws InterruptedException {
 		OkHttpClient client = new OkHttpClient();
+		if(s.compareTo("")==0){
+			return;
+		}
 		flag = 0;
 
 		String token = UserData.getStringNotNull(this, "token");
@@ -86,7 +91,9 @@ public class SendRequest extends AppCompatActivity {
 		client.newCall(request).enqueue(new Callback() {
 			@Override
 			public void onFailure(@NotNull Call call, @NotNull IOException e) {
+
 				countDownLatch.countDown();
+				call.cancel();
 			}
 
 			@Override
@@ -96,6 +103,7 @@ public class SendRequest extends AppCompatActivity {
 				Log.i(SendRequest.class.getName(), "Message: " + response.body().string());
 				if (response.isSuccessful()) {
 					flag = 1;
+					s="";
 					countDownLatch.countDown();
 				}
 			}

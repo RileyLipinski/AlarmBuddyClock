@@ -39,6 +39,8 @@ public class Friend_Options extends AppCompatActivity {
 	private TextView name;
 	private Button remove;
 	private Button block;
+	private String r;
+	private String b;
 
 
 	@Override
@@ -60,25 +62,33 @@ public class Friend_Options extends AppCompatActivity {
 		picture = ProfilePictures.getProfilePic(getApplicationContext(), name.getText().toString());
 		image.setImageBitmap(picture);
 
-		remove.setOnClickListener(v -> {
-			try {
-				Post("remove");
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		});
+		r = "remove";
+		b = "block";
 
-		block.setOnClickListener(v -> {
-			try {
-				Post("block");
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		});
+
+			remove.setOnClickListener(v -> {
+				try {
+					Post(r);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			});
+
+			block.setOnClickListener(v -> {
+				try {
+					Post(b);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			});
 	}
 
 	private void Post(String command) throws InterruptedException {
 		OkHttpClient client = new OkHttpClient();
+
+		if(command.compareTo("")==0){
+			return;
+		}
 		flag = 0;
 
 		String token = token = UserData.getStringNotNull(this, "token");
@@ -121,7 +131,9 @@ public class Friend_Options extends AppCompatActivity {
 		client.newCall(request).enqueue(new Callback() {
 			@Override
 			public void onFailure(@NotNull Call call, @NotNull IOException e) {
+
 				countDownLatch.countDown();
+				call.cancel();
 			}
 
 			@Override
@@ -131,6 +143,8 @@ public class Friend_Options extends AppCompatActivity {
 				Log.i(Friend_Options.class.getName(), "Message: " + response.body().string());
 				if (response.isSuccessful()) {
 					flag = 1;
+					r ="";
+					b="";
 					countDownLatch.countDown();
 				}
 			}

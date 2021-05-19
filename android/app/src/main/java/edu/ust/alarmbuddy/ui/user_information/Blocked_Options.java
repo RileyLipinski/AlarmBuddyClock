@@ -33,6 +33,7 @@ public class Blocked_Options extends AppCompatActivity {
     private int flag;
     private TextView name;
     private Button unblock;
+    private String u;
 
 
     @Override
@@ -53,10 +54,12 @@ public class Blocked_Options extends AppCompatActivity {
         picture = ProfilePictures.getProfilePic(getApplicationContext(), name.getText().toString());
         image.setImageBitmap(picture);
 
+        u="unblockUser";
+
 
         unblock.setOnClickListener(v -> {
             try {
-                Post("unblockUser");
+                Post(u);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -65,6 +68,9 @@ public class Blocked_Options extends AppCompatActivity {
 
     private void Post(String command) throws InterruptedException {
         OkHttpClient client = new OkHttpClient();
+        if(command.compareTo("")==0){
+            return;
+        }
         flag = 0;
 
         String token = token = UserData.getStringNotNull(this, "token");
@@ -87,7 +93,9 @@ public class Blocked_Options extends AppCompatActivity {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
+
                 countDownLatch.countDown();
+                call.cancel();
             }
 
             @Override
@@ -97,6 +105,7 @@ public class Blocked_Options extends AppCompatActivity {
                 Log.i(edu.ust.alarmbuddy.ui.friends.Friend_Options.class.getName(), "Message: " + response.body().string());
                 if (response.isSuccessful()) {
                     flag = 1;
+                    u="";
                     countDownLatch.countDown();
                 }
             }

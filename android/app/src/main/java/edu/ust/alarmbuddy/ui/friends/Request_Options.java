@@ -40,11 +40,16 @@ public class Request_Options extends AppCompatActivity {
 	private Button accept;
 	private Button deny;
 	private Button block;
+	private String a;
+	private String b;
+	private String d;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_request_options);
+
+		int trigger =1;
 
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setTitle("Request Options");
@@ -61,33 +66,45 @@ public class Request_Options extends AppCompatActivity {
 		picture = ProfilePictures.getProfilePic(getApplicationContext(), name.getText().toString());
 		image.setImageBitmap(picture);
 
-		accept.setOnClickListener(v -> {
-			try {
-				Post("accept");
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		});
+		a="accept";
+		b="block";
+		d="deny";
 
-		deny.setOnClickListener(v -> {
-			try {
-				Post("deny");
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		});
 
-		block.setOnClickListener(v -> {
-			try {
-				Post("block");
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		});
+
+			accept.setOnClickListener(v -> {
+				try {
+					Post(a);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			});
+
+			deny.setOnClickListener(v -> {
+				try {
+					Post(d);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			});
+
+			block.setOnClickListener(v -> {
+				try {
+					Post(b);
+					Post(d);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			});
+
 	}
 
 	private void Post(String command) throws InterruptedException {
 		OkHttpClient client = new OkHttpClient();
+
+		if(command.compareTo("")==0){
+			return;
+		}
 		flag = 0;
 
 		String token = UserData.getStringNotNull(this, "token");
@@ -118,7 +135,9 @@ public class Request_Options extends AppCompatActivity {
 		client.newCall(request).enqueue(new Callback() {
 			@Override
 			public void onFailure(@NotNull Call call, @NotNull IOException e) {
+
 				countDownLatch.countDown();
+				call.cancel();
 			}
 
 			@Override
@@ -128,6 +147,9 @@ public class Request_Options extends AppCompatActivity {
 				Log.i(Friend_Options.class.getName(), "Message: " + response.body().string());
 				if (response.isSuccessful()) {
 					flag = 1;
+					a="";
+					b="";
+					d="";
 					countDownLatch.countDown();
 				}
 			}
