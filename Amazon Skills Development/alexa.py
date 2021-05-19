@@ -88,7 +88,7 @@ def CreateAlarmIntent(day, timeofday):
 def RecordAlarmIntent():
     speak_output = "Okay. After I say, start, speak into the microphone... start."
     th = threading.Thread(target=scheduler.run)
-    scheduler_e = scheduler.enter(8, 1, record_audio, ([th]))
+    scheduler_e = scheduler.enter(7, 1, record_audio, ([th]))
     th.start()
     return statement(speak_output).simple_card('Record', speak_output)
 
