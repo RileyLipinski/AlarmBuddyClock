@@ -65,15 +65,22 @@ public class LoginActivity extends AppCompatActivity {
 			String stringUsername = username1.getText().toString();
 			String stringPassword = password.getText().toString();
 
-			try {
-				if (authenticateLogin(stringUsername, stringPassword)
-					&& loginAttempts < 4) {
-					loginToHome();
-				} else {
-					loginAttempts++;
+			if (stringUsername.length() == 0 || stringPassword.length() == 0) {
+				Toast.makeText(getApplicationContext(),
+					"Please enter username and password",
+					Toast.LENGTH_SHORT
+				).show();
+			} else {
+				try {
+					if (authenticateLogin(stringUsername, stringPassword)
+						&& loginAttempts < 4) {
+						loginToHome();
+					} else {
+						loginAttempts++;
+					}
+				} catch (Exception e) {
+					Log.d("TAG", e.toString());
 				}
-			} catch (Exception e) {
-				Log.d("TAG", e.toString());
 			}
 		});
 
