@@ -7,12 +7,47 @@
   android:layout_height="match_parent"
   tools:context=".ui.alarms.AlarmListFragment">
   <TextView
-    android:id="@+id/fragment_alarm_list_alarms"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="My Alarms:"
-    android:textAlignment="center"
-    app:layout_constraintTop_toTopOf="parent"/>
+          android:id="@+id/fragment_alarm_list_alarms"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:text="WELCOME\n TO\n ALARMBUDDY"
+          android:textSize="40dp"
+          android:textAlignment="center"
+          app:layout_constraintTop_toTopOf="parent" android:textStyle="bold"
+          android:fontFamily="sans-serif-black"/>
+
+  <ImageView
+          android:id="@+id/alarmBuddyImage"
+          android:layout_width="191dp"
+          android:layout_height="169dp"
+          android:layout_marginLeft="16dp"
+          android:layout_marginTop="16dp"
+          android:layout_marginRight="16dp"
+          app:layout_constraintTop_toBottomOf="@+id/fragment_alarm_list_alarms"
+          app:srcCompat="@drawable/alarmbuddylogo"
+          app:layout_constraintHorizontal_bias="0.488"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"/>
+
+  <TextView
+          android:id="@+id/thingsToDo"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:text="THINGS YOU CAN DO:"
+          android:textSize="27dp"
+          android:textAlignment="center"
+          app:layout_constraintTop_toBottomOf="@+id/alarmBuddyImage" android:fontFamily="casual"
+          android:textStyle="bold"/>
+
+  <TextView
+          android:id="@+id/options"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:text="- Create Alarms -\n- Record Alarm Sounds -\n- Send Alarm Sounds -\n- Add and Remove Friends -\n- Block and Unblock Users -\n- Delete Your Account -"
+          android:textSize="21dp"
+          android:textAlignment="center"
+          app:layout_constraintTop_toBottomOf="@+id/thingsToDo"
+          android:fontFamily="casual"/>
 
   <androidx.recyclerview.widget.RecyclerView
     android:id="@+id/fragment_alarm_list_recyclerView"

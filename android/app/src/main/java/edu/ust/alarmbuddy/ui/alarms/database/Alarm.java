@@ -32,11 +32,6 @@ public class Alarm {
 	private boolean saturday;
 	private String name;
 	private long created;
-
-	public boolean isScheduled() {
-		return scheduled;
-	}
-
 	private boolean scheduled;
 
 	/**
@@ -71,6 +66,11 @@ public class Alarm {
 		this.saturday = saturday;
 		this.name = name;
 		this.created = created;
+		this.scheduled = scheduled;
+	}
+
+	public boolean isScheduled() {
+		return scheduled;
 	}
 
 	public void setAlarmId(int alarmId) {
