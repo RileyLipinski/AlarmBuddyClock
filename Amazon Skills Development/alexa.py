@@ -42,13 +42,6 @@ def launch():
     speech_text = 'Welcome to Alarm Buddy. Would you like to create an alarm? Or you can ask for help.'
     return question(speech_text).reprompt(speech_text).simple_card(speech_text)
 
-@ask.intent('AlarmIntent')
-def Alarm_Intent():
-    # Unused 15 second Alarm
-    t = Timer(15, play_alarm)
-    t.start()
-    return statement('Alarm set to go off in 15 seconds.')
-
 @ask.intent('AMAZON.FallbackIntent')
 def FallbackIntent():
     # A fallback Intent. If a user says something that doesn't correspond to an intent, they're sent here.
@@ -165,6 +158,7 @@ def GetBlockListIntent():
 
 @ask.intent('AlarmBuddy_SendSounds', mapping={'friend_uname' : 'friend_uname', 'sound_id' : 'sound_id'})
 def SendSoundIntent(friend_uname, sound_id):
+    friend_uname = friend_uname.replace(" ", "")
     print(sound_id)
     if(friend_uname is None):
         speak_output = "Sorry, you must specify a username to send a sound to."
@@ -220,12 +214,16 @@ def BlockUser(block_uname):
         speak_output = "Sorry, you must specify a username to block."
         return question(speak_output).reprompt(speak_output).simple_card('BlockUser_BlockUsernameIsNone', speak_output)
     #Attempt to block user
+    block_uname = block_uname.replace(" ", "")
+    header = {"Authorization": token}
     block_user_url = config['base_url'] + '/blockUser/' + config['alarmbuddy_account']['username'] + '/' + block_uname
     response = requests.post(block_user_url, headers=header)
     if(response.status_code == 201): 
-        return statement('Okay. The user with the username ' + block_uname + ' has been blocked.')
+        speak_output = 'Okay. The user with the username ' + block_uname + ' has been blocked.'
+        return question(speak_output).reprompt(speak_output).simple_card('BlockUser_BlockUsername', speak_output)
     else:
-        return statement('Sorry. Failed to block user with the username ' + block_uname)
+        speak_output = 'Sorry. Failed to block user with the username ' + block_uname
+        return question(speak_output).reprompt(speak_output).simple_card('BlockUser_BlockUsernameIsInvalid', speak_output)
 
 @ask.intent('AlarmBuddy_UnblockUser', mapping={'unblock_uname' : 'unblock_uname'})
 def UnblockUser(unblock_uname):
@@ -233,12 +231,16 @@ def UnblockUser(unblock_uname):
         speak_output = "Sorry, you must specify a username to unblock."
         return question(speak_output).reprompt(speak_output).simple_card('UnblockUser_UnblockUsernameIsNone', speak_output)
     #Attempt to unblock user
+    unblock_uname = unblock_uname.replace(" ", "")
+    header = {"Authorization": token}
     unblock_user_url = config['base_url'] + '/unblockUser/' +  config['alarmbuddy_account']['username'] + '/' + unblock_uname
     response = requests.post(unblock_user_url, headers=header)
     if(response.status_code == 201): 
-        return statement('Okay. The user with the username ' + block_uname + ' has been blocked.')
+        speak_output = 'Okay. The user with the username ' + unblock_uname + ' has been unblocked.'
+        return question(speak_output).reprompt(speak_output).simple_card('UnBlockUser_BlockUsername', speak_output)
     else:
-        return statement('Sorry. Failed to block user with the username ' + block_uname)
+        speak_output = 'Sorry. Failed to unblock user with the username ' + unblock_uname
+        return question(speak_output).reprompt(speak_output).simple_card('UnBlockUser_BlockUsernameIsInvalid', speak_output)
 
 @ask.intent('AlarmBuddy_DeleteFriend', mapping={'friend_uname' : 'friend_uname'})
 def DeleteFriend(friend_uname):
@@ -247,6 +249,8 @@ def DeleteFriend(friend_uname):
         return question(speak_output).reprompt(speak_output).simple_card('DeleteFriend_FriendIsNone', speak_output)
     
     #get list of friends
+    friend_uname = friend_uname.replace(' ', '')
+    header = {"Authorization": token}
     friends_list_url = config['base_url'] + '/friendsWith/' + config['alarmbuddy_account']['username']
     friends_list = requests.get(friends_list_url, headers=header).json()
     #check that recipient is a friend
@@ -263,9 +267,11 @@ def DeleteFriend(friend_uname):
     response = requests.delete(delete_friend_url, headers=header)
 
     if(response.status_code == 201): 
-        return statement('Okay. Your friend ' + friend_uname + ' has been deleted.')
+        speak_output = 'Okay. Your friend ' + friend_uname + ' has been deleted.'
+        return question(speak_output).reprompt(speak_output).simple_card('DeleteFriend_Success', speak_output)
     else:
-        return statement('Sorry. Failed to delete your friend with the name ' + friend_uname)
+        speak_output = 'Sorry. Failed to delete your friend with the name ' + friend_uname
+        return question(speak_output).reprompt(speak_output).simple_card('DeleteFriend_Invalid', speak_output)
 
 @ask.intent('AlarmBuddy_SendFriendRequest', mapping={'receiver_uname' : 'receiver_uname'})
 def SendFriendRequest(receiver_uname):
@@ -273,11 +279,15 @@ def SendFriendRequest(receiver_uname):
         speak_output = "Sorry, you must specify a username to send a friend request to."
         return question(speak_output).reprompt(speak_output).simple_card('AcceptFriendRequest_ReceiverIsNone', speak_output)
     
+    receiver_uname = receiver_uname.replace(" ", "")
     #Check if you are already friends
     #get list of friends
+    header = {"Authorization": token}
     friends_list_url =  config['base_url'] + '/friendsWith/' + config['alarmbuddy_account']['username']
     friends_list = requests.get(friends_list_url, headers=header).json()
-
+    if(len(friends_list) <= 0):
+        speak_output = "Sorry, that username did not work."
+        return question(speak_output).reprompt(speak_output).simple_card('SendFriendRequest_notFriend', speak_output)
     #check that recipient is not friend
     friend_found = False
     for friend in friends_list:
@@ -292,9 +302,11 @@ def SendFriendRequest(receiver_uname):
     response = requests.post(send_request_url, headers=header)
 
     if(response.status_code == 201): 
-        return statement('Okay. Friend request has been sent to ' + receiver_uname)
+        speak_output = 'Okay. Friend request has been sent to ' + receiver_uname
+        return question(speak_output).reprompt(speak_output).simple_card('SendFriend_Success', speak_output)
     else:
-        return statement('Sorry. Failed to send the friend request to ' + receiver_uname)
+        speak_output = 'Sorry. Failed to send the friend request to ' + receiver_uname
+        return question(speak_output).reprompt(speak_output).simple_card('SendFriend_Success', speak_output)
 
 @ask.intent('AlarmBuddy_CancelFriendRequest', mapping={'receiver_uname' : 'receiver_uname'})
 def CancelFriendRequest(receiver_uname):
@@ -302,14 +314,18 @@ def CancelFriendRequest(receiver_uname):
         speak_output = "Sorry, you must specify a username to cancel a friend request for."
         return question(speak_output).reprompt(speak_output).simple_card('CancelFriendRequest_ReceiverIsNone', speak_output)
 
+    receiver_uname = receiver_uname.replace(" ", "")
     #Attempt to cancel friend request
+    header = {"Authorization": token}
     cancel_request_url = config['base_url'] + '/cancelFriendRequest/' + config['alarmbuddy_account']['username'] + '/' + receiver_uname
     response = requests.post(cancel_request_url, headers=header)
 
     if(response.status_code == 201): 
-        return statement('Okay. Friend request to ' + receiver_uname + ' has been cancelled.')
+        speak_output = 'Okay. Friend request to ' + receiver_uname + ' has been cancelled.'
+        return question(speak_output).reprompt(speak_output).simple_card('CancelFriend_Success', speak_output)
     else:
-        return statement('Sorry. Failed to cancel the friend request to ' + receiver_uname + '.')
+        speak_output = 'Sorry. Failed to cancel the friend request to ' + receiver_uname + '.'
+        return question(speak_output).reprompt(speak_output).simple_card('CancelFriend_Invalid', speak_output)
 
 @ask.intent('AlarmBuddy_DenyFriendRequest', mapping={'sender_uname' : 'sender_uname'})
 def DenyFriendRequest(sender_uname):
@@ -318,6 +334,8 @@ def DenyFriendRequest(sender_uname):
         return question(speak_output).reprompt(speak_output).simple_card('DenyFriendRequest_SenderIsNone', speak_output)
 
     #Get friend requests 
+    sender_uname = sender_uname.replace(" ", "")
+    header = {"Authorization": token}
     request_list_url = config['base_url'] + '/requests/' + config['alarmbuddy_account']['username']
     request_list = requests.get(request_list_url, headers=header).json()
 
@@ -335,9 +353,11 @@ def DenyFriendRequest(sender_uname):
     response = requests.post(denyRequest_url, headers = {'Authorization' : token})
 
     if(response.status_code == 201): 
-        return statement('Okay. Friend request from ' + sender_uname + ' + has been denied.')
+        speak_output = 'Okay. Friend request from ' + sender_uname + ' + has been denied.'
+        return question(speak_output).reprompt(speak_output).simple_card('DenyFriend_Success', speak_output)
     else:
-        return statement('Sorry. Failed to deny the friend request from ' + sender_uname)
+        speak_output = 'Sorry. Failed to deny the friend request from ' + sender_uname
+        return question(speak_output).reprompt(speak_output).simple_card('DenyFriend_Invalid', speak_output)
 
 @ask.intent('AlarmBuddy_AcceptFriendRequest', mapping={'sender_uname' : 'sender_uname'})
 def AcceptFriendRequest(sender_uname):
@@ -345,7 +365,9 @@ def AcceptFriendRequest(sender_uname):
         speak_output = "Sorry, you must specify a username to accept a friend request from."
         return question(speak_output).reprompt(speak_output).simple_card('AcceptFriendRequest_SenderIsNone', speak_output)
 
+    sender_uname = sender_uname.replace(" ", "")
     #get list of friend requests
+    header = {"Authorization": token}
     friendRequest_url = config['base_url'] + '/requests/' + config['alarmbuddy_account']['username']
     request_list = requests.get(friendRequest_url, headers=header).json()
 
@@ -368,23 +390,18 @@ def AcceptFriendRequest(sender_uname):
         return question(speak_output).reprompt(speak_output).simple_card('AcceptFriendRequest_SenderIsAlreadyFriend', speak_output)
 
     if(response.status_code == 201): 
-        return statement('Okay. Friend request has been accepted from ' + sender_uname)
+        speak_output = 'Okay. Friend request has been accepted from ' + sender_uname
+        return question(speak_output).reprompt(speak_output).simple_card('AcceptFriendRequest_Success', speak_output)
     else:
-        return statement('Sorry. Failed to accept the friend request from ' + sender_uname)
+        speak_output = 'Sorry. Failed to accept the friend request from ' + sender_uname
+        return question(speak_output).reprompt(speak_output).simple_card('AcceptFriendRequest_Invalid', speak_output)
 
 
-
-
-def play_alarm(thread):
-    # Function that is called at the time specified by the Create Alarm Intent
-    print("in play alarm")
-    download_url = config['base_url'] + '/download/' + config['alarmbuddy_account']['username'] + '/'
-    response = requests.get(download_url, headers={'Authorization': token})
-    #if fails to download sound, replace sound with default.
-    #print(response.json())
-    open('downloadedsound.mp3', 'wb').write(response.content)
-    sound_path = os.getcwd() + '/downloadedsound.mp3'
-    playsound(sound_path)
+@ask.intent('AMAZON.HelpIntent')
+def help():
+    # Intent designed to help the user use the application.
+    speech_text = 'You can create an alarm by saying the following: Create an alarm for date at time. For example, create an alarm for tomorrow at eight p.m. If you want to leave Alarm Buddy, simply say cancel or stop.'
+    return question(speech_text).reprompt(speech_text).simple_card('Help', speech_text)
 
 def record_audio(thread):
     print('in record_audio')
@@ -416,13 +433,25 @@ def upload_file(filename):
     print(u)
     print(u.content)
 
-
-@ask.intent('AMAZON.HelpIntent')
-def help():
-    # Intent designed to help the user use the application.
-    speech_text = 'You can create an alarm by saying the following: Create an alarm for date at time. For example, create an alarm for tomorrow at eight p.m. If you want to leave Alarm Buddy, simply say cancel or stop.'
-    return question(speech_text).reprompt(speech_text).simple_card('Help', speech_text)
-
+def play_alarm(thread):
+    # Function that is called at the time specified by the Create Alarm Intent
+    print("in play alarm")
+    sounds_url = config['base_url'] + '/sounds/' + config['alarmbuddy_account']['username']
+    sounds_header = {'Authorization': token}
+    f = requests.get(sounds_url, headers=sounds_header)
+    sounds_list = json.loads(f.content)
+    max_soundID = -1
+    for item in sounds_list:
+        if(max_soundID < item['soundID']):
+            max_soundID = item['soundID']
+    print(max_soundID)
+    download_url = config['base_url'] + '/download/' + config['alarmbuddy_account']['username'] + '/' + str(max_soundID)
+    response = requests.get(download_url, headers={'Authorization': token})
+    #if fails to download sound, replace sound with default.
+    #print(response.json())
+    open('downloadedsound.mp3', 'wb').write(response.content)
+    sound_path = os.getcwd() + '/downloadedsound.mp3'
+    playsound(sound_path)
 
 @ask.session_ended
 def session_ended():
