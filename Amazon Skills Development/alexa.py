@@ -7,7 +7,6 @@ import json
 import logging
 import os
 import time
-import datetime
 import requests
 from ask_sdk_core.utils import is_intent_name, get_slot_value
 import sched
@@ -16,7 +15,6 @@ from flask import Flask
 from flask_ask import Ask, request, session, question, statement
 from playsound import playsound
 import threading
-import pprint
 from pydub import AudioSegment
 import os
 
@@ -37,8 +35,10 @@ def launch():
     login_url = config['base_url'] + "/login"
     login_data = config['alarmbuddy_account']
     x = requests.post(login_url, data = login_data)
+    if(x.status_code != 200):
+        speech_text = 'Sorry, I could not log into Alarm Buddy. Please try again later.'
+        return statement(speech_text).simple_card(speech_text)
     token = x.json()['token']
-    print(token)
     speech_text = 'Welcome to Alarm Buddy. Would you like to create an alarm? Or you can ask for help.'
     return question(speech_text).reprompt(speech_text).simple_card(speech_text)
 
@@ -80,7 +80,6 @@ def CreateAlarmIntent(day, timeofday):
         th = threading.Thread(target=scheduler.run)
         scheduler_e = scheduler.enterabs(t, 1, play_alarm, ([th])) #maybe have sound id here?
         speak_output = "You have created an alarm that will go off on " + day + " at " + timeofday  + "."
-        print("in create alarm: " + speak_output)
         th.start()
         return question(speak_output).reprompt(speak_output).simple_card('CreateAlarm', speak_output)
 
@@ -99,8 +98,13 @@ def GetFriendIntent():
     friends_url = config['base_url'] + '/friendsWith/' + config['alarmbuddy_account']['username']
     friends_header = {'Authorization': token}
     f = requests.get(friends_url, headers=friends_header)
+    if(f.status_code != 200):
+        speak_output = "Sorry, I could not get your friends list at this time. Please try again later."
+        return question(speak_output).simple_card('getFriendsError', speak_output)
     friends_list = json.loads(f.content)
-
+    if(len(friends_list) <= 0):
+        speak_output = "You have no friends on your account."
+        return question(speak_output).simple_card('getFriendsNone', speak_output)
     #friends_list = [{'username2': 'amaz0n'}, {'username2': 'Don2'}, {'username2': 'jjj123769'}, {'username2': 'Johnny'}, {'username2': 'Twiggy1'}, {'username2': 'Honk_Supreme'}, {'username2': 'brianna4'}, {'username2': 'woah1'}]
     for i in range(6):
         if(i < len(friends_list)):
@@ -116,8 +120,13 @@ def GetSoundsIntent():
     sounds_url = config['base_url'] + '/sounds/' + config['alarmbuddy_account']['username']
     sounds_header = {'Authorization': token}
     f = requests.get(sounds_url, headers=sounds_header)
+    if(f.status_code != 200):
+        speak_output = "Sorry, I could not get your sounds list at this time. Please try again later."
+        return question(speak_output).simple_card('getSoundsError', speak_output)
     sounds_list = json.loads(f.content)
-
+    if(len(sounds_list) <= 0):
+        speak_output = "You have no sounds on your account."
+        return question(speak_output).simple_card('getSoundsNone', speak_output)
     #friends_list = [{'username2': 'amaz0n'}, {'username2': 'Don2'}, {'username2': 'jjj123769'}, {'username2': 'Johnny'}, {'username2': 'Twiggy1'}, {'username2': 'Honk_Supreme'}, {'username2': 'brianna4'}, {'username2': 'woah1'}]
     for sound in sounds_list:
         speak_output = speak_output + sound['soundName'] + ' with i.d. ' + str(sound['soundID']) + ', '
@@ -130,8 +139,10 @@ def GetFriendRequestsIntent():
     requests_url = config['base_url'] + '/requests/' + config['alarmbuddy_account']['username']
     requests_header = {'Authorization': token}
     f = requests.get(requests_url, headers=requests_header)
+    if(f.status_code != 200):
+        speak_output = "Sorry, I could not get your friend requests at this time. Please try again later."
+        return question(speak_output).simple_card('getFriendRequestsError', speak_output)
     requests_list = json.loads(f.content)
-    print(requests_list)
     if(len(requests_list) <= 0):
         speak_output = 'You currently have no incoming friend requests.'
         return question(speak_output).simple_card('getFriendRequests', speak_output)
@@ -146,8 +157,11 @@ def GetBlockListIntent():
     getblock_url = config['base_url'] + '/getBlockList/' + config['alarmbuddy_account']['username']
     getblock_header = {'Authorization': token}
     f = requests.get(getblock_url, headers=getblock_header)
+    print(f.content)
+    if(f.status_code != 201):
+        speak_output = "Sorry, I could not get your block list at this time. Please try again later."
+        return question(speak_output).simple_card('getBlockListError', speak_output)
     block_list = json.loads(f.content)
-    print(block_list)
     if(len(block_list) <= 0):
         speak_output = 'You currently have nobody on your block list.'
         return question(speak_output).simple_card('getBlockList', speak_output)
@@ -285,9 +299,6 @@ def SendFriendRequest(receiver_uname):
     header = {"Authorization": token}
     friends_list_url =  config['base_url'] + '/friendsWith/' + config['alarmbuddy_account']['username']
     friends_list = requests.get(friends_list_url, headers=header).json()
-    if(len(friends_list) <= 0):
-        speak_output = "Sorry, that username did not work."
-        return question(speak_output).reprompt(speak_output).simple_card('SendFriendRequest_notFriend', speak_output)
     #check that recipient is not friend
     friend_found = False
     for friend in friends_list:
@@ -400,14 +411,22 @@ def AcceptFriendRequest(sender_uname):
 @ask.intent('AMAZON.HelpIntent')
 def help():
     # Intent designed to help the user use the application.
-    speech_text = 'You can create an alarm by saying the following: Create an alarm for date at time. For example, create an alarm for tomorrow at eight p.m. If you want to leave Alarm Buddy, simply say cancel or stop.'
+    speech_text = """You can create an alarm by saying the following: Create an alarm for date at time. 
+    For example, create an alarm for tomorrow at eight p.m. 
+    If you want to leave Alarm Buddy, simply say cancel or stop.
+    If you want to record a sound, you can say: record a sound.
+    You can send a friend request by saying: send friend request to bob. You can also delete friends by saying: delete friend bob.
+    If you want to accept or deny a friend request, say: accept friend request from bob, or, deny friend request from bob.
+    If you want to cancel a friend request you sent, say: cancel my friend request to bob.
+    You can send a friend a sound by saying: send sound 123 to bob, where 123 is a sound i.d. . to figure out the i.d., you can say: get my sounds list.
+    You can also get your friend requests by saying: what are my friend requests? You can also get your friends list by saying: tell me my alarm buddy friends.
+    You can see who you have blocked by saying: who do I have blocked?
+    If you want to block a user, say: block user bob. If you want to unblock a user, say: unblock user bob."""
     return question(speech_text).reprompt(speech_text).simple_card('Help', speech_text)
 
 def record_audio(thread):
-    print('in record_audio')
     fs = 16000  # Sample rate
-    seconds = 20  # Duration of recording
-    print(sd.query_devices())
+    seconds = 10  # Duration of recording
 
     mydevice = 4
 
@@ -416,7 +435,6 @@ def record_audio(thread):
     write('output.wav', fs, myrecording)  # Save as WAV file 
 
 
-    print('start conversion')
     sound = AudioSegment.from_wav('output.wav')
 
     sound.export('amazon.mp3', format='mp3')
@@ -428,14 +446,14 @@ def upload_file(filename):
     file_data = {'file': (filename, open(filename, 'rb'), 'audio/mpeg')}
     info_data = {'soundDescription': 'Amazon Team Alexa MP3 Upload'}
     u = requests.post(upload_url, headers=upload_header, files=file_data, data=info_data)
-
     #put a check. If fails to upload, do something?
-    print(u)
-    print(u.content)
+    if(u.status_code != 201):
+        print("ERROR: file not uploaded.")
+    else:
+        print("file successfully uploaded to database from Alexa Pi.")
 
 def play_alarm(thread):
     # Function that is called at the time specified by the Create Alarm Intent
-    print("in play alarm")
     sounds_url = config['base_url'] + '/sounds/' + config['alarmbuddy_account']['username']
     sounds_header = {'Authorization': token}
     f = requests.get(sounds_url, headers=sounds_header)
@@ -444,13 +462,15 @@ def play_alarm(thread):
     for item in sounds_list:
         if(max_soundID < item['soundID']):
             max_soundID = item['soundID']
-    print(max_soundID)
     download_url = config['base_url'] + '/download/' + config['alarmbuddy_account']['username'] + '/' + str(max_soundID)
     response = requests.get(download_url, headers={'Authorization': token})
     #if fails to download sound, replace sound with default.
-    #print(response.json())
-    open('downloadedsound.mp3', 'wb').write(response.content)
-    sound_path = os.getcwd() + '/downloadedsound.mp3'
+    if(response.status_code != 200):
+        sound_path = os.getcwd() + '/alarm_buddy.mp3'
+    else:
+        open('downloadedsound.mp3', 'wb').write(response.content)
+        sound_path = os.getcwd() + '/downloadedsound.mp3'
+    print('playing sound at ' + sound_path)
     playsound(sound_path)
 
 @ask.session_ended
