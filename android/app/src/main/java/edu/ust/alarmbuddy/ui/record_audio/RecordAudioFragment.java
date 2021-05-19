@@ -1,52 +1,29 @@
 package edu.ust.alarmbuddy.ui.record_audio;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
-import android.os.*;
+import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
 import edu.ust.alarmbuddy.R;
-import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
-import edu.ust.alarmbuddy.common.ProfilePictures;
-import edu.ust.alarmbuddy.common.UserData;
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
-import java.util.Timer;
-import java.util.concurrent.CountDownLatch;
-
-import nl.bravobit.ffmpeg.ExecuteBinaryResponseHandler;
-import nl.bravobit.ffmpeg.FFmpeg;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import org.jetbrains.annotations.NotNull;
-import org.w3c.dom.Text;
 
 public class RecordAudioFragment extends Fragment {
 
 	private View root;
-	private RecordAudioViewModel mViewModel;
 
 	private static final String LOG_TAG = "AudioRecord";
 	private final int MY_PERMISSIONS_RECORD_AUDIO = 1;
@@ -74,6 +51,7 @@ public class RecordAudioFragment extends Fragment {
 	private boolean micPermission = false;
 	private boolean mStartRecording = true;
 	private boolean mStartPlaying = true;
+	private boolean hasRecordedAudio = false;
 
 
 	@Override
@@ -185,8 +163,13 @@ public class RecordAudioFragment extends Fragment {
 		});
 
 		sendButton.setOnClickListener(v -> {
-			Intent intent = new Intent(getActivity(), SelectableActivity.class);
-			startActivity(intent);
+			if (!hasRecordedAudio) {
+				Toast.makeText(getContext(), "You have not recorded a sound yet!", 8).show();
+			}
+			else {
+				Intent intent = new Intent(getActivity(), SelectableActivity.class);
+				startActivity(intent);
+			}
 		});
 
 		return root;
@@ -197,8 +180,6 @@ public class RecordAudioFragment extends Fragment {
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		mViewModel = ViewModelProviders.of(this).get(RecordAudioViewModel.class);
-		// TODO: Use the ViewModel
 	}
 
 	public static RecordAudioFragment newInstance() {
@@ -308,6 +289,7 @@ public class RecordAudioFragment extends Fragment {
 		recorder.stop();
 		recorder.release();
 		recorder = null;
+		hasRecordedAudio = true;
 	}
 
 	private void createSuccessToast() {

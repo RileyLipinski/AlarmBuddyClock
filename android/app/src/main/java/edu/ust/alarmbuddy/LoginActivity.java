@@ -2,17 +2,15 @@ package edu.ust.alarmbuddy;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProviders;
 import com.google.gson.JsonParser;
 import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import edu.ust.alarmbuddy.common.UserData;
-import edu.ust.alarmbuddy.ui.login.LoginViewModel;
 import edu.ust.alarmbuddy.worker.notification.NotificationFetchReceiver;
 import java.io.IOException;
 import java.net.URL;
@@ -29,8 +27,6 @@ import org.jetbrains.annotations.NotNull;
 
 
 public class LoginActivity extends AppCompatActivity {
-
-	private LoginViewModel loginViewModel;
 	int loginAttempts = 0;
 	TextView loginErrorText;
 
@@ -45,13 +41,6 @@ public class LoginActivity extends AppCompatActivity {
 			return;
 		}
 
-		// for app link, is this necessary?
-		Intent appLinkIntent = getIntent();
-		String appLinkAction = appLinkIntent.getAction();
-		Uri appLinkData = appLinkIntent.getData();
-
-		LoginViewModel viewModel = ViewModelProviders.of(this).get(LoginViewModel.class);
-
 		loginErrorText = findViewById(R.id.loginErrorText);
 		final Button loginButton = findViewById(R.id.loginButton);
 		final Button goToCreateAccountButton = findViewById(R.id.goToCreateAccountButton);
@@ -65,21 +54,24 @@ public class LoginActivity extends AppCompatActivity {
 			String stringUsername = username1.getText().toString();
 			String stringPassword = password.getText().toString();
 
-			try {
-				if (authenticateLogin(stringUsername, stringPassword)
-					&& loginAttempts < 4) {
-					loginToHome();
-				} else {
-					loginAttempts++;
+			if (stringUsername.length() == 0 || stringPassword.length() == 0) {
+				Toast.makeText(getApplicationContext(),
+					"Please enter username and password",
+					Toast.LENGTH_SHORT
+				).show();
+			} else {
+				try {
+					if (authenticateLogin(stringUsername, stringPassword)
+						&& loginAttempts < 4) {
+						loginToHome();
+					} else {
+						loginAttempts++;
+					}
+				} catch (Exception e) {
+					Log.d("TAG", e.toString());
 				}
-			} catch (Exception e) {
-				Log.d("TAG", e.toString());
 			}
 		});
-
-		//final Button forgotPasswordButton = findViewById(R.id.loginButton)
-		// TODO: forgot password action
-
 		goToCreateAccountButton.setOnClickListener(v -> moveToCreateAccount());
 	}
 
@@ -190,7 +182,7 @@ public class LoginActivity extends AppCompatActivity {
 					.apply();
 
 			} catch (GeneralSecurityException e) {
-				//TODO verify that this is acceptable behavior
+				e.printStackTrace();
 				return false;
 			}
 		} else {
@@ -202,7 +194,6 @@ public class LoginActivity extends AppCompatActivity {
 
 	@Override
 	protected void onDestroy() {
-		// TODO: does not clear info on force quitting app
 		// when app is destroyed, also destroy user info
 		// this only works when called from the same context that it was created in (LoginActivity)
 		super.onDestroy();

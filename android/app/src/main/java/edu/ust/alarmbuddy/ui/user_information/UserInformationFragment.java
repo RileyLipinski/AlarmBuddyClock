@@ -37,7 +37,6 @@ import java.util.regex.Pattern;
 
 public class UserInformationFragment extends Fragment {
 
-    private UserInformationViewModel mViewModel;
     private View view;
     private int flag;
     private String passwordInput = "";
@@ -62,7 +61,6 @@ public class UserInformationFragment extends Fragment {
         view = v;
         //super.onCreate(savedInstanceState);
         //setContentView(R.layout.user_information_activity);
-        UserInformationViewModel viewModel = ViewModelProviders.of(this).get(UserInformationViewModel.class);
         try {
             ArrayList<String> result = requestUserInformation(getActivity().getApplicationContext());
             final ImageView profilePic = v.findViewById(R.id.profilePic);
@@ -111,8 +109,6 @@ public class UserInformationFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this).get(UserInformationViewModel.class);
-        // TODO: Use the ViewModel
     }
 
     public ArrayList<String> requestUserInformation(Context context) throws InterruptedException {

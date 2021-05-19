@@ -134,7 +134,7 @@ public class BlockedUsers extends AppCompatActivity {
 					while (matcher.find()) {
 						result.add(matcher.group(1));
 					}
-					for (int i = 1; i < result.size(); i += 3) {
+					for (int i = 1; i < result.size(); i += 2) {
 						nameList.add(result.get(i));
 					}
 				}

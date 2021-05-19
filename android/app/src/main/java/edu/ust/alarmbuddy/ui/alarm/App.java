@@ -28,7 +28,6 @@ public class App extends Application {
 	 * appear and instead the system will log an error.
 	 */
 	public void createNotificationChannel() {
-		//TODO notification channel not being created with pre-alarm sound
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			NotificationChannel notificationChannel = new NotificationChannel(
 				CHANNEL_ID,
