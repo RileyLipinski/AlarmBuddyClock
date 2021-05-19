@@ -17,6 +17,7 @@ import okhttp3.Response;
  * Tutorial: https://www.journaldev.com/13629/okhttp-android-example-tutorial
  */
 public class AlarmBuddyHttp {
+
 	public static final String API_URL = "https://alarmbuddy-312620.uc.r.appspot.com";
 
 	public static final OkHttpClient client = new OkHttpClient();
@@ -63,7 +64,7 @@ public class AlarmBuddyHttp {
 			public void onResponse(Call call, Response response) throws IOException {
 				stringResponse[0] = response.body().string();
 				latch.countDown();
-				Log.i("Create User", "Response " + stringResponse);
+				Log.i("Create User", "Response " + stringResponse[0]);
 			}
 		});
 		try {
