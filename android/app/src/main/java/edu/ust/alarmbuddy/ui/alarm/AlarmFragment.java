@@ -19,21 +19,17 @@ import java.util.Random;
 
 public class AlarmFragment extends Fragment {
 
-	private AlarmViewModel alarmViewModel;
 	private static Random random;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		alarmViewModel = ViewModelProviders.of(this).get(AlarmViewModel.class);
 		random = new Random();
 	}
 
 
 	public View onCreateView(@NonNull LayoutInflater inflater,
 		ViewGroup container, Bundle savedInstanceState) {
-
-		AlarmViewModel alarmViewModel = new ViewModelProvider(this).get(AlarmViewModel.class);
 		View root = inflater.inflate(R.layout.fragment_alarm, container, false);
 
 		final Button button = root.findViewById(R.id.fragment_alarm_createAlarm);
