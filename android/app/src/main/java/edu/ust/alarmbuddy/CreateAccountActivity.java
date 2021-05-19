@@ -8,16 +8,20 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CreateAccountActivity extends AppCompatActivity {
 
@@ -157,7 +161,7 @@ public class CreateAccountActivity extends AppCompatActivity {
 
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				if (createAccountErrorText.getText().toString().equals("Passwords do not match")) {
+				if (createAccountErrorText.getText().toString().contains("Password")) {
 					createAccountErrorText.setText("");
 				}
 			}
@@ -187,6 +191,63 @@ public class CreateAccountActivity extends AppCompatActivity {
 			}
 		});
 
+		username.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				if (createAccountErrorText.getText().toString().contains("Username")) {
+					createAccountErrorText.setText("");
+				}
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+
+			}
+		});
+
+		firstName.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				if (createAccountErrorText.getText().toString().contains("First name")) {
+					createAccountErrorText.setText("");
+				}
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+
+			}
+		});
+
+		lastName.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				if (createAccountErrorText.getText().toString().contains("Last name")) {
+					createAccountErrorText.setText("");
+				}
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+
+			}
+		});
+
 		createAccountButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				if (checkAllFields()) {
@@ -203,14 +264,13 @@ public class CreateAccountActivity extends AppCompatActivity {
 						email.getText().toString(),
 						phoneNumber.getText().toString(),
 						birthdate)) {
-						// if account created successfully, inform user
-						//createAccountErrorText
-						//.setText("Account created, return to login page to login");
+
+						Toast.makeText(CreateAccountActivity.this, "Account created successfully", 8).show();
 
 						moveToLogin();
 					} else {
 						// if request unsuccessful, show error text
-						createAccountErrorText.setText("Error: could not create user");
+						createAccountErrorText.setText("Error: username, email, or phone number already in use");
 					}
 				}
 			}
@@ -237,36 +297,31 @@ public class CreateAccountActivity extends AppCompatActivity {
 		}
 
 		// check all fields for their respective requirements
-		if (!isValidEmail(email.getText())) {
-			highlightInvalidField(email);
+		if (!password.getText().toString()
+				.equals(confirmPassword.getText().toString())) {
+			highlightInvalidField(confirmPassword);
 			allFieldsValid = false;
 		}
-		if (!isValidName(firstName.getText().toString())) {
-			highlightInvalidField(firstName);
-			allFieldsValid = false;
+		if (!passwordMeetsReqs(password.getText().toString())) {
+			highlightInvalidField(password);
+			createAccountErrorText.setText("Password must contain a lowercase letter, " +
+					"uppercase letter, number, and special character (!#$%*)");
 		}
-		if (!isValidName(lastName.getText().toString())) {
-			highlightInvalidField(lastName);
-			allFieldsValid = false;
-		}
-		if (!isValidPhoneNumber(phoneNumber.getText().toString())) {
-			highlightInvalidField(phoneNumber);
-			allFieldsValid = false;
-		}
-
-		if (!isValidUsername(username.getText().toString())) {
-			highlightInvalidField(username);
-			allFieldsValid = false;
+		if (password.getText().toString().length() < 8 ||
+				password.getText().toString().length() > 20) {
+			highlightInvalidField(password);
+			createAccountErrorText.setText("Password must be 8-20 characters in length");
 		}
 		if (!isValidPassword(password.getText().toString())) {
 			highlightInvalidField(password);
 			allFieldsValid = false;
 		}
-		if (!password.getText().toString()
-			.equals(confirmPassword.getText().toString())) {
-			highlightInvalidField(confirmPassword);
+		if (username.getText().toString().length() > 0 &&
+				!isValidUsername(username.getText().toString())) {
+			highlightInvalidField(username);
+			createAccountErrorText
+					.setText("Username can only contain letters, numbers, and underscores");
 			allFieldsValid = false;
-			createAccountErrorText.setText("Passwords do not match");
 		}
 		if (!isValidBirthday(birthday.getText().toString())) {
 			highlightInvalidField(birthday);
@@ -274,7 +329,29 @@ public class CreateAccountActivity extends AppCompatActivity {
 		} else if (!userIs18(birthday.getText().toString())) {
 			highlightInvalidField(birthday);
 			createAccountErrorText
-				.setText("You must be at least 18 years old to create an account");
+					.setText("You must be at least 18 years old to create an account");
+			allFieldsValid = false;
+		}
+		if (!isValidPhoneNumber(phoneNumber.getText().toString())) {
+			highlightInvalidField(phoneNumber);
+			allFieldsValid = false;
+		}
+		if (lastName.getText().toString().length() > 0 &&
+				!isValidName(lastName.getText().toString())) {
+			highlightInvalidField(lastName);
+			createAccountErrorText
+					.setText("Last name can only contain letters, apostrophes, and hyphens");
+			allFieldsValid = false;
+		}
+		if (firstName.getText().toString().length() > 0 &&
+				!isValidName(firstName.getText().toString())) {
+			highlightInvalidField(firstName);
+			createAccountErrorText
+					.setText("First name can only contain letters, apostrophes, and hyphens");
+			allFieldsValid = false;
+		}
+		if (!isValidEmail(email.getText())) {
+			highlightInvalidField(email);
 			allFieldsValid = false;
 		}
 		return allFieldsValid;
@@ -355,8 +432,7 @@ public class CreateAccountActivity extends AppCompatActivity {
 		// TODO: check if username already taken
 		String regex = "^[A-Za-z0-9_]+$";
 
-		return username.length() >= 5 && username.length() <= 20
-			&& username.matches(regex);
+		return username.matches(regex);
 	}
 
 	/* password constraints:
@@ -383,10 +459,10 @@ public class CreateAccountActivity extends AppCompatActivity {
 		return isValid;
 	}
 
+	// check that password contains uppercase letter, lowercase letter, number, special character
 	private boolean passwordMeetsReqs(String password) {
-		// check that password contains uppercase letter, lowercase letter, number, special character
-		String regex = "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!#$%'()*+,\\-./:;?`{|}~]])";
-		return password.matches(regex);
+		return password.matches(".*[A-Z].*") && password.matches(".*[a-z].*") &&
+				password.matches(".*[0-9].*") && password.matches(".*[!#$%'()*+,\\-./:;?`{|}~\\]].*");
 	}
 
 	private void highlightInvalidField(EditText field) {
