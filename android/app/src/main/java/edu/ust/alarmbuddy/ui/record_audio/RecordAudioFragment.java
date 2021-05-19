@@ -74,6 +74,7 @@ public class RecordAudioFragment extends Fragment {
 	private boolean micPermission = false;
 	private boolean mStartRecording = true;
 	private boolean mStartPlaying = true;
+	private boolean hasRecordedAudio = false;
 
 
 	@Override
@@ -185,8 +186,13 @@ public class RecordAudioFragment extends Fragment {
 		});
 
 		sendButton.setOnClickListener(v -> {
-			Intent intent = new Intent(getActivity(), SelectableActivity.class);
-			startActivity(intent);
+			if (!hasRecordedAudio) {
+				Toast.makeText(getContext(), "You have not recorded a sound yet!", 8).show();
+			}
+			else {
+				Intent intent = new Intent(getActivity(), SelectableActivity.class);
+				startActivity(intent);
+			}
 		});
 
 		return root;
@@ -308,6 +314,7 @@ public class RecordAudioFragment extends Fragment {
 		recorder.stop();
 		recorder.release();
 		recorder = null;
+		hasRecordedAudio = true;
 	}
 
 	private void createSuccessToast() {
