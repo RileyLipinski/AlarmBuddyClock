@@ -99,7 +99,7 @@ public class SelectableActivity extends AppCompatActivity implements SelectableV
             // reset text
             soundNameText.setText("");
 
-            Toast.makeText(this, "Sound sent successfully", 5).show();
+
 
             // unselect all friends
             adapter.unselectAll();
@@ -198,11 +198,26 @@ public class SelectableActivity extends AppCompatActivity implements SelectableV
             Log.i("friend", p.getText1());
         }
 
+        // sound name must only contain letters, numbers, underscores, and max 20 chars
         String soundName = soundNameText.getText().toString();
 
-        // methods chain together because otherwise calls were being made in parallel
-        // uploadSound -> getSoundID -> shareSound (for all friends) -> deleteSound
-        uploadSound(soundName);
+        if (selectedUsernames.isEmpty()) {
+            Toast.makeText(this, "Please pick at least one friend", 8).show();
+        }
+        else if (soundName.length()<1 || soundName.equals("Name your ringtone")) {
+            Toast.makeText(this, "Please enter a sound name", 8).show();
+        }
+        else if (soundName.length()>20) {
+            Toast.makeText(this, "Sound name is too long", 8).show();
+        }
+        else if (!isValidSoundName(soundName)) {
+            Toast.makeText(this, "Sound name can only contain letters, numbers, and underscores", 10).show();
+        }
+        else {
+            // methods chain together because otherwise calls were being made in parallel
+            // uploadSound -> getSoundID -> shareSound (for all friends) -> deleteSound
+            uploadSound(soundName);
+        }
     }
 
 
@@ -311,7 +326,9 @@ public class SelectableActivity extends AppCompatActivity implements SelectableV
                     Log.i("Response",
                             response.toString() + " / " + response.body().string());
                     if (last) {
-                        deleteSound(soundID);
+                        // delete not working as expected, leave out for now
+                        //deleteSound(soundID);
+                        Toast.makeText(SelectableActivity.this, "Sound sent successfully", 6).show();
                     }
                 }
                 else {
@@ -440,8 +457,12 @@ public class SelectableActivity extends AppCompatActivity implements SelectableV
         }
     }
 
-
     private void makeErrorToast() {
-        Toast.makeText(this, "Could not send alarm, try again", 5).show();
+        Toast.makeText(this, "Could not send alarm, please try again", 8).show();
+    }
+
+    private boolean isValidSoundName(String name) {
+        String regex = "^[0-9A-Za-z_]*$";
+        return name.matches(regex);
     }
 }

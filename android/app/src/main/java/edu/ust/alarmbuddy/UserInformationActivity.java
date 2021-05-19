@@ -6,11 +6,9 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProviders;
 import edu.ust.alarmbuddy.common.AlarmBuddyHttp;
 import edu.ust.alarmbuddy.common.ProfilePictures;
 import edu.ust.alarmbuddy.common.UserData;
-import edu.ust.alarmbuddy.ui.user_information.UserInformationViewModel;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -26,13 +24,11 @@ import org.jetbrains.annotations.Nullable;
 
 
 public class UserInformationActivity extends AppCompatActivity {
-    private UserInformationViewModel userInformationViewModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_information_activity);
-        UserInformationViewModel viewModel = ViewModelProviders.of(this).get(UserInformationViewModel.class);
         try {
             ArrayList<String> result = requestUserInformation(this.getApplicationContext());
             final ImageView img= findViewById(R.id.image);
