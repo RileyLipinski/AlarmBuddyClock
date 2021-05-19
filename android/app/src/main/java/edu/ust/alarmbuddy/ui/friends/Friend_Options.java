@@ -31,6 +31,12 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
+
+/**
+ * @author Keghan Halloran
+ * This class handles the activity that is shown when a user selects one of the profiles in their friends list.
+ * This includes the functionality to block or remove friends.
+ */
 public class Friend_Options extends AppCompatActivity {
 
 	private Bitmap picture;
@@ -62,6 +68,8 @@ public class Friend_Options extends AppCompatActivity {
 		picture = ProfilePictures.getProfilePic(getApplicationContext(), name.getText().toString());
 		image.setImageBitmap(picture);
 
+		//used to disable buttons after a successful request to database.
+		//set to an empty string after a successful request.
 		r = "remove";
 		b = "block";
 
@@ -91,8 +99,8 @@ public class Friend_Options extends AppCompatActivity {
 		}
 		flag = 0;
 
-		String token = token = UserData.getStringNotNull(this, "token");
-		String username = username = UserData.getStringNotNull(this, "username");
+		String token  = UserData.getStringNotNull(this, "token");
+		String username = UserData.getStringNotNull(this, "username");
 
 		String action = "";
 

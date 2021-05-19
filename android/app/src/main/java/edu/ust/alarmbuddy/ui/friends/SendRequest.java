@@ -30,11 +30,9 @@ import org.jetbrains.annotations.NotNull;
 
 /***
  * @author Keghan Halloran
- * This activity provides the framework for sending friend requests
- * it currently does nothing other than displaying a message to the user
- * since we do not have the ability to add to a users friends list
- * or send a user a friend request yet. Implementing the intended usage
- * is dependant on further collaboration with the database team.
+ * This activity handles sending friend requests to other AlarmBuddy users based on the username entered into the
+ * data entry field.
+ * Creates a "send request" button that sends a friend request to the database.
  */
 public class SendRequest extends AppCompatActivity {
 
@@ -133,7 +131,9 @@ public class SendRequest extends AppCompatActivity {
 		toast.show();
 	}
 
-	//allows the back arrow at the top of this activity to go back to the Friends Fragment instead of a parent activity
+	/**
+	 *Creates the back arrow at the top of the screen that allows a user to go back to the FriendsFragment.
+	 */
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		super.onOptionsItemSelected(item);

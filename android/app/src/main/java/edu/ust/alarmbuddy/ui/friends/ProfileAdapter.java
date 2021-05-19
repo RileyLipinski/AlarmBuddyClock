@@ -31,6 +31,8 @@ public class ProfileAdapter extends
 	/***
 	 * @author Keghan Halloran
 	 * This class is used by the ProfileAdapter. It holds references to items as a means of increasing proformance.
+	 * It also handles redirecting to specific activites when a item in a list is clicked. The destination is determined
+	 * by the input to the click method.
 	 */
 	public static class ProfileViewHolder extends RecyclerView.ViewHolder {
 
@@ -52,6 +54,10 @@ public class ProfileAdapter extends
 
 		}
 
+		/**
+		 * Redirects user to specific activities when an profile object in a list is clicked depending on the input.
+		 * @param flag determines the activity that is opened when a item in the list is clicked
+		 */
 		public void Click(int flag) {
 
 			if (flag == 0) {

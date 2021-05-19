@@ -29,6 +29,9 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Creates a recyclerview that contains any other users that the user has blocked.
+ */
 public class BlockedUsers extends AppCompatActivity {
 	private RecyclerView mRecyclerView;
 	private RecyclerView.Adapter mAdapter;
@@ -149,6 +152,10 @@ public class BlockedUsers extends AppCompatActivity {
 		mProfileList = input;
 	}
 
+	/**
+	 * Overridden onResume method that recreates the recyclerview when returning from a different activity.
+	 * this is done to keep the list up to date when the user unblocks a user from a different activity.
+	 */
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -174,6 +181,9 @@ public class BlockedUsers extends AppCompatActivity {
 		mRecyclerView.setAdapter(mAdapter);
 	}
 
+	/**
+	 * Handles the back arrow at the top of the page that allows the user to go back to the user info page.
+	 */
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		super.onOptionsItemSelected(item);

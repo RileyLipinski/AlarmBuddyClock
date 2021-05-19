@@ -26,6 +26,10 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * @author Keghan Halloran
+ * This class handles the incoming friend request inbox for a user.
+ */
 public class FriendRequests extends AppCompatActivity {
 
 	private RecyclerView mRecyclerView;
@@ -147,6 +151,13 @@ public class FriendRequests extends AppCompatActivity {
 		mProfileList = input;
 	}
 
+
+	/**
+	 * Overridden onResume method that recreates the recyclerview when
+	 * the page is returned to after going to a activity.
+	 * This is done so that the recyclerview is still accurate after a user
+	 * accepts or denys a friend request in a different activity.
+	 */
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -172,6 +183,9 @@ public class FriendRequests extends AppCompatActivity {
 		mRecyclerView.setAdapter(mAdapter);
 	}
 
+	/**
+	 * Creates the back arrow at the top of the screen to return to the previous activity/fragment.
+	 */
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		super.onOptionsItemSelected(item);

@@ -40,6 +40,9 @@ import org.jetbrains.annotations.NotNull;
  * Generates profile objects for those friends and displays them in a recyclerview.
  * Creates a "Send Friend Request" button that redirects a user to the SendRequest activity
  * that handles sending friend requests to other users.
+ * Creates a "request inbox" button that leads to an activity with a recyclerview of the users
+ * incoming friend requests.
+ * Allows users to search through their friends list with the search bar at the top of the screen.
  */
 public class FriendsFragment extends Fragment {
 
@@ -203,6 +206,11 @@ public class FriendsFragment extends Fragment {
 		return flag;
 	}
 
+	/**
+	 * Overridden onResume method that recreates the recyclerview after returning to the FriendsFragment from
+	 * an activity. This is done so the list stays up to date after a users removes or blocks a friend in a different
+	 * activity.
+	 */
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -224,6 +232,9 @@ public class FriendsFragment extends Fragment {
 		}
 	}
 
+	/**
+	 * Handles updating the friends list in real time as a user searches a user name in their friends list.
+	 */
 	@Override
 	public void onCreateOptionsMenu(@NotNull Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.search_menu, menu);

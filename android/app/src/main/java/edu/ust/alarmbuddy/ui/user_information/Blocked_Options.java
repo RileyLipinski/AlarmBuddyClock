@@ -26,6 +26,10 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * Handles the activity that a user is shown when they select a blocked user from their blocked users list.
+ * Creates an "Unblock user" button that sends an unblock user request to the database.
+ */
 public class Blocked_Options extends AppCompatActivity {
 
     private Bitmap picture;
@@ -54,6 +58,7 @@ public class Blocked_Options extends AppCompatActivity {
         picture = ProfilePictures.getProfilePic(getApplicationContext(), name.getText().toString());
         image.setImageBitmap(picture);
 
+        //used to disable buttons after a successful database request. Set to an empty string to prevent errors.
         u="unblockUser";
 
 
@@ -73,8 +78,8 @@ public class Blocked_Options extends AppCompatActivity {
         }
         flag = 0;
 
-        String token = token = UserData.getStringNotNull(this, "token");
-        String username = username = UserData.getStringNotNull(this, "username");
+        String token  = UserData.getStringNotNull(this, "token");
+        String username  = UserData.getStringNotNull(this, "username");
 
         String action = command;
 
@@ -138,6 +143,9 @@ public class Blocked_Options extends AppCompatActivity {
         toast.show();
     }
 
+    /**
+     * handles the back arrow at the top of the screen that allows the user to go back to the blocked user list.
+     */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         super.onOptionsItemSelected(item);

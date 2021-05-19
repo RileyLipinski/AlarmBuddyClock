@@ -4,7 +4,9 @@ import android.graphics.Bitmap;
 
 /***
  * @author Keghan Halloran
- * creates a Profile object that contains and image and two text fields
+ * creates a Profile object that contains and image and a text field.
+ * contains an overloaded constructor to allow for both Bitmaps and
+ * drawable resources.
  */
 public class Profile {
 

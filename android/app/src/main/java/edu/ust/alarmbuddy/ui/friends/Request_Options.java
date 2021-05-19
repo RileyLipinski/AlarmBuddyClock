@@ -31,6 +31,10 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Handles the activity shown to the user when the click on one of the friend requests in their request inbox.
+ * Creates "accept", "deny", and "block" buttons and sends those requests to the database.
+ */
 public class Request_Options extends AppCompatActivity {
 
 	private Bitmap picture;
@@ -49,8 +53,6 @@ public class Request_Options extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_request_options);
 
-		int trigger =1;
-
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setTitle("Request Options");
 		actionBar.setDisplayHomeAsUpEnabled(true);
@@ -66,6 +68,8 @@ public class Request_Options extends AppCompatActivity {
 		picture = ProfilePictures.getProfilePic(getApplicationContext(), name.getText().toString());
 		image.setImageBitmap(picture);
 
+		//used to prevent buttons being pressed twice which causes an error.
+		//set to empty strings on a successful database request.
 		a="accept";
 		b="block";
 		d="deny";
@@ -193,6 +197,10 @@ public class Request_Options extends AppCompatActivity {
 		toast.show();
 	}
 
+
+	/**
+	 * Handles creating the back arrow at the top of the screen to return to the previous fragment/activity.
+	 */
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		super.onOptionsItemSelected(item);
